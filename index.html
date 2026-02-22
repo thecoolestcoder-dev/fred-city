@@ -369,7 +369,7 @@ function switchMap(mapId, startX, startY) {
     G.currentMap = mapId;
     map.player.x = startX;
     map.player.y = startY;
-    G.hsCaught = false; // Reset caught status on map switch
+    G.hsCaught = false; 
     updateNavButtons();
     saveUserData();
 }
@@ -454,12 +454,21 @@ function pickSeeker() {
     showToast("Random Seeker chosen! Click Begin Game when ready.");
 }
 
-function beginGlobalGame() {
+// FIXED BEGIN GAME FUNCTION
+async function beginGlobalGame() {
     if(!firebaseReady) return;
-    if(!globalGameState.seeker) { showToast("You must pick a seeker first!"); return; }
     
-    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== globalGameState.seeker).length;
-    if (G.currentMap === 'minigame_map' && G.uid !== globalGameState.seeker) totalHiders++;
+    // We fetch directly from Firebase so there's zero delay for the admin checks
+    const snap = await db.ref('global_game').once('value');
+    const gameData = snap.val();
+    
+    if(!gameData || !gameData.seeker) { 
+        showToast("You must pick a seeker first!"); 
+        return; 
+    }
+    
+    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== gameData.seeker).length;
+    if (G.currentMap === 'minigame_map' && G.uid !== gameData.seeker) totalHiders++;
 
     db.ref('global_game').update({ state: 'playing', hidersLeft: totalHiders });
     closeAdminPanel();
@@ -1280,7 +1289,7 @@ function startInviteListener(){
   }); 
   _inviteUnsubscribe = () => invitesRef.off();
 }
-function unsubscribeInvites(){ if(_inviteUnsubscribe){_inviteUnsubscribe();_inviteUnsubscribe=null;} }
+function unsubscribeInvites(){ if(_inviteUnsubscribe){_inviteUnsubscribe=null;} }
 
 async function sendBattleInvite(toUid,toName){ 
   if(!firebaseReady){showToast('Firebase required');return;} 

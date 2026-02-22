@@ -372,14 +372,16 @@ function startMusicAuto() {
 // MOBILE CONTROLS LOGIC
 let isMobile = false;
 function toggleMobile(val) { isMobile = val; }
+
 function simK(k, state) { 
-    event.preventDefault(); 
+    if (window.event) window.event.preventDefault(); 
     if(document.getElementById('screen-map').classList.contains('active')) map.keys[k] = state; 
     if(document.getElementById('screen-battle').classList.contains('active')) B.keys[k] = state; 
     if(document.getElementById('screen-home').classList.contains('active')) HOME.keys[k] = state; 
 }
+
 function simAct() {
-    event.preventDefault();
+    if (window.event) window.event.preventDefault();
     if(document.getElementById('screen-battle').classList.contains('active') && B.active) {
         if(B.enemy) playerShoot(B.enemy.x, B.enemy.y); 
         else playerShoot(BW/2, BH/2);
@@ -500,7 +502,7 @@ function leaveGlobalGame() {
 const firebaseConfig = { 
   apiKey: "AIzaSyCYydCGhgmawcrjwNXf_0eqTaDe-O6p1eQ", 
   authDomain: "fred-city.firebaseapp.com", 
-  databaseURL: "https://fred-city-default-rtdb.firebaseio.com", 
+  databaseURL: "https://fred-city.firebaseio.com", 
   projectId: "fred-city", 
   storageBucket: "fred-city.firebasestorage.app", 
   messagingSenderId: "961837899685", 
@@ -1218,7 +1220,7 @@ function startMining() {
     mgState = 'idle'; mgClicks = 0; clearTimeout(mgTimer);
 }
 function doMineAction() {
-    event.preventDefault();
+    if (window.event) window.event.preventDefault();
     let rock = document.getElementById('mine-rock');
 
     if(mgState === 'idle') {

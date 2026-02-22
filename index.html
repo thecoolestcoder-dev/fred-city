@@ -451,6 +451,7 @@ function startGlobalGame(gameName) {
     if(!firebaseReady) return;
     db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0 });
     
+    // Reset everyone's caught status
     db.ref('users').once('value', snap => {
         snap.forEach(child => {
             db.ref('users/' + child.key).update({ hsCaught: false });
@@ -486,16 +487,21 @@ function pickSeeker() {
     showToast("Random Seeker chosen! Click Begin Game when ready.");
 }
 
-function beginGlobalGame() {
+// FIXED BEGIN GAME FUNCTION
+async function beginGlobalGame() {
     if(!firebaseReady) return;
     
-    if(!globalGameState.seeker) { 
+    // We fetch directly from Firebase so there's zero delay for the admin checks
+    const snap = await db.ref('global_game').once('value');
+    const gameData = snap.val();
+    
+    if(!gameData || !gameData.seeker) { 
         showToast("You must pick a seeker first!"); 
         return; 
     }
     
-    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== globalGameState.seeker).length;
-    if (G.currentMap === 'minigame_map' && G.uid !== globalGameState.seeker) totalHiders++;
+    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== gameData.seeker).length;
+    if (G.currentMap === 'minigame_map' && G.uid !== gameData.seeker) totalHiders++;
 
     db.ref('global_game').update({ state: 'playing', hidersLeft: totalHiders });
     closeAdminPanel();
@@ -626,6 +632,7 @@ let prevSeeker = null;
 function listenToPlayers() {
   if(!firebaseReady) return;
   
+  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -634,6 +641,7 @@ function listenToPlayers() {
       }
   });
 
+  // Global Game Listener
   db.ref('global_game').on('value', snap => {
       let data = snap.val();
       if(data && data.active) {
@@ -650,6 +658,7 @@ function listenToPlayers() {
           
           if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
               if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
+                  // Find the last person standing
                   let winnerName = "Someone";
                   if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
                   else {
@@ -658,7 +667,7 @@ function listenToPlayers() {
                       });
                   }
                   alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); 
+                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
               }
           }
           
@@ -1113,7 +1122,7 @@ function drawAllPlayers(ctx) {
       
       let showName = true;
       if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
-      if (globalGameState.active && globalGameState.seeker === p.uid) showName = true; // Seeker name always shows
+      if (globalGameState.active && globalGameState.seeker === p.uid) showName = true; 
 
       if(showName) {
           ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';

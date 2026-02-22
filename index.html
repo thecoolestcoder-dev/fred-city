@@ -218,7 +218,10 @@
         <div id="active-game-panel" class="active-game-panel">
           <div class="active-game-name" id="active-game-name">🎮 No Active Game</div>
           <div style="color:rgba(255,255,255,.6); font-size:.85rem; margin-bottom:1rem;" id="active-game-players-hud">0 players joined</div>
-          <button class="admin-end-btn" onclick="adminEndGame()">⏹ End Game</button>
+          <div style="display:flex; gap:.8rem; flex-wrap:wrap;">
+            <button class="gen-join-btn" style="font-size:1rem; padding:.6rem 1.5rem;" onclick="closeAdminPanel(); joinGameEvent()">▶ Join Game</button>
+            <button class="admin-end-btn" onclick="adminEndGame()">⏹ End Game</button>
+          </div>
         </div>
 
         <div class="admin-section">
@@ -728,13 +731,14 @@ let gameEventListener = null;
 
 function initAdminSystem() {
   if(!firebaseReady) return;
-  // Listen for game events
+  // Listen for game events — fires for ALL players including admin
   db.ref('gameEvent').on('value', snap => {
     const d = snap.val();
     if(d && d.active && d.type) {
+      const wasAlreadyActive = activeGameEvent && activeGameEvent.type === d.type;
       activeGameEvent = d;
-      if(!G.isAdmin) {
-        // Show notification to non-admin players
+      if(!wasAlreadyActive) {
+        // New game just launched — show popup to everyone (including admin so they can join)
         showGameNotif(d);
       }
       updateAdminGamePanel(d);
@@ -794,7 +798,6 @@ async function adminLaunchGame(type) {
   const cfg = GAME_CONFIGS[type];
   if(!cfg) return;
   
-  // Build player list for games that need auto-assignment
   const allPlayers = { [G.uid]: { username: G.username, color: G.color, joined: false } };
   Object.entries(otherPlayers).forEach(([uid, p]) => {
     allPlayers[uid] = { username: p.username, color: p.color, joined: false };
@@ -805,9 +808,13 @@ async function adminLaunchGame(type) {
     players: allPlayers, seeker: null
   };
 
+  // First clear any old event so the listener always fires as "new"
+  await db.ref('gameEvent').set({ active: false });
+  await new Promise(r => setTimeout(r, 150));
   await db.ref('gameEvent').set(gameData);
-  showToast('🎮 ' + cfg.name + ' launched for all players!');
+  
   closeAdminPanel();
+  showToast('🎮 ' + cfg.name + ' launched! Check the popup to join.');
 }
 
 async function adminEndGame() {
@@ -826,21 +833,26 @@ async function adminKickPlayer(uid, name) {
 // ==========================================
 // GAME EVENT NOTIFICATIONS (for all players)
 // ==========================================
+let _genCountListener = null;
 function showGameNotif(d) {
   const cfg = GAME_CONFIGS[d.type] || {};
   document.getElementById('gen-icon').textContent = cfg.icon || '🎮';
   document.getElementById('gen-game-name').textContent = cfg.name || d.type;
   document.getElementById('gen-desc').textContent = cfg.desc || 'Admin started a game!';
-  updateGenPlayerCount(d);
+  
+  const joined = d.players ? Object.values(d.players).filter(p=>p.joined).length : 0;
+  document.getElementById('gen-player-count').textContent = joined + ' player'+(joined!==1?'s':'')+' joined!';
   document.getElementById('game-event-notif').classList.add('show');
   
-  // Auto-update player count
+  // Clean up any old listener before attaching a new one
+  if(_genCountListener) { db.ref('gameEvent/players').off('value', _genCountListener); _genCountListener = null; }
   if(firebaseReady) {
-    db.ref('gameEvent/players').on('value', snap => {
-      const d2 = snap.val() || {};
-      const joined = Object.values(d2).filter(p=>p.joined).length;
-      document.getElementById('gen-player-count').textContent = joined + ' player'+(joined!==1?'s':'')+' joined!';
-    });
+    _genCountListener = (snap) => {
+      const players = snap.val() || {};
+      const cnt = Object.values(players).filter(p=>p.joined).length;
+      document.getElementById('gen-player-count').textContent = cnt + ' player'+(cnt!==1?'s':'')+' joined!';
+    };
+    db.ref('gameEvent/players').on('value', _genCountListener);
   }
 }
 
@@ -851,7 +863,10 @@ function updateGenPlayerCount(d) {
 
 function hideGameNotif() {
   document.getElementById('game-event-notif').classList.remove('show');
-  if(firebaseReady) db.ref('gameEvent/players').off();
+  if(firebaseReady && _genCountListener) {
+    db.ref('gameEvent/players').off('value', _genCountListener);
+    _genCountListener = null;
+  }
 }
 
 function dismissGameNotif() {
@@ -859,33 +874,38 @@ function dismissGameNotif() {
 }
 
 async function joinGameEvent() {
-  if(!activeGameEvent) return;
-  const cfg = GAME_CONFIGS[activeGameEvent.type];
+  // Snapshot at click time — never goes null mid-function
+  const game = activeGameEvent;
+  if(!game || !game.type) {
+    showToast('No active game right now!');
+    return;
+  }
+  const cfg = GAME_CONFIGS[game.type];
   if(!cfg) return;
   
   hideGameNotif();
   
-  // Mark player as joined
+  // Mark player as joined in Firebase
   if(firebaseReady && G.uid && !G.uid.startsWith('demo')) {
-    await db.ref('gameEvent/players/' + G.uid).update({ joined: true });
+    await db.ref('gameEvent/players/' + G.uid).update({ joined: true, username: G.username })
+      .catch(e => console.warn('join write failed:', e));
   }
 
-  // Navigate to appropriate screen
-  if(activeGameEvent.type === 'simonsays') {
+  // Navigate to the right screen
+  if(game.type === 'simonsays') {
     startSimonSaysGame();
-  } else if(activeGameEvent.type === 'trivia') {
+  } else if(game.type === 'trivia') {
     startTriviaGame();
-  } else if(activeGameEvent.type === 'hideseek') {
+  } else if(game.type === 'hideseek') {
     showScreen('screen-hideseek');
-  } else if(activeGameEvent.type === 'racetime') {
-    // Teleport to start position and activate race mode
+  } else if(game.type === 'racetime') {
     map.player.x = 1200; map.player.y = 1300;
     showScreen('screen-map');
-    showToast('🏁 RACE STARTS IN 5 SECONDS! Head to the Arena!');
+    showToast('🏁 Race starts in 5 seconds! Head to the Arena!');
     startRaceMode();
-  } else if(activeGameEvent.type === 'tag' || activeGameEvent.type === 'freezetag') {
+  } else if(game.type === 'tag' || game.type === 'freezetag') {
     showScreen('screen-map');
-    startTagMode(activeGameEvent.type);
+    startTagMode(game.type);
   }
 }
 

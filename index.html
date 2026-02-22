@@ -72,6 +72,11 @@
 
       .audio-btn { position:fixed; top:80px; right:1.5rem; background:rgba(0,0,0,0.5); border:2px solid var(--cyan); border-radius:50%; width:45px; height:45px; color:#fff; font-size:1.3rem; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; transition: all 0.2s;}
       .audio-btn:hover { background:var(--cyan); color:#000; transform: scale(1.1); }
+
+      /* MINING MINIGAME UI UPDATES */
+      .mining-bar-bg { width: 100%; height: 30px; background: #222; border-radius: 15px; border: 3px solid #555; position: relative; overflow: hidden; margin-top: 1rem; }
+      .mining-bar-zone { position: absolute; height: 100%; background: rgba(93, 234, 122, 0.6); top: 0; }
+      .mining-bar-cursor { position: absolute; height: 130%; width: 6px; background: #fff; top: -15%; left: 0%; transform: translateX(-50%); box-shadow: 0 0 8px #fff; z-index: 5;}
     </style>
   </head>
   <body>
@@ -393,8 +398,13 @@ const bgm = {
 Object.values(bgm).forEach(a => { a.loop = true; a.volume = 0.25; });
 let currentBgm = null;
 
+let lastSfxTime = {};
+
 function playSfx(name) {
   if (!audioEnabled || !sfx[name]) return;
+  const now = Date.now();
+  if (now - (lastSfxTime[name] || 0) < 80) return; // 80ms throttle prevents blown-out speakers
+  lastSfxTime[name] = now;
   let c = sfx[name].cloneNode(); c.volume = sfx[name].volume; c.play().catch(()=>{});
 }
 
@@ -415,7 +425,6 @@ function toggleMute() {
   const btn = document.getElementById('audio-btn');
   if (!audioEnabled) {
       if(currentBgm) currentBgm.pause();
-      currentBgm = null;
       btn.textContent = "🔇";
   } else {
       btn.textContent = "🔊";
@@ -510,12 +519,20 @@ function showScreen(id){
     if(id==='screen-shop') renderShop(); 
     if(id==='screen-home') initHome(); 
 }
+
 function clickPlay() { 
   initAudio(); 
   playSfx('click'); 
+  
+  // Trick the browser into unlocking background music immediately on click
+  bgm.map.play().then(() => bgm.map.pause()).catch(()=>{});
+  bgm.title.play().then(() => bgm.title.pause()).catch(()=>{});
+  bgm.battle.play().then(() => bgm.battle.pause()).catch(()=>{});
+
   if (G.uid && !G.uid.startsWith('demo')) { showScreen('screen-map'); } 
   else { showScreen('screen-auth'); } 
 }
+
 function updateAllHUDs(){ document.querySelectorAll('.coins-hud').forEach(el=>el.textContent=G.coins); const mu=document.getElementById('map-username-hud'); if(mu) mu.textContent=G.username; }
 
 let currentTab='login';
@@ -1275,52 +1292,66 @@ function doFishAction() {
     }
 }
 
+
+let mineCursorPos = 0;
+let mineCursorDir = 1;
+let mineZoneStart = 40;
+let mineZoneWidth = 20;
+let mineHits = 0;
+let mineAnimFrame = null;
+
 function startMining() {
     playSfx('click');
     showScreen('screen-minigame');
-    document.getElementById('mg-title').textContent = "⛏️ Mining at Fred Peak";
+    document.getElementById('mg-title').textContent = "⛏️ Precision Mining";
     document.getElementById('mg-content').innerHTML = `
-        <div style="font-size:1.2rem; margin-bottom:1rem; color:var(--cyan); font-weight:bold;">Tap the rock 15 times in 5 seconds!</div>
-        <div class="mg-mining-scene" onmousedown="doMineAction()" ontouchstart="doMineAction()">
-            <div id="mine-rock" class="mg-rock">🪨</div>
+        <div style="font-size:1.1rem; margin-bottom:1rem; color:var(--cyan); font-weight:bold;">Hit the rock when the line is in the green zone! (Need 3 hits)</div>
+        <div class="mg-mining-scene" style="cursor:default;">
+            <div id="mine-rock" class="mg-rock" onmousedown="doMineAction(event)" ontouchstart="doMineAction(event)" style="cursor:pointer; z-index:10;">🪨</div>
+            <div class="mining-bar-bg" style="position:absolute; bottom:15px; width:80%;">
+                <div id="mine-zone" class="mining-bar-zone" style="left:40%; width:20%;"></div>
+                <div id="mine-cursor" class="mining-bar-cursor" style="left:0%;"></div>
+            </div>
         </div>
-        <div id="mine-prog" style="color:var(--yellow); font-size:2rem; font-weight:bold; margin-top:1rem;">0 / 15</div>
+        <div id="mine-prog" style="color:var(--yellow); font-size:1.5rem; font-weight:bold; margin-top:1rem;">Hits: 0 / 3</div>
+        <button class="btn-main" onclick="startMining()" style="margin-top:1rem; display:none;" id="mine-retry-btn">Try Again</button>
     `;
-    mgState = 'idle'; mgClicks = 0; clearTimeout(mgTimer);
+    mgState = 'mining'; 
+    mineHits = 0;
+    mineCursorPos = 0;
+    mineCursorDir = 1;
+    mineZoneStart = 40;
+    mineZoneWidth = 20;
+    cancelAnimationFrame(mineAnimFrame);
+    mineLoop();
 }
-function doMineAction() {
-    event.preventDefault();
-    let rock = document.getElementById('mine-rock');
-    playSfx('hit');
 
-    if(mgState === 'idle') {
-        mgState = 'mining';
-        mgClicks = 1;
-        document.getElementById('mine-prog').textContent = mgClicks + " / 15";
+function mineLoop() {
+    if (mgState !== 'mining' || document.getElementById('screen-minigame').className.indexOf('active') === -1) return;
+    mineCursorPos += 1.8 * mineCursorDir; // Cursor Speed
+    if (mineCursorPos > 100) { mineCursorPos = 100; mineCursorDir = -1; }
+    if (mineCursorPos < 0) { mineCursorPos = 0; mineCursorDir = 1; }
+    
+    let cursorEl = document.getElementById('mine-cursor');
+    if(cursorEl) cursorEl.style.left = mineCursorPos + '%';
+    
+    mineAnimFrame = requestAnimationFrame(mineLoop);
+}
+
+function doMineAction(e) {
+    if(e) e.preventDefault();
+    if (mgState !== 'mining') return;
+    
+    let rock = document.getElementById('mine-rock');
+    let hitCenter = mineCursorPos;
+    
+    if (hitCenter >= mineZoneStart && hitCenter <= mineZoneStart + mineZoneWidth) {
+        // Success Hit
+        playSfx('hit');
+        mineHits++;
+        document.getElementById('mine-prog').textContent = "Hits: " + mineHits + " / 3";
         rock.classList.add('shaking');
-        
-        mgTimer = setTimeout(() => {
-            if(mgState === 'mining') {
-                rock.classList.remove('shaking');
-                if(mgClicks >= 15) {
-                    let reward = 30 + Math.floor(Math.random()*20);
-                    G.coins += reward; saveUserData(); updateAllHUDs();
-                    rock.textContent = "💎";
-                    document.getElementById('mine-prog').textContent = "Success! +"+reward+" Coins!";
-                    document.getElementById('mine-prog').style.color = "var(--green)";
-                    playSfx('coin');
-                    showToast("Mined gems for "+reward+" coins!");
-                } else {
-                    document.getElementById('mine-prog').textContent = "Too slow! Try again.";
-                    document.getElementById('mine-prog').style.color = "var(--red)";
-                }
-                mgState = 'done';
-                setTimeout(startMining, 2500);
-            }
-        }, 5000);
-    } else if(mgState === 'mining') {
-        mgClicks++;
-        document.getElementById('mine-prog').textContent = mgClicks + " / 15";
+        setTimeout(() => rock.classList.remove('shaking'), 150);
         
         let spark = document.createElement('div');
         spark.className = 'mg-spark';
@@ -1329,8 +1360,34 @@ function doMineAction() {
         spark.style.setProperty('--ty', (Math.random() * 200 - 100) + 'px');
         rock.parentElement.appendChild(spark);
         setTimeout(() => spark.remove(), 500);
+        
+        if (mineHits >= 3) {
+            mgState = 'done';
+            let reward = 40 + Math.floor(Math.random()*30);
+            G.coins += reward; saveUserData(); updateAllHUDs();
+            rock.textContent = "💎";
+            document.getElementById('mine-prog').textContent = "Perfect! +" + reward + " Coins!";
+            document.getElementById('mine-prog').style.color = "var(--green)";
+            playSfx('coin');
+            showToast("Mined gems for " + reward + " coins!");
+            document.getElementById('mine-retry-btn').style.display = 'block';
+        } else {
+            // Shrink target and move it to make the next hit harder
+            mineZoneWidth = Math.max(10, mineZoneWidth - 4);
+            mineZoneStart = Math.random() * (100 - mineZoneWidth);
+            document.getElementById('mine-zone').style.left = mineZoneStart + '%';
+            document.getElementById('mine-zone').style.width = mineZoneWidth + '%';
+        }
+    } else {
+        // Miss! Break the combo.
+        playSfx('click'); 
+        mgState = 'done';
+        document.getElementById('mine-prog').textContent = "Missed! Pickaxe chipped.";
+        document.getElementById('mine-prog').style.color = "var(--red)";
+        document.getElementById('mine-retry-btn').style.display = 'block';
     }
 }
+
 
 // BATTLE & MULTIPLAYER
 let currentArena = 'arena';

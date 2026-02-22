@@ -77,6 +77,13 @@
       .mining-bar-bg { width: 100%; height: 30px; background: #222; border-radius: 15px; border: 3px solid #555; position: relative; overflow: hidden; margin-top: 1rem; }
       .mining-bar-zone { position: absolute; height: 100%; background: rgba(93, 234, 122, 0.6); top: 0; }
       .mining-bar-cursor { position: absolute; height: 130%; width: 6px; background: #fff; top: -15%; left: 0%; transform: translateX(-50%); box-shadow: 0 0 8px #fff; z-index: 5;}
+      
+      /* BIG GAME INVITE UI */
+      .big-invite-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+      .big-invite-overlay.show { display:flex; animation: confirmPop 0.3s ease-out; }
+      .big-invite-box { background:linear-gradient(145deg, #112244, #224488); border:4px solid var(--green); border-radius:24px; padding:3rem 2.5rem; max-width:550px; width:90%; text-align:center; box-shadow:0 0 60px rgba(93, 234, 122, 0.4), inset 0 0 20px rgba(0,0,0,0.5); }
+      .big-invite-title { font-family:'Fredoka One',cursive; font-size:2.8rem; color:var(--green); margin-bottom:1rem; text-shadow:3px 3px 0 #000; }
+      .big-invite-desc { color:#fff; font-size:1.15rem; line-height:1.6; margin-bottom:2.5rem; text-shadow: 1px 1px 2px #000;}
     </style>
   </head>
   <body>
@@ -149,11 +156,14 @@
       </div>
     </div>
 
-    <div class="invite-notif" id="hns-invite" style="border-color:var(--green); top: 5rem;">
-      <div class="invite-notif-title" style="color:var(--green);">🌲 HIDE & SEEK EVENT!</div>
-      <div class="invite-notif-sub">The Admin has started a game of Hide & Seek!</div>
-      <div class="invite-notif-btns">
-        <button class="invite-accept" onclick="joinHnS()">Join Game!</button>
+    <div class="big-invite-overlay" id="big-game-invite">
+      <div class="big-invite-box">
+        <div class="big-invite-title" id="big-invite-title">🎮 EVENT!</div>
+        <div class="big-invite-desc" id="big-invite-desc">An epic game is starting.</div>
+        <div class="confirm-btns">
+          <button class="confirm-yes" onclick="respondGameInvite(true)" style="font-size:1.3rem; padding:1rem; background:var(--green);">JOIN EVENT!</button>
+          <button class="confirm-no" onclick="respondGameInvite(false)" style="font-size:1.3rem; padding:1rem;">Pass</button>
+        </div>
       </div>
     </div>
 
@@ -211,6 +221,7 @@
     <div class="invite-pending" id="invite-pending">
       <span>⏳</span><span id="invite-pending-text">Waiting for response...</span>
     </div>
+
     <div class="confirm-overlay" id="confirm-overlay">
       <div class="confirm-box">
         <div style="font-size:3.5rem;margin-bottom:.5rem" id="confirm-preview"></div>
@@ -223,6 +234,7 @@
         </div>
       </div>
     </div>
+
     <div class="arena-modal-overlay" id="arena-modal-overlay">
       <div class="arena-modal">
         <h2 id="arena-modal-title">⚔️ Battle Arena</h2>
@@ -244,6 +256,7 @@
         <button class="arena-modal-close" onclick="closeArenaModal()">Cancel</button>
       </div>
     </div>
+
     <div class="screen active" id="screen-title">
       <div class="title-snow" id="title-snow"></div>
       <div class="title-logo" style="position:relative;z-index:2">
@@ -261,6 +274,7 @@
         <input type="checkbox" id="mobile-toggle" onchange="toggleMobile(this.checked)"> Use Mobile Controls
       </label>
     </div>
+
     <div class="screen" id="screen-auth">
       <button class="auth-back-btn" onclick="showScreen('screen-title')">← Back</button>
       <div class="auth-logo">FRED CITY</div>
@@ -282,6 +296,7 @@
         <div class="auth-msg" id="auth-msg"></div>
       </div>
     </div>
+
     <div class="screen" id="screen-map">
       <div class="map-header">
         <button class="map-back-btn" onclick="doLogout()">← Logout</button>
@@ -334,6 +349,7 @@
         <button class="battle-result-btn" id="battle-result-btn" onclick="leaveBattle(true)">Return to World</button>
       </div>
     </div>
+
     <div class="screen" id="screen-shop">
       <div class="shop-header">
         <div class="shop-header-title">🏪 Fred's Shop</div>
@@ -353,6 +369,7 @@
         <div class="shop-grid" id="shop-walls-grid"></div>
       </div>
     </div>
+
     <div class="screen" id="screen-home">
       <div class="home-header">
         <button class="map-back-btn" onclick="showScreen('screen-map')">← Exit House</button>
@@ -699,12 +716,6 @@ function listenToEvents() {
 
         let inHnsDb = data.players && data.players[G.uid];
 
-        if (data.active && data.status === 'waiting' && !inHnsDb) {
-            document.getElementById('hns-invite').classList.add('show');
-        } else {
-            document.getElementById('hns-invite').classList.remove('show');
-        }
-
         if (!data.active && G.inHnS) {
             leaveHnS('The Admin has ended Hide & Seek.');
         }
@@ -745,12 +756,74 @@ function listenToEvents() {
     });
 }
 
-function startHnSGlobal() {
+// ==========================================
+// GAME EVENT INVITES
+// ==========================================
+let _activeGameInviteId = null;
+let _activeGameType = null;
+
+function startGameInviteListener() {
+  if(!firebaseReady || !G.uid || G.uid.startsWith('demo')) return; 
+  const ref = db.ref('game_invites/' + G.uid);
+  ref.on('child_added', snap => {
+    const inv = snap.val();
+    if(inv && inv.status === 'pending') {
+      showBigGameInvite(snap.key, inv);
+    }
+  });
+}
+
+function showBigGameInvite(invId, inv) {
+  playSfx('click'); 
+  _activeGameInviteId = invId;
+  _activeGameType = inv.game;
+  document.getElementById('big-invite-title').textContent = inv.title;
+  document.getElementById('big-invite-desc').textContent = inv.desc;
+  document.getElementById('big-game-invite').classList.add('show');
+}
+
+async function respondGameInvite(accept) {
+  playSfx('click');
+  document.getElementById('big-game-invite').classList.remove('show');
+  if(!_activeGameInviteId) return;
+  const id = _activeGameInviteId; _activeGameInviteId = null;
+  const type = _activeGameType; _activeGameType = null;
+  
+  if(firebaseReady) {
+    await db.ref('game_invites/' + G.uid + '/' + id).update({status: accept ? 'accepted' : 'declined'}).catch(()=>{});
+    if(accept) {
+      if(type === 'hns') joinHnS();
+    } else {
+      showToast('You declined the event invite.');
+    }
+  }
+}
+
+async function startHnSGlobal() {
   if(!firebaseReady) return;
   playSfx('click');
+  
+  // Set the global game state to waiting
   db.ref('minigames/hns').set({active: true, status: 'waiting', seeker: '', hideEnd: 0, players: {}});
-  showToast('Global H&S Invites Sent!');
+  
+  // Send direct game invites to ALL online users
+  const snap = await db.ref('users').once('value');
+  snap.forEach(child => {
+    const uid = child.key;
+    const p = child.val();
+    if(p.online && !p.banned) { 
+       db.ref(`game_invites/${uid}`).push({
+          game: 'hns',
+          title: '🌲 HIDE & SEEK',
+          desc: 'The Admin is hosting a massive game of Hide & Seek in the Dark Forest. The map will go dark, and one player will be chosen to hunt the rest down. Will you survive, or be caught?',
+          status: 'pending',
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+       });
+    }
+  });
+  showToast('Massive Event Invites sent to all online players!');
 }
+
 function beginHnSGame() {
   if(!firebaseReady) return;
   playSfx('click');
@@ -781,7 +854,6 @@ function kickHnSPlayer(uid) {
 
 function joinHnS() {
   playSfx('click');
-  document.getElementById('hns-invite').classList.remove('show');
   G.inHnS = true;
   map.player.x = 4000; map.player.y = 4000; 
   saveUserData();
@@ -827,7 +899,11 @@ if(firebaseReady){
       });
       
       listenToEvents();
-      startInviteListener(); listenToPlots(); listenToPlayers(); startPositionSync(); 
+      startInviteListener();
+      startGameInviteListener();
+      listenToPlots(); 
+      listenToPlayers(); 
+      startPositionSync(); 
     } 
     hideLoading(); showScreen('screen-title'); 
   }); 

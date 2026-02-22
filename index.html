@@ -70,8 +70,8 @@
       .lava-flash { animation: lava-screen 0.5s ease; pointer-events: none;}
       @keyframes lava-screen { 0% { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); } 50% { box-shadow: inset 0 0 200px 50px rgba(255,80,0,0.8); } 100% { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); } }
 
-      .audio-btn { position:fixed; top:1.2rem; right:1.2rem; background:rgba(0,0,0,0.5); border:2px solid var(--cyan); border-radius:50%; width:45px; height:45px; color:#fff; font-size:1.3rem; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; }
-      .audio-btn:hover { background:var(--cyan); color:#000; }
+      .audio-btn { position:fixed; top:80px; right:1.5rem; background:rgba(0,0,0,0.5); border:2px solid var(--cyan); border-radius:50%; width:45px; height:45px; color:#fff; font-size:1.3rem; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; transition: all 0.2s;}
+      .audio-btn:hover { background:var(--cyan); color:#000; transform: scale(1.1); }
     </style>
   </head>
   <body>
@@ -251,7 +251,7 @@
       </div>
       <div class="title-subtitle">fred is cool</div>
       <button class="title-btn-play" onclick="clickPlay()">▶ PLAY</button>
-       
+      
       <label class="title-controls-toggle">
         <input type="checkbox" id="mobile-toggle" onchange="toggleMobile(this.checked)"> Use Mobile Controls
       </label>
@@ -295,7 +295,7 @@
         <button class="enter-btn" id="zone-popup-btn">Enter!</button>
       </div>
     </div>
-     
+    
     <div class="screen" id="screen-minigame">
       <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="showScreen('screen-map')">← Leave</button>
       <h1 id="mg-title" style="font-family:'Fredoka One',cursive; color:var(--cyan); margin-bottom:2rem; font-size:2.5rem; text-shadow:2px 2px 0 #000;">Minigame</h1>
@@ -386,8 +386,8 @@ const sfx = {
 Object.values(sfx).forEach(a => a.volume = 0.4);
 
 const bgm = {
-  title: new Audio('https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=8-bit-arcade-138828.mp3'), 
-  map: new Audio('https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc48af67b2.mp3?filename=lofi-study-112191.mp3'),
+  title: new Audio('https://cdn.pixabay.com/download/audio/2022/01/21/audio_31743c58bb.mp3?filename=quirky-platformer-106584.mp3'), 
+  map: new Audio('https://cdn.pixabay.com/download/audio/2022/10/18/audio_31c2730ebb.mp3?filename=casual-game-124237.mp3'),
   battle: new Audio('https://cdn.pixabay.com/download/audio/2021/08/09/audio_6b5a3f25e8.mp3?filename=boss-time-8-bit-music-8422.mp3')
 };
 Object.values(bgm).forEach(a => { a.loop = true; a.volume = 0.25; });
@@ -418,7 +418,7 @@ function toggleMute() {
       currentBgm = null;
       btn.textContent = "🔇";
   } else {
-      initAudio();
+      btn.textContent = "🔊";
       let act = document.querySelector('.screen.active').id;
       if(act === 'screen-title') playBgm('title');
       else if(act === 'screen-battle') playBgm('battle');
@@ -432,10 +432,7 @@ costume1Img.src = "costume1.svg";
 // HIDE & SEEK GLOBALS
 let HNS_W = 8000, HNS_H = 8000;
 let hnsTrees = [];
-// Generate a fixed seeded array of trees for hiding spots
-for(let i=0; i<800; i++) {
-    hnsTrees.push({x: Math.random()*HNS_W, y: Math.random()*HNS_H});
-}
+for(let i=0; i<800; i++) hnsTrees.push({x: Math.random()*HNS_W, y: Math.random()*HNS_H});
 let hnsState = { active: false, status: '', seeker: null, hideEnd: 0, players: {} };
 
 // MOBILE CONTROLS LOGIC
@@ -683,22 +680,18 @@ function listenToEvents() {
         const data = snap.val() || {active:false, status:''};
         hnsState = data;
 
-        // Check if player is already logged as "in the game" in Firebase
         let inHnsDb = data.players && data.players[G.uid];
 
-        // Show invite if game starts and I'm not in it yet
         if (data.active && data.status === 'waiting' && !inHnsDb) {
             document.getElementById('hns-invite').classList.add('show');
         } else {
             document.getElementById('hns-invite').classList.remove('show');
         }
 
-        // Leave automatically if game is ended by admin
         if (!data.active && G.inHnS) {
             leaveHnS('The Admin has ended Hide & Seek.');
         }
 
-        // Catch edge case: reloaded page while currently in active H&S match
         if (inHnsDb && !G.inHnS) {
             G.inHnS = true;
         }
@@ -708,7 +701,6 @@ function listenToEvents() {
     db.ref('events/lava').on('value', snap => {
         if(!snap.val()) return;
         if(Date.now() - snap.val() < 5000 && !G.inHnS) { 
-            // Trigger Lava Effect
             playSfx('hit');
             document.body.classList.add('lava-flash');
             setTimeout(()=>document.body.classList.remove('lava-flash'), 1000);

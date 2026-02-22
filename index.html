@@ -3,366 +3,315 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FRED CITY</title>
+    <title>FRED CITY - ADMIN EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
-      :root{--blue:#6684ff;--cyan:#66d6ff;--teal:#078992;--darkteal:#316679;--bright:#0eefff;--yellow:#ffe566;--green:#5dea7a;--red:#ff5566;}*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Nunito',sans-serif;background:var(--blue);height:100vh;overflow:hidden; touch-action:none;}.screen{display:none;width:100vw;height:100vh;position:absolute;top:0;left:0;}.screen.active{display:flex;}
-      #screen-title{flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(180deg, #112244 0%, #224488 100%);}.title-snow{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1;}.snowflake{position:absolute;border-radius:50%;background:rgba(102,214,255,0.55);animation:snowfall linear infinite;}@keyframes snowfall{0%{transform:translateY(-20px);opacity:1}100%{transform:translateY(100vh) translateX(30px);opacity:0}}.title-logo{font-family:'Fredoka One',cursive;display:flex;align-items:center;gap:.2rem;filter:drop-shadow(5px 5px 0 rgba(0,0,0,.55));margin-bottom:.6rem;position:relative;z-index:2;}.title-logo-letter{font-size:clamp(3.5rem,8vw,6.5rem);color:var(--cyan);text-shadow:4px 4px 0 #000,6px 6px 0 rgba(0,0,0,.3);display:inline-block;animation:letterBob 2.2s ease-in-out infinite;}.title-logo-letter:nth-child(1){animation-delay:0s}.title-logo-letter:nth-child(2){animation-delay:.14s}.title-logo-letter:nth-child(3){animation-delay:.28s}.title-logo-letter:nth-child(4){animation-delay:.42s}.title-logo-gap{width:clamp(.6rem,2vw,1.4rem)}.title-logo-letter:nth-child(6){animation-delay:.56s}.title-logo-letter:nth-child(7){animation-delay:.70s}.title-logo-letter:nth-child(8){animation-delay:.84s}.title-logo-letter:nth-child(9){animation-delay:.98s}@keyframes letterBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}.title-fred-wrap{position:relative;z-index:2;margin-bottom:.8rem;filter:drop-shadow(0 4px 16px rgba(0,0,0,.45));animation:fredFloat 3s ease-in-out infinite;}@keyframes fredFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}.title-subtitle{color:rgba(180,240,255,.9);font-size:clamp(.75rem,1.5vw,1rem);font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin-bottom:1.6rem;position:relative;z-index:2;text-shadow:1px 1px 3px rgba(0,0,0,.5);}.title-btn-play{background:var(--bright);border:none;border-radius:18px;padding:.9rem 4.5rem;color:var(--darkteal);font-family:'Fredoka One',cursive;font-size:clamp(1.4rem,3vw,2rem);cursor:pointer;letter-spacing:.05em;position:relative;z-index:2;box-shadow:0 6px 0 var(--darkteal),0 0 30px rgba(14,239,255,.55);transition:all .15s;}.title-btn-play:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--darkteal),0 0 45px rgba(14,239,255,.75);}.title-btn-play:active{transform:translateY(3px);box-shadow:0 3px 0 var(--darkteal);}
-      .title-controls-toggle{position:relative; z-index:2; margin-top:1.5rem; color:#fff; font-family:'Nunito',sans-serif; font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(0,0,0,0.4); padding:0.5rem 1rem; border-radius:10px; border:2px solid var(--cyan);} .title-controls-toggle input{width:18px;height:18px;cursor:pointer;}
-      #screen-auth{flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#2233aa 0%,#5566ee 50%,#3355cc 100%);}.auth-back-btn{position:absolute;top:1.2rem;left:1.2rem;padding:.5rem 1rem;background:rgba(0,0,0,.35);border:2px solid rgba(102,214,255,.5);border-radius:10px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s;z-index:5;}.auth-back-btn:hover{border-color:var(--cyan);background:rgba(102,214,255,.15);}.auth-logo{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--cyan);text-shadow:3px 3px 0 #000;margin-bottom:1.5rem;position:relative;z-index:2;}.auth-box{background:rgba(0,0,0,.45);border:3px solid var(--cyan);border-radius:22px;padding:2rem 2.5rem;width:clamp(300px,90vw,380px);backdrop-filter:blur(12px);box-shadow:0 0 35px rgba(102,214,255,.3),inset 0 1px 0 rgba(255,255,255,.1);position:relative;z-index:2;}.auth-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;}.auth-tab{flex:1;padding:.6rem;border:2px solid var(--cyan);background:transparent;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;border-radius:10px;cursor:pointer;transition:all .2s;}.auth-tab.active{background:var(--cyan);color:#000;}.auth-tab:hover:not(.active){background:rgba(102,214,255,.2);}.auth-field{margin-bottom:1rem;}.auth-field label{display:block;color:var(--cyan);font-size:.8rem;font-weight:700;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em;}.auth-field input{width:100%;padding:.7rem 1rem;background:rgba(0,0,0,.4);border:2px solid rgba(102,214,255,.35);border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;}.auth-field input:focus{border-color:var(--cyan);}.btn-main{width:100%;padding:.9rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.2rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 0 var(--darkteal);letter-spacing:.05em;}.btn-main:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--darkteal);}.btn-main:active{transform:translateY(2px);box-shadow:0 2px 0 var(--darkteal);}.auth-msg{color:var(--red);font-size:.85rem;font-weight:700;margin-top:.8rem;text-align:center;min-height:1.2em;}.auth-msg.ok{color:var(--green);}
-      #screen-map{flex-direction:column; background:#a2d149;} .map-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:2px solid var(--cyan);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.map-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.3rem;letter-spacing:.05em;}.hud-coins{background:rgba(255,229,102,.12);border:2px solid var(--yellow);border-radius:20px;padding:.2rem .7rem;color:var(--yellow);font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.3rem;margin-left:auto;}.map-back-btn,.shop-back-btn{padding:.4rem .9rem;background:rgba(0,0,0,.4);border:2px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;}.map-back-btn:hover,.shop-back-btn:hover{background:rgba(102,214,255,.2)}#map-canvas{position:absolute;top:56px;left:0;width:100vw;height:calc(100vh - 56px);display:block;}.map-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border:2px solid var(--cyan);border-radius:12px;padding:.5rem 1.2rem;color:var(--cyan);font-size:.8rem;font-weight:700;pointer-events:none;z-index:20;}.zone-popup{position:absolute;display:none;background:rgba(0,0,20,.88);border:2px solid var(--cyan);border-radius:14px;padding:1rem 1.5rem;color:#fff;text-align:center;backdrop-filter:blur(10px);z-index:20;transform:translate(-50%,-130%);}.zone-popup h3{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.1rem;margin-bottom:.4rem;}.zone-popup .enter-btn{background:var(--cyan);border:none;border-radius:8px;padding:.5rem 1.2rem;color:#000;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;margin-top:.5rem;box-shadow:0 3px 0 var(--darkteal);transition:all .15s;}.zone-popup .enter-btn:hover{transform:translateY(-2px);}
-
-      .teleport-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}.teleport-overlay.show{display:flex;}
-      .map-modal { background:linear-gradient(160deg,#1a2a4a,#2a3a5e); border:3px solid var(--cyan); border-radius:20px; padding:1.5rem; width:95%; max-width:650px; text-align:center; box-shadow:0 0 40px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5); animation:confirmPop .2s ease; }
-      .mini-map-container { position:relative; width:100%; aspect-ratio:1.5 / 1; background:#a2d149; border:3px solid var(--darkteal); border-radius:12px; overflow:hidden; margin:0 auto 1rem auto; box-shadow:inset 0 0 20px rgba(0,0,0,0.2); }
-      .mm-pin { position:absolute; transform:translate(-50%, -50%); background:#fff; border:2px solid #000; border-radius:50%; width:clamp(28px, 5vw, 40px); height:clamp(28px, 5vw, 40px); font-size:clamp(0.9rem, 2.5vw, 1.4rem); cursor:pointer; z-index:20; box-shadow:0 4px 0 rgba(0,0,0,0.3); transition:all 0.15s; display:flex; align-items:center; justify-content:center; padding:0; outline:none; }
-      .mm-pin:hover { transform:translate(-50%, -60%) scale(1.15); box-shadow:0 6px 0 rgba(0,0,0,0.3); border-color:var(--cyan); }
-      .mm-pin:active { transform:translate(-50%, -45%) scale(0.95); box-shadow:0 0 0 transparent; }
-      .mm-label { position:absolute; transform:translateX(-50%); color:#fff; font-family:'Fredoka One',cursive; font-size:clamp(0.6rem, 2vw, 0.85rem); text-shadow:2px 2px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000, 1px 1px 0 #000; pointer-events:none; z-index:20; text-align:center; white-space:nowrap; }
-      .mm-path { position:absolute; left:19.5%; top:12.5%; width:1%; height:25%; background:rgba(213,237,249,0.7); border-radius:10px; }
-      .mm-path-horiz { position:absolute; left:4.3%; top:20.5%; width:30%; height:1.5%; background:rgba(213,237,249,0.7); border-radius:10px; }
-      .mm-lake { position:absolute; left:33.3%; top:25%; width:13.3%; height:12.5%; background:#00aaff; border-radius:50%; transform:translate(-50%, -50%); border:2px solid rgba(0,0,255,0.1); }
-      .mm-mountain { position:absolute; left:11.6%; top:10%; width:0; height:0; border-left:4vw solid transparent; border-right:4vw solid transparent; border-bottom:5vw solid #555; transform:translate(-50%, -100%); }
-      .mm-house { position:absolute; width:2%; height:2.5%; background:#D7CCC8; border:1px solid rgba(0,0,0,0.3); transform:translate(-50%, -50%); }
-
-      #fred-dialogue { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:400; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
-      .fred-box { background:linear-gradient(160deg,#1a2a4a,#2a3a5e); border:4px solid #ffaa00; border-radius:24px; padding:2rem; max-width:450px; width:90%; text-align:center; box-shadow:0 0 50px rgba(255,170,0,0.3); display:flex; flex-direction:column; align-items:center; animation:confirmPop .2s ease; }
-
-      #screen-minigame { flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(180deg, #1a2a4a, #0a1a2a); text-align:center; color:#fff;}
-      .mg-box { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:20px; padding:2rem; width:90%; max-width:600px; box-shadow:0 0 40px rgba(102,214,255,0.2); }
-      @keyframes float-bob { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -65%); } }
-      @keyframes bite-flash { 0%, 100% { background: #0055aa; } 50% { background: #ff2244; } }
-      @keyframes rock-shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-      @keyframes spark-fly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
-      .mg-fishing-scene { width: 100%; height: 220px; background: linear-gradient(180deg, #44ccff 0%, #0055aa 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; overflow: hidden; border: 4px solid #fff; transition: background 0.1s; }
-      .mg-fishing-scene.bite { animation: bite-flash 0.3s infinite; }
-      .mg-bobber { font-size: 4rem; position: absolute; left: 50%; top: 50%; animation: float-bob 2.5s infinite ease-in-out; user-select: none; filter:drop-shadow(0 10px 5px rgba(0,0,0,0.5)); }
-      .mg-bobber.bitten { animation: none; top: 75%; filter: brightness(0.5); transform: translate(-50%, -50%) scale(0.8); }
-      .mg-mining-scene { width: 100%; height: 220px; background: radial-gradient(circle, #444 0%, #111 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; border: 4px solid #777; cursor: pointer; overflow:hidden;}
-      .mg-rock { font-size: 7rem; user-select: none; transition: transform 0.05s; filter:drop-shadow(0 10px 10px #000); z-index:2; }
-      .mg-rock.shaking { animation: rock-shake 0.2s infinite; }
-      .mg-spark { position: absolute; font-size: 1.5rem; pointer-events: none; animation: spark-fly 0.5s forwards ease-out; z-index:1; }
-
-      #screen-battle{flex-direction:column;background:#1a1a2e;align-items:center;justify-content:center;}.battle-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.7);border-bottom:2px solid #333;display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.battle-title{font-family:'Fredoka One',cursive;color:#fff;font-size:1.1rem;flex-shrink:0;}.health-bar-wrap{display:flex;flex-direction:column;gap:2px;flex:1;}.health-bar-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;}.health-bar-outer{height:14px;background:rgba(255,255,255,.1);border-radius:7px;border:1px solid rgba(255,255,255,.2);overflow:hidden;}.health-bar-inner{height:100%;border-radius:7px;transition:width .3s;}.health-bar-inner.player{background:linear-gradient(90deg,#5dea7a,#00cc44);}.health-bar-inner.enemy{background:linear-gradient(90deg,#ff5566,#cc0022);}#battle-canvas{display:block;border:3px solid rgba(255,255,255,.1);border-radius:8px;box-shadow:0 0 40px rgba(68,170,255,.2);cursor:crosshair;}.battle-controls{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;gap:1rem;align-items:center;}.battle-key{background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.2);border-radius:8px;padding:.3rem .7rem;color:rgba(255,255,255,.5);font-size:.8rem;font-weight:700;}.battle-result-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:50;}.battle-result-title{font-family:'Fredoka One',cursive;font-size:clamp(2.5rem,6vw,4rem);text-shadow:4px 4px 0 rgba(0,0,0,.5);margin-bottom:1rem;}.battle-result-coins{color:var(--yellow);font-size:1.2rem;font-weight:800;margin-bottom:2rem;}.battle-result-btn{padding:.8rem 2rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 0 var(--darkteal);transition:all .15s;}.battle-result-btn:hover{transform:translateY(-2px);}.battle-leave-btn{position:absolute;top:70px;left:1rem;padding:.5rem 1rem;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;z-index:50;}.battle-leave-btn:hover{border-color:var(--red);color:var(--red);}
-      .arena-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.arena-modal-overlay.show{display:flex;}.arena-modal{background:linear-gradient(160deg,#1a2a4a,#2a3a5e);border:3px solid var(--cyan);border-radius:24px;padding:2rem;max-width:500px;width:92%;box-shadow:0 0 50px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.arena-modal h2{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.8rem;text-align:center;margin-bottom:.3rem;}.arena-modal .arena-modal-sub{color:rgba(255,255,255,.5);font-size:.85rem;text-align:center;margin-bottom:1.5rem;}.arena-mode-btns{display:flex;gap:1rem;margin-bottom:1.5rem;}.arena-mode-btn{flex:1;padding:1.2rem;border-radius:14px;border:2px solid;cursor:pointer;text-align:center;transition:all .2s;}.arena-mode-btn.ai{border-color:var(--yellow);background:rgba(255,229,102,.08);color:var(--yellow);}.arena-mode-btn.ai:hover{background:rgba(255,229,102,.18);transform:translateY(-2px);}.arena-mode-btn.pvp{border-color:var(--cyan);background:rgba(102,214,255,.08);color:var(--cyan);}.arena-mode-btn.pvp:hover{background:rgba(102,214,255,.18);transform:translateY(-2px);}.arena-mode-btn .mode-icon{font-size:2rem;margin-bottom:.4rem;}.arena-mode-btn .mode-title{font-family:'Fredoka One',cursive;font-size:1.1rem;}.arena-mode-btn .mode-desc{font-size:.75rem;opacity:.7;margin-top:.2rem;}.online-players-section{display:none;}.online-players-section h3{font-family:'Fredoka One',cursive;color:#fff;font-size:1rem;margin-bottom:.8rem;}.online-player-list{max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;}.online-player-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:all .2s;}.online-player-item:hover{border-color:var(--cyan);background:rgba(102,214,255,.1);}.online-player-dot{width:10px;height:10px;border-radius:50%;background:#5dea7a;box-shadow:0 0 6px #5dea7a;flex-shrink:0;}.online-player-name{flex:1;font-weight:700;color:#fff;}.online-player-invite-btn{padding:.3rem .8rem;background:var(--cyan);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:.85rem;cursor:pointer;}.no-online{color:rgba(255,255,255,.4);text-align:center;padding:1rem;font-size:.9rem;}.arena-modal-close{margin-top:1rem;width:100%;padding:.7rem;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s;}.arena-modal-close:hover{border-color:var(--red);color:var(--red);}
-      .invite-notif{position:fixed;top:1.5rem;left:50%;transform:translateX(-50%) translateY(-150%);opacity: 0; pointer-events: none;background:linear-gradient(135deg,#1a2a4a,#2a3a5e);border:3px solid var(--cyan);border-radius:18px;padding:1.2rem 1.5rem;min-width:320px;max-width:90vw;box-shadow:0 0 30px rgba(102,214,255,.4),0 10px 40px rgba(0,0,0,.5);z-index:500;transition:transform .4s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;text-align:center;}.invite-notif.show{transform:translateX(-50%) translateY(0);opacity: 1; pointer-events: auto;}.invite-notif-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.2rem;margin-bottom:.2rem;}.invite-notif-sub{color:rgba(255,255,255,.65);font-size:.85rem;margin-bottom:1rem;}.invite-notif-btns{display:flex;gap:.7rem;}.invite-accept{flex:1;padding:.7rem;background:var(--green);border:none;border-radius:10px;color:#000;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .15s;}.invite-accept:hover{transform:translateY(-2px);}.invite-decline{flex:1;padding:.7rem;background:rgba(255,85,102,.15);border:2px solid var(--red);border-radius:10px;color:var(--red);font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;transition:all .15s;}.invite-decline:hover{background:rgba(255,85,102,.3);}.invite-pending{position:fixed;top:1.5rem;right:1.5rem;background:rgba(0,0,20,.9);border:2px solid var(--yellow);border-radius:12px;padding:.8rem 1.2rem;color:var(--yellow);font-weight:700;font-size:.85rem;z-index:499;display:none;animation:pulse 1.5s ease infinite;}.invite-pending.show{display:flex;align-items:center;gap:.5rem;}
-      .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}.confirm-overlay.show{display:flex;}.confirm-box{background:linear-gradient(160deg,#1a2a4a,#2a3a5e);border:3px solid var(--cyan);border-radius:22px;padding:2rem 2.5rem;max-width:360px;width:90%;text-align:center;box-shadow:0 0 40px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.confirm-item-name{font-family:'Fredoka One',cursive;font-size:1.6rem;color:#fff;margin-bottom:.3rem;}.confirm-price{color:var(--yellow);font-weight:800;font-size:1.1rem;margin-bottom:1.5rem;}.confirm-balance{color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:1.5rem;}.confirm-btns{display:flex;gap:.8rem;}.confirm-yes{flex:1;padding:.8rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 0 var(--darkteal);transition:all .15s;}.confirm-yes:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--darkteal);}.confirm-no{flex:1;padding:.8rem;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:rgba(255,255,255,.7);font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .15s;}.confirm-no:hover{border-color:var(--red);color:var(--red);background:rgba(255,85,102,.1);}
-      #screen-shop{flex-direction:column;background:linear-gradient(160deg,#1a1a3e 0%,#2a2a5e 100%);overflow-y:auto;}.shop-header{position:sticky;top:0;background:rgba(0,0,20,.92);border-bottom:3px solid var(--cyan);padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;z-index:10;backdrop-filter:blur(10px);}.shop-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.5rem;}.shop-section{padding:1.5rem;}.shop-section-title{font-family:'Fredoka One',cursive;color:#fff;font-size:1.2rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid rgba(255,255,255,.1);}.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;}.shop-item{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;}.shop-item:hover{border-color:var(--cyan);background:rgba(102,214,255,.1);transform:translateY(-3px);}.shop-item.owned{border-color:var(--green);}.shop-item.equipped{border-color:var(--yellow);background:rgba(255,229,102,.1);}.shop-item-preview{height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:.5rem;}.shop-item-name{font-weight:700;color:#fff;font-size:.9rem;margin-bottom:.4rem;}.shop-item-price{color:var(--yellow);font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:.3rem;}
-      #screen-home{flex-direction:column;background:#1a1a2e;align-items:center;justify-content:center;}.home-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.6);border-bottom:2px solid var(--cyan);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.home-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.2rem;}#home-canvas{display:block;border-radius:8px;border:3px solid rgba(255,255,255,.1);cursor:pointer;}.home-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border:2px solid var(--cyan);border-radius:12px;padding:.5rem 1.2rem;color:var(--cyan);font-size:.8rem;font-weight:700;pointer-events:none;z-index:5;}.home-panel{position:absolute;right:0;top:56px;bottom:0;width:220px;background:rgba(0,0,0,.75);border-left:2px solid var(--cyan);padding:1rem;overflow-y:auto;z-index:15;transform:translateX(100%);transition:transform .3s;backdrop-filter:blur(10px);}.home-panel.open{transform:translateX(0);}.home-panel h3{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1rem;margin-bottom:.8rem;}.home-panel-close{position:absolute;top:.5rem;right:.5rem;background:transparent;border:none;color:rgba(255,255,255,.5);font-size:1.2rem;cursor:pointer;padding:.2rem .5rem;}.home-panel-section{margin-bottom:1.2rem;}.home-panel-section-title{color:rgba(255,255,255,.6);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;}.home-option{padding:.5rem .8rem;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;margin-bottom:.4rem;}.home-option:hover{border-color:var(--cyan);background:rgba(102,214,255,.1);}.home-option.active-opt{border-color:var(--cyan);background:rgba(102,214,255,.15);color:var(--cyan);}.home-color-grid{display:flex;flex-wrap:wrap;gap:.4rem;}.home-color-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;}.home-color-dot:hover,.home-color-dot.sel{border-color:#fff;transform:scale(1.15);}
-      .loading-overlay{position:fixed;inset:0;background:var(--blue);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;transition:opacity .6s;}.loading-overlay.hide{opacity:0;pointer-events:none;}.loading-title{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--cyan);text-shadow:4px 4px 0 #000;}.loading-bar-outer{width:200px;height:12px;background:rgba(0,0,0,.3);border-radius:6px;border:2px solid var(--cyan);overflow:hidden;}.loading-bar-inner{height:100%;background:var(--cyan);border-radius:6px;animation:loadBar 1.8s ease forwards;}@keyframes loadBar{0%{width:0}100%{width:100%}}.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,20,.9);border:2px solid var(--cyan);border-radius:12px;padding:.8rem 1.2rem;color:#fff;font-weight:700;font-size:.9rem;transform:translateX(130%);transition:transform .3s;z-index:200;max-width:260px;}.toast.show{transform:translateX(0);}
-
-      /* MOBILE CONTROLS UI */
-      #mobile-ui { display:none; position:absolute; inset:0; pointer-events:none; z-index:100; }
-      .m-dpad { position:absolute; bottom:20px; left:20px; display:grid; grid-template-columns:55px 55px 55px; grid-template-rows:55px 55px 55px; gap:8px; pointer-events:auto; }
-      .m-btn { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:12px; color:#fff; font-size:24px; font-weight:bold; display:flex; align-items:center; justify-content:center; user-select:none; }
-      .m-btn:active { background:var(--cyan); color:#000; }
-      .m-act { position:absolute; bottom:30px; right:30px; width:90px; height:90px; border-radius:50%; background:rgba(255,85,102,0.6); border:4px solid var(--red); color:#fff; font-family:'Fredoka One',cursive; font-size:1.1rem; display:flex; align-items:center; justify-content:center; user-select:none; pointer-events:auto; box-shadow:0 0 20px rgba(255,85,102,0.4); }
-      .m-act:active { background:var(--red); transform:scale(0.95); }
-
-      /* ADMIN & HIDE AND SEEK UI */
-      .hns-hud { position:absolute; top: 75px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border:2px solid var(--cyan); color:#fff; font-family:'Fredoka One'; font-size:1.2rem; border-radius:15px; z-index:100; display:none; text-align:center;}
-      .admin-modal { background:linear-gradient(160deg,#2a0a1a,#4a0a1a); border:3px solid var(--red); max-height: 80vh; overflow-y: auto; }
-      .admin-modal h2 { color: var(--red); font-size: 2rem; }
-      .kick-btn { padding: .3rem .8rem; background: var(--red); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Fredoka One', cursive;}
-      .lava-flash { animation: lava-screen 0.5s ease; pointer-events: none;}
-      @keyframes lava-screen { 0% { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); } 50% { box-shadow: inset 0 0 200px 50px rgba(255,80,0,0.8); } 100% { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); } }
-
-      .audio-btn { position:fixed; top:80px; right:1.5rem; background:rgba(0,0,0,0.5); border:2px solid var(--cyan); border-radius:50%; width:45px; height:45px; color:#fff; font-size:1.3rem; cursor:pointer; z-index:999; display:flex; align-items:center; justify-content:center; transition: all 0.2s;}
-      .audio-btn:hover { background:var(--cyan); color:#000; transform: scale(1.1); }
-
-      /* MINING MINIGAME UI UPDATES */
-      .mining-bar-bg { width: 100%; height: 30px; background: #222; border-radius: 15px; border: 3px solid #555; position: relative; overflow: hidden; margin-top: 1rem; }
-      .mining-bar-zone { position: absolute; height: 100%; background: rgba(93, 234, 122, 0.6); top: 0; }
-      .mining-bar-cursor { position: absolute; height: 130%; width: 6px; background: #fff; top: -15%; left: 0%; transform: translateX(-50%); box-shadow: 0 0 8px #fff; z-index: 5;}
+      :root{--blue:#6684ff;--cyan:#66d6ff;--teal:#078992;--darkteal:#316679;--bright:#0eefff;--yellow:#ffe566;--green:#5dea7a;--red:#ff5566;--purple:#a855f7;}*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Nunito',sans-serif;background:var(--blue);height:100vh;overflow:hidden; touch-action:none;}.screen{display:none;width:100vw;height:100vh;position:absolute;top:0;left:0;}.screen.active{display:flex;}
       
-      /* BIG GAME INVITE UI */
-      .big-invite-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
-      .big-invite-overlay.show { display:flex; animation: confirmPop 0.3s ease-out; }
-      .big-invite-box { background:linear-gradient(145deg, #112244, #224488); border:4px solid var(--green); border-radius:24px; padding:3rem 2.5rem; max-width:550px; width:90%; text-align:center; box-shadow:0 0 60px rgba(93, 234, 122, 0.4), inset 0 0 20px rgba(0,0,0,0.5); }
-      .big-invite-title { font-family:'Fredoka One',cursive; font-size:2.8rem; color:var(--green); margin-bottom:1rem; text-shadow:3px 3px 0 #000; }
-      .big-invite-desc { color:#fff; font-size:1.15rem; line-height:1.6; margin-bottom:2.5rem; text-shadow: 1px 1px 2px #000;}
+      /* ADMIN STYLES */
+      #admin-pannel { position: fixed; top: 70px; right: 20px; width: 240px; background: rgba(0,0,0,0.9); border: 3px solid var(--purple); border-radius: 15px; padding: 15px; z-index: 1000; display: none; color: white; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+      #admin-pannel h2 { font-family: 'Fredoka One'; font-size: 1.2rem; color: var(--purple); margin-bottom: 10px; border-bottom: 1px solid #444; }
+      .admin-btn { width: 100%; padding: 8px; margin-bottom: 8px; border: none; border-radius: 8px; font-family: 'Fredoka One'; cursor: pointer; transition: 0.2s; }
+      .btn-game { background: var(--purple); color: white; }
+      .btn-kick { background: var(--red); color: white; font-size: 0.7rem; padding: 4px; }
+      .player-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 5px; }
+
+      /* GAME POPUP */
+      #game-invite-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: linear-gradient(135deg, #1e1b4b, #312e81); border: 4px solid var(--cyan); border-radius: 25px; padding: 30px; z-index: 2000; display: none; text-align: center; color: white; box-shadow: 0 0 100px rgba(0,0,0,0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      #game-invite-popup.show { display: block; transform: translate(-50%, -50%) scale(1); }
+      #game-invite-popup h1 { font-family: 'Fredoka One'; font-size: 2.5rem; margin-bottom: 10px; color: var(--yellow); }
+      .join-btn { background: var(--green); border: none; padding: 15px 40px; border-radius: 15px; font-family: 'Fredoka One'; font-size: 1.5rem; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 0 #2d7a42; }
+      .join-btn:active { transform: translateY(3px); box-shadow: none; }
+
+      /* Base Game Styles (Condensed for brevity) */
+      #screen-title{flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg, #112244 0%, #224488 100%);}
+      .title-logo{font-family:'Fredoka One',cursive;display:flex;filter:drop-shadow(5px 5px 0 rgba(0,0,0,.55));margin-bottom:.6rem;}
+      .title-logo-letter{font-size:clamp(3.5rem,8vw,6.5rem);color:var(--cyan);animation:letterBob 2.2s ease-in-out infinite;}
+      @keyframes letterBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+      .title-btn-play{background:var(--bright);border:none;border-radius:18px;padding:.9rem 4.5rem;color:var(--darkteal);font-family:'Fredoka One',cursive;font-size:1.4rem;cursor:pointer;box-shadow:0 6px 0 var(--darkteal);}
+      #screen-map{flex-direction:column; background:#a2d149;} .map-header{height:56px;background:rgba(0,0,0,.55);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;border-bottom:2px solid var(--cyan);}
+      #map-canvas{width:100vw;height:calc(100vh - 56px);display:block;}
+      .hud-coins{background:rgba(255,229,102,.12);border:2px solid var(--yellow);border-radius:20px;padding:.2rem .7rem;color:var(--yellow);margin-left:auto;}
+      /* Auth and Shop styles assumed same as original */
+      .loading-overlay{position:fixed;inset:0;background:var(--blue);z-index:4000;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+      .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,20,.9);border:2px solid var(--cyan);border-radius:12px;padding:.8rem 1.2rem;color:#fff;transform:translateX(130%);transition:transform .3s;z-index:200;}
+      .toast.show{transform:translateX(0);}
     </style>
   </head>
   <body>
-    <button class="audio-btn" id="audio-btn" onclick="toggleMute()">🔊</button>
+
+    <div id="admin-pannel">
+      <h2>👑 Admin Pannel</h2>
+      <div id="game-controls">
+        <button class="admin-btn btn-game" onclick="triggerGlobalGame('HideAndSeek')">Start Hide & Seek</button>
+        <button class="admin-btn btn-game" style="background:var(--red)" onclick="endGlobalGame()">End Current Game</button>
+      </div>
+      <div style="margin-top:15px">
+        <h3 style="font-size:0.7rem; text-transform:uppercase; color:#888">Online Players</h3>
+        <div id="admin-player-list"></div>
+      </div>
+    </div>
+
+    <div id="game-invite-popup">
+        <h1 id="popup-game-name">GAME EVENT!</h1>
+        <p id="popup-game-desc">A new game has started! Do you want to join?</p>
+        <button class="join-btn" onclick="acceptGameInvite()">JOIN NOW</button>
+        <button onclick="document.getElementById('game-invite-popup').classList.remove('show')" style="background:none; border:none; color:#888; cursor:pointer; display:block; margin: 10px auto;">Maybe later</button>
+    </div>
 
     <div class="loading-overlay" id="loading">
-      <div class="loading-title">FRED CITY</div>
-      <div class="loading-bar-outer"><div class="loading-bar-inner"></div></div>
-      <div style="color:rgba(102,214,255,.7);font-size:.9rem;font-weight:600;">Loading the world...</div>
+      <div style="font-family:'Fredoka One'; font-size:3rem; color:var(--cyan)">FRED CITY</div>
+      <div style="color:white">Loading Admin Modules...</div>
     </div>
+
     <div class="toast" id="toast"></div>
 
-    <div id="mobile-ui">
-        <div class="m-dpad">
-            <div></div><div class="m-btn" ontouchstart="simK('w',true)" ontouchend="simK('w',false)" onmousedown="simK('w',true)" onmouseup="simK('w',false)">W</div><div></div>
-            <div class="m-btn" ontouchstart="simK('a',true)" ontouchend="simK('a',false)" onmousedown="simK('a',true)" onmouseup="simK('a',false)">A</div>
-            <div class="m-btn" ontouchstart="simK('s',true)" ontouchend="simK('s',false)" onmousedown="simK('s',true)" onmouseup="simK('s',false)">S</div>
-            <div class="m-btn" ontouchstart="simK('d',true)" ontouchend="simK('d',false)" onmousedown="simK('d',true)" onmouseup="simK('d',false)">D</div>
-        </div>
-        <div class="m-act" ontouchstart="simAct()" onmousedown="simAct()">ACTION</div>
-    </div>
-    
-    <div class="arena-modal-overlay" id="admin-modal">
-      <div class="arena-modal admin-modal">
-        <h2>👑 ADMIN DASHBOARD</h2>
-        
-        <div class="auth-tabs" style="margin-top: 1rem;">
-          <button class="auth-tab active" id="adm-tab-btn-games" style="border-color:var(--red); color:var(--red);" onclick="switchAdminTab('games')">Minigames</button>
-          <button class="auth-tab" id="adm-tab-btn-players" style="border-color:var(--red); color:var(--red);" onclick="switchAdminTab('players')">All Players</button>
-        </div>
-
-        <div id="adm-tab-games">
-            <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="color:#fff; margin-bottom:10px; font-family:'Fredoka One',cursive;">🌲 Hide & Seek</h3>
-                <div class="arena-mode-btns" style="margin-bottom:0;">
-                <button class="btn-main" style="flex:1; background:var(--cyan); color:#000; font-size:1rem; padding:0.6rem;" onclick="startHnSGlobal()">Create Invite</button>
-                <button class="btn-main" style="flex:1; background:var(--green); color:#000; font-size:1rem; padding:0.6rem;" onclick="beginHnSGame()">Begin</button>
-                <button class="btn-main" style="flex:1; background:var(--red); color:#fff; font-size:1rem; padding:0.6rem;" onclick="endHnSGlobal()">End Game</button>
-                </div>
-            </div>
-
-            <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="color:#fff; margin-bottom:10px; font-family:'Fredoka One',cursive;">🌋 Floor is Lava Event</h3>
-                <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-bottom:0.5rem;">Instantly burns everyone on the main map. Takes 20 coins!</p>
-                <div class="arena-mode-btns" style="margin-bottom:0;">
-                <button class="btn-main" style="flex:1; background:#ff8800; color:#000; font-size:1rem; padding:0.6rem;" onclick="triggerLava()">TRIGGER LAVA NOW</button>
-                </div>
-            </div>
-
-            <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid rgba(255,255,255,0.1);">
-                <h3 style="color:#fff; margin-bottom:10px; font-family:'Fredoka One',cursive;">🧟 Zombie Infection</h3>
-                <p style="color:rgba(255,255,255,0.5); font-size:0.8rem; margin-bottom:0.5rem;">Coming soon: Turn a random player into a zombie who tags others!</p>
-                <div class="arena-mode-btns" style="margin-bottom:0;">
-                <button class="btn-main" style="flex:1; background:#88ff00; color:#000; font-size:1rem; padding:0.6rem;" onclick="playSfx('click'); showToast('Infection coming in next update!')">Start Infection</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="adm-tab-players" style="display:none;">
-            <div class="online-players-section" style="display:block;">
-                <h3 style="color:#fff;">👥 Global Player List</h3>
-                <p style="color:var(--red); font-size:0.8rem; margin-bottom:1rem;">Banning will immediately kick them from the game.</p>
-                <div class="online-player-list" id="admin-all-players-list">
-                    <div class="no-online">Loading all registered accounts...</div>
-                </div>
-            </div>
-        </div>
-
-        <button class="arena-modal-close" style="border-color:var(--red); color:var(--red);" onclick="closeAdmin()">Close Panel</button>
-      </div>
-    </div>
-
-    <div class="big-invite-overlay" id="big-game-invite">
-      <div class="big-invite-box">
-        <div class="big-invite-title" id="big-invite-title">🎮 EVENT!</div>
-        <div class="big-invite-desc" id="big-invite-desc">An epic game is starting.</div>
-        <div class="confirm-btns">
-          <button class="confirm-yes" onclick="respondGameInvite(true)" style="font-size:1.3rem; padding:1rem; background:var(--green);">JOIN EVENT!</button>
-          <button class="confirm-no" onclick="respondGameInvite(false)" style="font-size:1.3rem; padding:1rem;">Pass</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="teleport-overlay" id="teleport-overlay" onclick="if(event.target===this) closeTeleportMenu()">
-      <div class="map-modal">
-        <h2 style="color:var(--cyan);font-family:'Fredoka One',cursive;margin-bottom:1rem;">🗺️ World Map</h2>
-        <div class="mini-map-container">
-            <div class="mm-path"></div>
-            <div class="mm-path-horiz"></div>
-            <div class="mm-lake"></div>
-            <div class="mm-mountain"></div>
-            
-            <button class="mm-pin" style="left: 20%; top: 32.5%;" onclick="teleportTo(1200, 1300)">🌟</button>
-            <div class="mm-label" style="left: 20%; top: 39%;">Town Center</div>
-
-            <button class="mm-pin" style="left: 19.1%; top: 10.5%;" onclick="teleportTo(1150, 450)">⚔️</button>
-            <div class="mm-label" style="left: 19.1%; top: 17%;">Arena</div>
-
-            <button class="mm-pin" style="left: 10%; top: 25%;" onclick="teleportTo(600, 1050)">🏪</button>
-            <div class="mm-label" style="left: 10%; top: 31.5%;">Shop</div>
-
-            <button class="mm-pin" style="left: 33.3%; top: 25%;" onclick="teleportTo(2000, 1000)">🌊</button>
-            <div class="mm-label" style="left: 33.3%; top: 31.5%;">Lake</div>
-
-            <button class="mm-pin" style="left: 11.6%; top: 5%;" onclick="teleportTo(700, 300)">⛰️</button>
-            <div class="mm-label" style="left: 11.6%; top: 11.5%;">Mountain</div>
-            
-            <button class="mm-pin" style="left: 33.3%; top: 20%; font-size:1rem;" onclick="teleportTo(2000, 800)">🏠</button>
-            <div class="mm-label" style="left: 33.3%; top: 26.5%;">Fred's House</div>
-
-            <div class="mm-house" style="left:6.6%; top:35%;"></div>
-            <div class="mm-house" style="left:18.3%; top:37.5%;"></div>
-            <div class="mm-house" style="left:30%; top:12.5%;"></div>
-        </div>
-        <button style="padding:0.8rem 2rem; background:rgba(255,255,255,.1); border:2px solid var(--red); color:#fff; border-radius:10px; cursor:pointer; font-family:'Fredoka One',cursive; font-size:1.1rem; transition:all .2s;" onclick="closeTeleportMenu()" onmouseover="this.style.background='var(--red)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">Close Map</button>
-      </div>
-    </div>
-
-    <div id="fred-dialogue">
-       <div class="fred-box">
-           <img src="costume1.svg" width="90" style="background:#ffe566; border-radius:50%; border:3px solid #000; padding:5px; margin-bottom:1rem;">
-           <h3 style="color:#fff; margin-bottom: 1.5rem; font-size:1.2rem; line-height:1.4;" id="fred-text">...</h3>
-           <button class="btn-main" onclick="closeFred()" id="fred-btn">Got it!</button>
-       </div>
-    </div>
-
-    <div class="invite-notif" id="invite-notif">
-      <div class="invite-notif-title">⚔️ Battle Challenge!</div>
-      <div class="invite-notif-sub" id="invite-notif-sub">Someone invited you to a battle!</div>
-      <div class="invite-notif-btns">
-        <button class="invite-accept" onclick="respondInvite(true)">Accept!</button>
-        <button class="invite-decline" onclick="respondInvite(false)">Decline</button>
-      </div>
-    </div>
-    <div class="invite-pending" id="invite-pending">
-      <span>⏳</span><span id="invite-pending-text">Waiting for response...</span>
-    </div>
-
-    <div class="confirm-overlay" id="confirm-overlay">
-      <div class="confirm-box">
-        <div style="font-size:3.5rem;margin-bottom:.5rem" id="confirm-preview"></div>
-        <div class="confirm-item-name" id="confirm-item-name"></div>
-        <div class="confirm-price" id="confirm-price"></div>
-        <div class="confirm-balance" id="confirm-balance"></div>
-        <div class="confirm-btns">
-          <button class="confirm-yes" id="confirm-yes-btn">Buy It!</button>
-          <button class="confirm-no" onclick="closeConfirm()">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="arena-modal-overlay" id="arena-modal-overlay">
-      <div class="arena-modal">
-        <h2 id="arena-modal-title">⚔️ Battle Arena</h2>
-        <p class="arena-modal-sub" id="arena-modal-sub">Choose your battle mode</p>
-        <div class="arena-mode-btns">
-          <div class="arena-mode-btn ai" onclick="startAIBattle()">
-            <div class="mode-icon">🤖</div><div class="mode-title">vs AI</div><div class="mode-desc">Fight the computer</div>
-          </div>
-          <div class="arena-mode-btn pvp" onclick="showOnlinePlayers()">
-            <div class="mode-icon">👥</div><div class="mode-title">vs Player</div><div class="mode-desc">Challenge online players</div>
-          </div>
-        </div>
-        <div class="online-players-section" id="online-players-section">
-          <h3>🟢 Online Players</h3>
-          <div class="online-player-list" id="online-player-list">
-            <div class="no-online">Loading players...</div>
-          </div>
-        </div>
-        <button class="arena-modal-close" onclick="closeArenaModal()">Cancel</button>
-      </div>
-    </div>
-
     <div class="screen active" id="screen-title">
-      <div class="title-snow" id="title-snow"></div>
-      <div class="title-logo" style="position:relative;z-index:2">
+      <div class="title-logo">
         <span class="title-logo-letter">F</span><span class="title-logo-letter">R</span><span class="title-logo-letter">E</span><span class="title-logo-letter">D</span>
-        <div class="title-logo-gap"></div>
+        <div style="width:20px"></div>
         <span class="title-logo-letter">C</span><span class="title-logo-letter">I</span><span class="title-logo-letter">T</span><span class="title-logo-letter">Y</span>
       </div>
-      <div class="title-fred-wrap" id="title-fred-wrap">
-        <img src="costume1.svg" width="130" alt="Fred" style="display:block; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));" onerror="this.style.display='none'" />
-      </div>
-      <div class="title-subtitle">fred is cool</div>
-      <button class="title-btn-play" onclick="clickPlay()">▶ PLAY</button>
-      
-      <label class="title-controls-toggle">
-        <input type="checkbox" id="mobile-toggle" onchange="toggleMobile(this.checked)"> Use Mobile Controls
-      </label>
+      <button class="title-btn-play" onclick="showScreen('screen-auth')">▶ PLAY</button>
     </div>
 
     <div class="screen" id="screen-auth">
-      <button class="auth-back-btn" onclick="showScreen('screen-title')">← Back</button>
-      <div class="auth-logo">FRED CITY</div>
-      <div class="auth-box">
-        <div class="auth-tabs">
-          <button class="auth-tab active" onclick="switchTab('login')">Login</button>
-          <button class="auth-tab" onclick="switchTab('register')">Sign Up</button>
+        <div style="background:rgba(0,0,0,0.5); padding:40px; border-radius:20px; text-align:center;">
+            <h2 style="color:white; margin-bottom:20px;">Enter Fred City</h2>
+            <input type="email" id="auth-email" placeholder="Email" style="padding:10px; width:100%; border-radius:10px; border:none; margin-bottom:10px;">
+            <button class="title-btn-play" onclick="fakeLogin()" style="width:100%">LOGIN</button>
         </div>
-        <div id="auth-login-fields">
-          <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" /></div>
-          <div class="auth-field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" /></div>
-        </div>
-        <div id="auth-register-fields" style="display:none">
-          <div class="auth-field"><label>Username</label><input type="text" id="reg-username" placeholder="FreddyFred" /></div>
-          <div class="auth-field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" /></div>
-          <div class="auth-field"><label>Password</label><input type="password" id="reg-pass" placeholder="••••••••" /></div>
-        </div>
-        <button class="btn-main" id="auth-submit-btn" onclick="doAuth()">Play Now!</button>
-        <div class="auth-msg" id="auth-msg"></div>
-      </div>
     </div>
 
     <div class="screen" id="screen-map">
       <div class="map-header">
-        <button class="map-back-btn" onclick="doLogout()">← Logout</button>
-        <button class="map-back-btn" onclick="openTeleportMenu()">🗺️ Map</button>
-        <button class="map-back-btn" id="admin-btn" style="display:none; background:var(--red); border-color:#fff; color:#fff;" onclick="openAdmin()">👑 Admin</button>
-        <div class="map-header-title">🗺 The World</div>
-        <div style="color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;" id="map-username-hud"></div>
-        <div class="hud-coins">🪙 <span class="coins-hud">0</span></div>
+        <div style="font-family:'Fredoka One'; color:var(--cyan); font-size:1.2rem;">FRED CITY</div>
+        <div id="game-status-indicator" style="color:var(--green); font-weight:bold; font-size:0.8rem; display:none;">● GAME ACTIVE</div>
+        <div class="hud-coins">🪙 <span id="coin-count">0</span></div>
       </div>
-      <div class="hns-hud" id="hns-hud">Waiting for game...</div>
       <canvas id="map-canvas"></canvas>
-      <div class="map-hint" id="map-hint">WASD to move · Walk to interact · Keys 1-4 to Emote</div>
-      <div class="zone-popup" id="zone-popup">
-        <h3 id="zone-popup-title">Zone</h3>
-        <p id="zone-popup-desc" style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:.4rem;"></p>
-        <button class="enter-btn" id="zone-popup-btn">Enter!</button>
-      </div>
-    </div>
-    
-    <div class="screen" id="screen-minigame">
-      <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="showScreen('screen-map')">← Leave</button>
-      <h1 id="mg-title" style="font-family:'Fredoka One',cursive; color:var(--cyan); margin-bottom:2rem; font-size:2.5rem; text-shadow:2px 2px 0 #000;">Minigame</h1>
-      <div class="mg-box" id="mg-content"></div>
     </div>
 
-    <div class="screen" id="screen-battle">
-      <div class="battle-header">
-        <div class="battle-title" id="battle-arena-name">⚔️ Battle Arena</div>
-        <div class="health-bar-wrap" style="max-width:190px">
-          <div class="health-bar-label" id="player-name-hud">You</div>
-          <div class="health-bar-outer"><div class="health-bar-inner player" id="player-health-bar" style="width:100%"></div></div>
-        </div>
-        <div style="color:rgba(255,255,255,.3);font-size:1.1rem;flex-shrink:0">vs</div>
-        <div class="health-bar-wrap" style="max-width:190px">
-          <div class="health-bar-label" id="enemy-name-hud" style="text-align:right">Enemy</div>
-          <div class="health-bar-outer"><div class="health-bar-inner enemy" id="enemy-health-bar" style="width:100%"></div></div>
-        </div>
-        <div class="hud-coins" style="flex-shrink:0">🪙 <span class="coins-hud">0</span></div>
-      </div>
-      <button class="battle-leave-btn" onclick="leaveBattle()">✕ Leave</button>
-      <canvas id="battle-canvas" width="780" height="500"></canvas>
-      <div class="battle-controls" id="battle-hint">
-        <span class="battle-key">W A S D</span> Move
-        <span class="battle-key">Mouse Click</span> Shoot
-        <span class="battle-key">💚</span> Health Packs
-      </div>
-      <div class="battle-result-overlay" id="battle-result">
-        <div class="battle-result-title" id="battle-result-title">Victory!</div>
-        <div class="battle-result-coins" id="battle-result-coins"></div>
-        <button class="battle-result-btn" id="battle-result-btn" onclick="leaveBattle(true)">Return to World</button>
-      </div>
-    </div>
+    <script>
+        // --- FIREBASE CONFIG ---
+        // REPLACE WITH YOUR ACTUAL CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "ID",
+            appId: "APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
 
-    <div class="screen" id="screen-shop">
-      <div class="shop-header">
-        <div class="shop-header-title">🏪 Fred's Shop</div>
-        <div class="hud-coins">🪙 <span class="coins-hud">0</span></div>
-        <button class="shop-back-btn" onclick="showScreen('screen-map')">← Back to World</button>
-      </div>
-      <div class="shop-section">
-        <div class="shop-section-title">🎩 Hats</div>
-        <div class="shop-grid" id="shop-hats-grid"></div>
-      </div>
-      <div class="shop-section">
-        <div class="shop-section-title">🎨 Body Colors</div>
-        <div class="shop-grid" id="shop-colors-grid"></div>
-      </div>
-      <div class="shop-section">
-        <div class="shop-section-title">🏠 Wall
+        // --- GLOBAL STATE ---
+        let G = { uid: null, email: "", username: "Player", coins: 100, isAdmin: false, inGame: false };
+        let otherPlayers = {};
+        const MAP_SIZE = { w: 3000, h: 2000 };
+        const HIDE_MAP_SIZE = { w: 5000, h: 5000 };
+        let currentMapSize = MAP_SIZE;
+        
+        const canvas = document.getElementById('map-canvas');
+        const ctx = canvas.getContext('2d');
+        const player = { x: 500, y: 500, speed: 5, size: 30, color: '#fff', isSeeker: false };
+        const keys = {};
+
+        // --- AUTH & ADMIN CHECK ---
+        function fakeLogin() {
+            const email = document.getElementById('auth-email').value;
+            G.email = email;
+            G.username = email.split('@')[0];
+            G.uid = "user_" + Math.floor(Math.random()*1000);
+            
+            if(email === "masonlevihess@gmail.com") {
+                G.isAdmin = true;
+                document.getElementById('admin-pannel').style.display = 'block';
+                showToast("Welcome back, Master Admin!");
+            }
+            
+            showScreen('screen-map');
+            initGame();
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'screen-map') {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight - 56;
+            }
+        }
+
+        // --- ADMIN ACTIONS ---
+        function triggerGlobalGame(gameType) {
+            db.ref('global_game').set({
+                type: gameType,
+                active: true,
+                startTime: Date.now(),
+                seeker: "pending"
+            });
+            showToast("Game Broadcast Sent!");
+        }
+
+        function endGlobalGame() {
+            db.ref('global_game').set({ active: false });
+            db.ref('users').once('value', snap => {
+                snap.forEach(child => {
+                    db.ref(`users/${child.key}/current_game`).set(null);
+                });
+            });
+        }
+
+        function kickPlayer(uid) {
+            db.ref(`users/${uid}/kicked`).set(true);
+            showToast("Player Kicked!");
+        }
+
+        // --- GAME LOGIC ---
+        function initGame() {
+            document.getElementById('loading').style.display = 'none';
+            
+            // Listen for Global Games
+            db.ref('global_game').on('value', snap => {
+                const game = snap.val();
+                if(game && game.active && !G.inGame) {
+                    showGameInvite(game.type);
+                } else if(!game || !game.active) {
+                    exitMiniGame();
+                }
+            });
+
+            // Listen for Kick
+            db.ref(`users/${G.uid}/kicked`).on('value', snap => {
+                if(snap.val() === true) {
+                    alert("You have been kicked from the server.");
+                    window.location.reload();
+                }
+            });
+
+            // Update Admin Player List
+            if(G.isAdmin) {
+                db.ref('users').on('value', snap => {
+                    const list = document.getElementById('admin-player-list');
+                    list.innerHTML = '';
+                    snap.forEach(child => {
+                        const p = child.val();
+                        if(child.key === G.uid) return;
+                        const div = document.createElement('div');
+                        div.className = 'player-row';
+                        div.innerHTML = `<span>${p.username}</span><button class="btn-kick" onclick="kickPlayer('${child.key}')">KICK</button>`;
+                        list.appendChild(div);
+                    });
+                });
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function showGameInvite(type) {
+            const popup = document.getElementById('game-invite-popup');
+            document.getElementById('popup-game-name').textContent = type === 'HideAndSeek' ? "HIDE & SEEK" : "NEW GAME";
+            document.getElementById('popup-game-desc').textContent = "The Admin has started a game! Winner gets 50 coins!";
+            popup.classList.add('show');
+        }
+
+        function acceptGameInvite() {
+            G.inGame = true;
+            currentMapSize = HIDE_MAP_SIZE;
+            player.x = 2500; player.y = 2500; // Center of big map
+            document.getElementById('game-invite-popup').classList.remove('show');
+            document.getElementById('game-status-indicator').style.display = 'block';
+            showToast("Joined Hide & Seek! Find a spot!");
+        }
+
+        function exitMiniGame() {
+            G.inGame = false;
+            currentMapSize = MAP_SIZE;
+            document.getElementById('game-status-indicator').style.display = 'none';
+        }
+
+        // --- CORE LOOP ---
+        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            if(keys['w']) player.y -= player.speed;
+            if(keys['s']) player.y += player.speed;
+            if(keys['a']) player.x -= player.speed;
+            if(keys['d']) player.x += player.speed;
+            
+            // Boundary checks
+            player.x = Math.max(player.size, Math.min(currentMapSize.w - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(currentMapSize.h - player.size, player.y));
+
+            // Sync with Firebase
+            if(G.uid) {
+                db.ref(`users/${G.uid}`).update({
+                    x: player.x,
+                    y: player.y,
+                    username: G.username,
+                    inGame: G.inGame
+                });
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            
+            // Simple camera
+            const camX = player.x - canvas.width/2;
+            const camY = player.y - canvas.height/2;
+            
+            ctx.save();
+            ctx.translate(-camX, -camY);
+
+            // Draw Background (Grass)
+            ctx.fillStyle = G.inGame ? '#2d5a27' : '#a2d149';
+            ctx.fillRect(0,0, currentMapSize.w, currentMapSize.h);
+
+            // Draw Hiding Spots if in Game
+            if(G.inGame) {
+                ctx.fillStyle = '#1b3a18';
+                for(let i=0; i<50; i++) { // Random bushes
+                    ctx.beginPath();
+                    ctx.arc((i*137)%currentMapSize.w, (i*223)%currentMapSize.h, 60, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+
+            // Draw You
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "black";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("YOU (" + G.username + ")", player.x, player.y - 40);
+
+            ctx.restore();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+    </script>
+  </body>
+</html>

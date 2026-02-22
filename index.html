@@ -73,6 +73,8 @@
     </style>
   </head>
   <body>
+    <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
     <div class="loading-overlay" id="loading">
       <div class="loading-title">FRED CITY</div>
       <div class="loading-bar-outer"><div class="loading-bar-inner"></div></div>
@@ -246,6 +248,8 @@
       <div class="map-header">
         <button class="map-back-btn" onclick="doLogout()">← Logout</button>
         
+        <button class="map-back-btn" id="music-btn" onclick="toggleMusic()" style="border-color:var(--yellow); color:var(--yellow);">🔇 Music</button>
+        
         <button class="map-back-btn" id="nav-map-btn" onclick="openTeleportMenu()">🗺️ Map</button>
         <button class="map-back-btn" id="nav-leave-btn" style="display:none;background:#ff5566;color:#fff;border-color:#fff;" onclick="leaveGlobalGame()">🚪 Leave Game</button>
         
@@ -345,6 +349,31 @@
 const costume1Img = new Image();
 costume1Img.src = "costume1.svg";
 
+// MUSIC LOGIC
+let bgMusic = document.getElementById('bg-music');
+bgMusic.volume = 0.25;
+let isMusicPlaying = false;
+
+function toggleMusic() {
+    if(isMusicPlaying) {
+        bgMusic.pause();
+        isMusicPlaying = false;
+        document.getElementById('music-btn').textContent = "🔇 Music";
+    } else {
+        bgMusic.play().catch(e => console.log(e));
+        isMusicPlaying = true;
+        document.getElementById('music-btn').textContent = "🔊 Music";
+    }
+}
+function startMusicAuto() {
+    if(!isMusicPlaying) {
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            document.getElementById('music-btn').textContent = "🔊 Music";
+        }).catch(e => console.log("Audio autoplay blocked by browser."));
+    }
+}
+
 // MOBILE CONTROLS LOGIC
 let isMobile = false;
 function toggleMobile(val) { isMobile = val; }
@@ -420,9 +449,8 @@ function kickPlayer(uid, name) {
 
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null, state: 'lobby', hidersLeft: 0 });
+    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0 });
     
-    // Reset everyone's caught status
     db.ref('users').once('value', snap => {
         snap.forEach(child => {
             db.ref('users/' + child.key).update({ hsCaught: false });
@@ -449,26 +477,25 @@ function pickSeeker() {
     let chosen = pool[Math.floor(Math.random() * pool.length)];
     let chosenName = chosen === G.uid ? G.username : otherPlayers[chosen].username;
     
+    // Update local state INSTANTLY to prevent sync bug
+    globalGameState.seeker = chosen;
+    globalGameState.seekerName = chosenName;
+    
     db.ref('global_game').update({ seeker: chosen, seekerName: chosenName });
     document.getElementById('admin-current-seeker').textContent = `Current Seeker: ${chosenName}`;
     showToast("Random Seeker chosen! Click Begin Game when ready.");
 }
 
-// FIXED BEGIN GAME FUNCTION
-async function beginGlobalGame() {
+function beginGlobalGame() {
     if(!firebaseReady) return;
     
-    // We fetch directly from Firebase so there's zero delay for the admin checks
-    const snap = await db.ref('global_game').once('value');
-    const gameData = snap.val();
-    
-    if(!gameData || !gameData.seeker) { 
+    if(!globalGameState.seeker) { 
         showToast("You must pick a seeker first!"); 
         return; 
     }
     
-    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== gameData.seeker).length;
-    if (G.currentMap === 'minigame_map' && G.uid !== gameData.seeker) totalHiders++;
+    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== globalGameState.seeker).length;
+    if (G.currentMap === 'minigame_map' && G.uid !== globalGameState.seeker) totalHiders++;
 
     db.ref('global_game').update({ state: 'playing', hidersLeft: totalHiders });
     closeAdminPanel();
@@ -483,8 +510,12 @@ function endGlobalGame() {
 }
 
 function leaveGlobalGame() {
-    switchMap('main', 1200, 1300);
-    showToast("Left the game map.");
+    if (G.email === 'masonlevihess@gmail.com') {
+        endGlobalGame(); // Admin leaving ends it for everyone
+    } else {
+        switchMap('main', 1200, 1300);
+        showToast("Left the game map.");
+    }
 }
 
 // FIREBASE
@@ -531,7 +562,10 @@ function showScreen(id){
         document.getElementById('mobile-ui').style.display = 'none';
     }
 
-    if(id==='screen-map') initMap(); 
+    if(id==='screen-map') {
+        initMap(); 
+        startMusicAuto(); 
+    }
     if(id==='screen-shop') renderShop(); 
     if(id==='screen-home') initHome(); 
 }
@@ -592,7 +626,6 @@ let prevSeeker = null;
 function listenToPlayers() {
   if(!firebaseReady) return;
   
-  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -601,10 +634,10 @@ function listenToPlayers() {
       }
   });
 
-  // Global Game Listener
   db.ref('global_game').on('value', snap => {
-      if(snap.exists()) {
-          globalGameState = snap.val();
+      let data = snap.val();
+      if(data && data.active) {
+          globalGameState = data;
           
           if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
               showToast("🚨 SEEKER CHOSEN: " + (globalGameState.seekerName || 'Someone') + "!");
@@ -617,7 +650,6 @@ function listenToPlayers() {
           
           if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
               if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
-                  // Find the last person standing
                   let winnerName = "Someone";
                   if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
                   else {
@@ -626,7 +658,7 @@ function listenToPlayers() {
                       });
                   }
                   alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
+                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); 
               }
           }
           
@@ -635,9 +667,9 @@ function listenToPlayers() {
       } else {
           globalGameState = { active: false, seeker: null, state: 'lobby' };
           
-          if(G.currentMap !== 'main' && prevGameState !== null) {
-              leaveGlobalGame(); // boot back if admin ends
-              showToast("The minigame has ended.");
+          if(G.currentMap === 'minigame_map') {
+              switchMap('main', 1200, 1300); 
+              showToast("The game has ended.");
           }
           
           prevGameState = null;
@@ -1289,7 +1321,7 @@ function startInviteListener(){
   }); 
   _inviteUnsubscribe = () => invitesRef.off();
 }
-function unsubscribeInvites(){ if(_inviteUnsubscribe){_inviteUnsubscribe=null;} }
+function unsubscribeInvites(){ if(_inviteUnsubscribe){_inviteUnsubscribe();_inviteUnsubscribe=null;} }
 
 async function sendBattleInvite(toUid,toName){ 
   if(!firebaseReady){showToast('Firebase required');return;} 

@@ -134,12 +134,7 @@
         <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 1. Start Hide & Seek Lobby</button>
         <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start Tag Lobby</button>
         
-        <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:10px; margin:10px 0;">
-            <button class="admin-btn" onclick="pickSeeker()" style="background:var(--yellow); color:#000; border-color:var(--yellow); margin-bottom:5px;">🎯 2. Pick Random Seeker</button>
-            <div id="admin-current-seeker" style="color:var(--yellow); text-align:center; font-weight:bold; font-size:0.9rem;">Current Seeker: None</div>
-        </div>
-        
-        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green);">▶️ 3. Begin Game (Start!)</button>
+        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin Game (You are Seeker)</button>
         <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
         
         <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
@@ -434,8 +429,6 @@ function openAdminPanel() {
     });
     if(list.innerHTML === '') list.innerHTML = '<span style="color:#aaa;">No other players online</span>';
     
-    document.getElementById('admin-current-seeker').textContent = `Current Seeker: ${globalGameState.seekerName || 'None'}`;
-    
     document.getElementById('admin-panel-overlay').classList.add('show');
 }
 function closeAdminPanel() { document.getElementById('admin-panel-overlay').classList.remove('show'); }
@@ -464,47 +457,26 @@ function startGlobalGame(gameName) {
         });
     });
     
-    showToast(`Started global game lobby! Pick a seeker, then Begin.`);
+    showToast(`Started global game lobby! Players are joining.`);
     switchMap('minigame_map', 6000, 6000); 
 }
 
-function pickSeeker() {
+function beginGlobalGame() {
     if(!firebaseReady) return;
-    let pool = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map');
-    if (G.currentMap === 'minigame_map') pool.push(G.uid);
-    
-    if(pool.length === 0) { showToast("No one has joined the map yet!"); return; }
-    
-    let chosen = pool[Math.floor(Math.random() * pool.length)];
-    let chosenName = chosen === G.uid ? G.username : otherPlayers[chosen].username;
-    
-    // Update local state INSTANTLY to prevent sync bug
-    globalGameState.seeker = chosen;
-    globalGameState.seekerName = chosenName;
-    
-    db.ref('global_game').update({ seeker: chosen, seekerName: chosenName });
-    document.getElementById('admin-current-seeker').textContent = `Current Seeker: ${chosenName}`;
-    showToast("Random Seeker chosen! Click Begin Game when ready.");
-}
 
-// FIXED BEGIN GAME FUNCTION
-async function beginGlobalGame() {
-    if(!firebaseReady) return;
+    // Count how many OTHER players are currently in the minigame map
+    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
     
-    // We fetch directly from Firebase so there's zero delay for the admin checks
-    const snap = await db.ref('global_game').once('value');
-    const gameData = snap.val();
+    // Assign admin as seeker and start instantly
+    db.ref('global_game').update({ 
+        state: 'playing', 
+        hidersLeft: totalHiders,
+        seeker: G.uid,
+        seekerName: G.username
+    });
     
-    if(!gameData || !gameData.seeker) { 
-        showToast("You must pick a seeker first!"); 
-        return; 
-    }
-    
-    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map' && id !== gameData.seeker).length;
-    if (G.currentMap === 'minigame_map' && G.uid !== gameData.seeker) totalHiders++;
-
-    db.ref('global_game').update({ state: 'playing', hidersLeft: totalHiders });
     closeAdminPanel();
+    showToast("Game Started! YOU are the Seeker!");
 }
 
 function endGlobalGame() {

@@ -129,10 +129,11 @@
       <div class="admin-modal">
         <h2>👑 ADMIN CONTROLS</h2>
         
-        <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 Start Hide & Seek</button>
-        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 Start Tag</button>
-        <button class="admin-btn safe" onclick="pickSeeker()" style="background:var(--yellow); color:#000; border-color:var(--yellow);">🎯 Pick Random Seeker</button>
-        <button class="admin-btn" onclick="endGlobalGame()">🛑 End Current Game</button>
+        <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 1. Start Hide & Seek Lobby</button>
+        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start Tag Lobby</button>
+        <button class="admin-btn" onclick="pickSeeker()" style="background:var(--yellow); color:#000; border-color:var(--yellow);">🎯 2. Pick Random Seeker</button>
+        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green);">▶️ 3. Begin Game (Start!)</button>
+        <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
         
         <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
         <div class="admin-player-list" id="admin-player-list"></div>
@@ -239,7 +240,10 @@
     <div class="screen" id="screen-map">
       <div class="map-header">
         <button class="map-back-btn" onclick="doLogout()">← Logout</button>
-        <button class="map-back-btn" onclick="openTeleportMenu()">🗺️ Map</button>
+        
+        <button class="map-back-btn" id="nav-map-btn" onclick="openTeleportMenu()">🗺️ Map</button>
+        <button class="map-back-btn" id="nav-leave-btn" style="display:none;background:#ff5566;color:#fff;border-color:#fff;" onclick="leaveGlobalGame()">🚪 Leave Game</button>
+        
         <button class="admin-hdr-btn" id="admin-hdr-btn" onclick="openAdminPanel()">👑 Admin</button>
         <div class="map-header-title">🗺 The World</div>
         <div style="color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;" id="map-username-hud"></div>
@@ -355,9 +359,31 @@ function simAct() {
     }
 }
 
+// MAP NAV LOGIC
+function switchMap(mapId, startX, startY) {
+    G.currentMap = mapId;
+    map.player.x = startX;
+    map.player.y = startY;
+    updateNavButtons();
+}
+
+function updateNavButtons() {
+    const mapBtn = document.getElementById('nav-map-btn');
+    const leaveBtn = document.getElementById('nav-leave-btn');
+    if(mapBtn && leaveBtn) {
+        if(G.currentMap === 'main') {
+            mapBtn.style.display = 'block';
+            leaveBtn.style.display = 'none';
+        } else {
+            mapBtn.style.display = 'none';
+            leaveBtn.style.display = 'block';
+        }
+    }
+}
+
 function openTeleportMenu() { document.getElementById('teleport-overlay').classList.add('show'); }
 function closeTeleportMenu() { document.getElementById('teleport-overlay').classList.remove('show'); }
-function teleportTo(x, y) { map.player.x = x; map.player.y = y; closeTeleportMenu(); showToast('💫 Fast traveled!'); }
+function teleportTo(x, y) { map.player.x = x; map.player.y = y; closeTeleportMenu(); }
 
 // ADMIN FUNCTIONS
 function openAdminPanel() {
@@ -384,7 +410,7 @@ function kickPlayer(uid, name) {
 
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null });
+    db.ref('global_game').set({ active: true, name: gameName, seeker: null, state: 'lobby' });
     
     // Send invites to EVERYONE
     Object.keys(otherPlayers).forEach(uid => {
@@ -393,33 +419,41 @@ function startGlobalGame(gameName) {
         });
     });
     
-    showToast(`Started global game of ${gameName}! Check your map.`);
-    G.currentMap = 'hide_and_seek'; // Admin auto joins
-    teleportTo(10000, 10000); 
+    showToast(`Started global game lobby! Pick a seeker, then Begin.`);
+    switchMap('minigame_map', 6000, 6000); // Admin auto joins the new map
+}
+
+function pickSeeker() {
+    if(!firebaseReady) return;
+    let pool = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map');
+    if (G.currentMap === 'minigame_map') pool.push(G.uid);
+    
+    if(pool.length === 0) { showToast("No one has joined the map yet!"); return; }
+    
+    let chosen = pool[Math.floor(Math.random() * pool.length)];
+    let chosenName = chosen === G.uid ? G.username : otherPlayers[chosen].username;
+    
+    db.ref('global_game').update({ seeker: chosen, seekerName: chosenName });
+    showToast("Random Seeker chosen! Click Begin Game when ready.");
+}
+
+function beginGlobalGame() {
+    if(!firebaseReady) return;
+    db.ref('global_game').update({ state: 'playing' });
     closeAdminPanel();
 }
 
 function endGlobalGame() {
     if(!firebaseReady) return;
     db.ref('global_game').set({ active: false });
-    G.currentMap = 'main';
-    teleportTo(1200, 1300);
+    switchMap('main', 1200, 1300);
     showToast("Global game ended.");
     closeAdminPanel();
 }
 
-function pickSeeker() {
-    if(!firebaseReady) return;
-    // Pick from all online players (including admin for fun)
-    let pool = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'hide_and_seek');
-    if (G.currentMap === 'hide_and_seek') pool.push(G.uid);
-    
-    if(pool.length === 0) { showToast("No one has joined the game map yet!"); return; }
-    
-    let chosen = pool[Math.floor(Math.random() * pool.length)];
-    db.ref('global_game/seeker').set(chosen);
-    showToast("Random Seeker chosen!");
-    closeAdminPanel();
+function leaveGlobalGame() {
+    switchMap('main', 1200, 1300);
+    showToast("Left the game map.");
 }
 
 // FIREBASE
@@ -445,7 +479,7 @@ try {
 
 let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false};
 let otherPlayers = {};
-let globalGameState = { active: false, seeker: null };
+let globalGameState = { active: false, seeker: null, state: 'lobby' };
 
 const SHOP_HATS=[ {id:'none',name:'No Hat',price:0,emoji:'·'}, {id:'crown',name:'Crown',price:150,emoji:'👑'}, {id:'beanie',name:'Beanie',price:100,emoji:'🧢'}, {id:'wizard',name:'Wizard Hat',price:200,emoji:'🧙'}, {id:'tophat',name:'Top Hat',price:120,emoji:'🎩'}, {id:'prop',name:'Propeller Cap',price:180,emoji:'🌀'}, {id:'cowboy',name:'Cowboy Hat',price:130,emoji:'🤠'}, {id:'halo',name:'Angel Halo',price:250,emoji:'👼'}, {id:'headphones',name:'Headphones',price:160,emoji:'🎧'} ];
 const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'}, {id:'#66d6ff',name:'Ocean Blue',price:80,color:'#66d6ff'}, {id:'#ff9966',name:'Sunset Orange',price:80,color:'#ff9966'}, {id:'#aa88ff',name:'Purple Dream',price:80,color:'#aa88ff'}, {id:'#5dea7a',name:'Forest Green',price:80,color:'#5dea7a'}, {id:'#ffe566',name:'Golden Yellow',price:100,color:'#ffe566'}, {id:'#ff6688',name:'Hot Pink',price:100,color:'#ff6688'}, {id:'#ff4444',name:'Fire Red',price:120,color:'#ff4444'}, {id:'#39ff14',name:'Neon Green',price:150,color:'#39ff14'}, {id:'#00ffff',name:'Cyan Glow',price:150,color:'#00ffff'}, {id:'#111122',name:'Midnight',price:200,color:'#111122'} ];
@@ -521,6 +555,9 @@ async function saveUserData(){
   } catch(e){} 
 }
 
+let prevGameState = null;
+let prevSeeker = null;
+
 function listenToPlayers() {
   if(!firebaseReady) return;
   
@@ -535,13 +572,30 @@ function listenToPlayers() {
 
   // Global Game Listener
   db.ref('global_game').on('value', snap => {
-      if(snap.exists()) globalGameState = snap.val();
-      else globalGameState = { active: false, seeker: null };
-      
-      // If game ends, boot player back to main map
-      if(!globalGameState.active && G.currentMap === 'hide_and_seek') {
-          G.currentMap = 'main';
-          teleportTo(1200, 1300);
+      if(snap.exists()) {
+          globalGameState = snap.val();
+          
+          if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
+              showToast("🚨 SEEKER CHOSEN: " + (globalGameState.seekerName || 'Someone') + "!");
+              prevSeeker = globalGameState.seeker;
+          }
+
+          if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
+              showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
+          }
+          
+          prevGameState = globalGameState.state;
+
+      } else {
+          globalGameState = { active: false, seeker: null, state: 'lobby' };
+          
+          if(G.currentMap !== 'main' && prevGameState !== null) {
+              leaveGlobalGame(); // boot back if admin ends
+              showToast("The minigame has ended.");
+          }
+          
+          prevGameState = null;
+          prevSeeker = null;
       }
   });
 
@@ -602,6 +656,7 @@ if(firebaseReady){
         }
       });
       
+      updateNavButtons();
       startInviteListener(); listenToPlots(); listenToPlayers(); startPositionSync(); 
     } 
     hideLoading(); showScreen('screen-title'); 
@@ -755,8 +810,8 @@ function updateMap(){
 
   if(map.keys['w']||map.keys['arrowup']) p.y-=p.speed; if(map.keys['s']||map.keys['arrowdown']) p.y+=p.speed; if(map.keys['a']||map.keys['arrowleft']) p.x-=p.speed; if(map.keys['d']||map.keys['arrowright']) p.x+=p.speed;
   
-  const curW = G.currentMap === 'hide_and_seek' ? 12000 : MAP_W;
-  const curH = G.currentMap === 'hide_and_seek' ? 12000 : MAP_H;
+  const curW = G.currentMap === 'minigame_map' ? 12000 : MAP_W;
+  const curH = G.currentMap === 'minigame_map' ? 12000 : MAP_H;
   
   p.x=Math.max(p.size,Math.min(curW-p.size,p.x)); p.y=Math.max(p.size,Math.min(curH-p.size,p.y));
   const cw=map.canvas.width,ch=map.canvas.height; map.cam.x=Math.max(0,Math.min(curW-cw,p.x-cw/2)); map.cam.y=Math.max(0,Math.min(curH-ch,p.y-ch/2));
@@ -808,22 +863,49 @@ function updateMap(){
   });
 }
 
-// Map elements for hide and seek caching
-let hsTrees = [];
-for(let i=0; i<300; i++) {
-    hsTrees.push([Math.random()*12000, Math.random()*12000]);
+// Map elements for hide and seek caching (Seeded so everyone sees the SAME spots)
+function getSeededRandom(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
+let hsSpots = [];
+let seedNum = 12345;
+for(let i=0; i<350; i++) {
+    hsSpots.push({
+        x: getSeededRandom(seedNum++) * 12000, 
+        y: getSeededRandom(seedNum++) * 12000,
+        type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush'
+    });
 }
 
 function renderMap(){
   const ctx=map.ctx; if(!ctx)return; ctx.save(); ctx.translate(-map.cam.x,-map.cam.y);
   
-  if (G.currentMap === 'hide_and_seek') {
+  if (G.currentMap === 'minigame_map') {
+      // 1. Draw Background
       ctx.fillStyle='#132616'; ctx.fillRect(0,0,12000,12000); 
-      hsTrees.forEach(([tx,ty])=>{ 
-          ctx.fillStyle='#2b1a10'; ctx.fillRect(tx-10,ty+10,20,30); 
-          ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(tx, ty-50); ctx.lineTo(tx+40, ty+15); ctx.lineTo(tx-40, ty+15); ctx.fill(); 
-          ctx.beginPath(); ctx.moveTo(tx, ty-80); ctx.lineTo(tx+30, ty-10); ctx.lineTo(tx-30, ty-10); ctx.fill(); 
+      
+      // 2. Draw Bottom of Hiding Spots (Trunks & Bush Shadows)
+      hsSpots.forEach(s => { 
+          if(s.type === 'tree') {
+              ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); 
+          } else {
+              ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill();
+          }
       });
+
+      // 3. Draw Players (Will be drawn underneath the tops of the hiding spots)
+      drawAllPlayers(ctx);
+
+      // 4. Draw Tops of Hiding Spots (Canopies & Leaves) so you can HIDE!
+      hsSpots.forEach(s => { 
+          if(s.type === 'tree') {
+              ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill(); 
+              ctx.beginPath(); ctx.moveTo(s.x, s.y-80); ctx.lineTo(s.x+30, s.y-10); ctx.lineTo(s.x-30, s.y-10); ctx.fill(); 
+          } else {
+              ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(s.x, s.y, 45, 0, Math.PI*2); ctx.fill();
+              ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(s.x-15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+              ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+          }
+      });
+
   } else {
       ctx.fillStyle='#a2d149'; ctx.fillRect(0,0,MAP_W,MAP_H); 
     
@@ -892,13 +974,19 @@ function renderMap(){
           ctx.font = "30px Arial"; ctx.textAlign = 'center'; ctx.fillText(item.emoji, 0, 10);
           ctx.restore();
       });
-    
+
+      drawAllPlayers(ctx);
+
       const trees = [[250,100],[700,200],[1500,100],[300,800],[1300,700],[2100,600],[200,1600],
                      [1000,1700],[2200,1500],[1100,250],[3200,2200],[3400,2600],[3600,2400],
                      [3800,2700],[3100,2800], [4200,800], [5500, 500], [4800, 1800], [5200, 3200]];
       trees.forEach(([tx,ty])=>{ ctx.fillStyle='#5D4037'; ctx.fillRect(tx-6,ty+10,12,20); ctx.fillStyle='#2E7D32'; ctx.beginPath(); ctx.moveTo(tx, ty-30); ctx.lineTo(tx+25, ty+10); ctx.lineTo(tx-25, ty+10); ctx.fill(); ctx.beginPath(); ctx.moveTo(tx, ty-45); ctx.lineTo(tx+20, ty-5); ctx.lineTo(tx-20, ty-5); ctx.fill(); ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.moveTo(tx, ty-45); ctx.lineTo(tx+10, ty-25); ctx.lineTo(tx-10, ty-25); ctx.fill(); ctx.beginPath(); ctx.moveTo(tx, ty-30); ctx.lineTo(tx+15, ty-10); ctx.lineTo(tx-15, ty-10); ctx.fill(); });
   }
+  
+  ctx.restore();
+}
 
+function drawAllPlayers(ctx) {
   // Draw Other Players
   Object.values(otherPlayers).forEach(p => {
     if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
@@ -909,18 +997,26 @@ function renderMap(){
       } else {
         drawFred(ctx, p.x, p.y, 60, p.color || '#ffffff', p.hat || 'none'); 
       }
-      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap==='hide_and_seek'?'#fff':'#333';
-      ctx.fillText(p.username || 'Player', p.x, p.y-40);
       
-      // Seeker Label
+      let showName = true;
+      // Stealth Mode: Hide names during active minigames
+      if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
+
+      if(showName) {
+          ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
+          ctx.fillText(p.username || 'Player', p.x, p.y-40);
+      }
+      
+      // Keep Seeker visible
       if(globalGameState.active && globalGameState.seeker === p.uid) {
           ctx.fillStyle = '#ff5566';
+          ctx.font="bold 16px 'Nunito',sans-serif";
           ctx.fillText("🔴 SEEKER", p.x, p.y-60);
       }
       
       if (p.emote && p.emoteExpires > Date.now()) {
         ctx.font = "28px Arial";
-        ctx.fillText(p.emote, p.x, p.y - 65);
+        ctx.fillText(p.emote, p.x, p.y - 80);
       }
     }
   });
@@ -934,22 +1030,25 @@ function renderMap(){
     drawFred(ctx, map.player.x, map.player.y, 60, G.color, G.hat); 
   }
   
-  ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap==='hide_and_seek'?'#fff':'#333';
-  ctx.fillText(G.username, map.player.x, map.player.y-40);
+  let showMyName = true;
+  if (G.currentMap !== 'main' && globalGameState.state === 'playing') showMyName = false;
   
-  // Seeker Label for Me
+  if(showMyName) {
+      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
+      ctx.fillText(G.username, map.player.x, map.player.y-40);
+  }
+  
   if(globalGameState.active && globalGameState.seeker === G.uid) {
       ctx.fillStyle = '#ff5566';
+      ctx.font="bold 16px 'Nunito',sans-serif";
       ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
   }
 
   if (map.player.emoteTimer > 0) {
     map.player.emoteTimer--;
     ctx.font = "28px Arial";
-    ctx.fillText(map.player.emote, map.player.x, map.player.y - 65); 
+    ctx.fillText(map.player.emote, map.player.x, map.player.y - 80); 
   }
-  
-  ctx.restore();
 }
 
 function startFishing() {
@@ -1162,17 +1261,14 @@ async function respondInvite(accept){
   
   if (firebaseReady) {
     if (_inviteIsGlobal) {
-        // Global Game Handling
         if (accept) { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
           showToast('🌲 Teleporting to the map...'); 
-          G.currentMap = 'hide_and_seek';
-          teleportTo(10000, 10000);
+          switchMap('minigame_map', 6000, 6000);
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 
         }
     } else {
-        // Normal Battle Handling
         if (accept) { 
           await db.ref('battles/' + id).set({
             p1: { x: 100, y: 500/2, hp: 100 },

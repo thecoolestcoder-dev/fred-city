@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FRED CITY - TAG EDITION</title>
+    <title>FRED CITY</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -19,8 +19,29 @@
       /* MAP */#screen-map{flex-direction:column; background:#a2d149;} .map-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:2px solid var(--cyan);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.map-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.3rem;letter-spacing:.05em;}.hud-coins{background:rgba(255,229,102,.12);border:2px solid var(--yellow);border-radius:20px;padding:.2rem .7rem;color:var(--yellow);font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.3rem;margin-left:auto;}.map-back-btn,.shop-back-btn,.admin-hdr-btn{padding:.4rem .9rem;background:rgba(0,0,0,.4);border:2px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;}.map-back-btn:hover,.shop-back-btn:hover,.admin-hdr-btn:hover{background:rgba(102,214,255,.2)}.admin-hdr-btn{border-color:#ff5566;color:#ff5566;display:none;}.admin-hdr-btn:hover{background:rgba(255,85,102,.2)}#map-canvas{position:absolute;top:56px;left:0;width:100vw;height:calc(100vh - 56px);display:block;}.map-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border:2px solid var(--cyan);border-radius:12px;padding:.5rem 1.2rem;color:var(--cyan);font-size:.8rem;font-weight:700;pointer-events:none;}.zone-popup{position:absolute;display:none;background:rgba(0,0,20,.88);border:2px solid var(--cyan);border-radius:14px;padding:1rem 1.5rem;color:#fff;text-align:center;backdrop-filter:blur(10px);z-index:20;transform:translate(-50%,-130%);}.zone-popup h3{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.1rem;margin-bottom:.4rem;}.zone-popup .enter-btn{background:var(--cyan);border:none;border-radius:8px;padding:.5rem 1.2rem;color:#000;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;margin-top:.5rem;box-shadow:0 3px 0 var(--darkteal);transition:all .15s;}.zone-popup .enter-btn:hover{transform:translateY(-2px);}
 
       /* ADMIN PANEL */
-      .admin-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}.admin-panel-overlay.show{display:flex;}.admin-modal{background:linear-gradient(160deg,#2a1a2a,#4a1a2a);border:3px solid var(--red);border-radius:20px;padding:1.5rem;width:95%;max-width:500px;box-shadow:0 0 40px rgba(255,85,102,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.admin-modal h2{color:var(--red);font-family:'Fredoka One',cursive;margin-bottom:.5rem;text-align:center;}.admin-btn{width:100%;padding:.8rem;background:rgba(255,85,102,.15);border:2px solid var(--red);border-radius:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .15s;margin-bottom:0.8rem;}.admin-btn:hover{background:var(--red);color:#000;}.admin-btn.safe{border-color:var(--cyan);background:rgba(102,214,255,.15);}.admin-btn.safe:hover{background:var(--cyan);color:#000;}.admin-player-list{max-height:150px;overflow-y:auto;background:rgba(0,0,0,.5);border-radius:10px;padding:1rem;margin-bottom:1rem;}.admin-player-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-size:.9rem;}.admin-kick-btn{padding:.3rem .6rem;background:var(--red);border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:bold;}
+      .admin-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);}.admin-panel-overlay.show{display:flex;}
+      .admin-modal{background:linear-gradient(160deg,#1a0a1a,#3a0a1a);border:4px solid var(--red);border-radius:24px;padding:2rem;width:95%;max-width:550px;box-shadow:0 0 60px rgba(255,85,102,.4),inset 0 0 30px rgba(255,85,102,.1);animation:confirmPop .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+      .admin-modal h2{color:var(--red);font-family:'Fredoka One',cursive;margin-bottom:1rem;text-align:center;font-size:2rem;text-shadow: 2px 2px 0 #000;}
+      .admin-section-title {color:var(--yellow); font-family:'Fredoka One',cursive; font-size: 1.1rem; margin-bottom: 0.5rem; border-bottom: 2px solid rgba(255,229,102,0.3); padding-bottom: 0.3rem;}
+      .admin-btn{width:100%;padding:1rem;background:rgba(255,85,102,.15);border:2px solid var(--red);border-radius:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s;margin-bottom:1rem; box-shadow: 0 4px 0 #000;}
+      .admin-btn:hover{background:var(--red);color:#000;transform:translateY(-2px);box-shadow: 0 6px 0 #000, 0 0 20px rgba(255,85,102,0.5);}
+      .admin-btn:active{transform:translateY(2px);box-shadow: 0 2px 0 #000;}
+      .admin-btn.safe{border-color:var(--cyan);background:rgba(102,214,255,.15);color:var(--cyan);}
+      .admin-btn.safe:hover{background:var(--cyan);color:#000; box-shadow: 0 6px 0 #000, 0 0 20px rgba(102,214,255,0.5);}
+      .admin-btn.go{border-color:var(--green);background:rgba(93,234,122,.15);color:var(--green);}
+      .admin-btn.go:hover{background:var(--green);color:#000; box-shadow: 0 6px 0 #000, 0 0 20px rgba(93,234,122,0.5);}
+      .admin-player-list{max-height:180px;overflow-y:auto;background:rgba(0,0,0,.6);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1.5rem;}
+      .admin-player-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem;border-bottom:1px solid rgba(255,255,255,.05);color:#fff;font-size:1rem; font-weight: bold;}
+      .admin-kick-btn{padding:.4rem .8rem;background:var(--red);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:bold;font-family:'Nunito',sans-serif;transition: transform 0.1s;}
+      .admin-kick-btn:hover{transform: scale(1.05);}
 
+      /* TAG UI ALERTS */
+      #tag-flash { position: fixed; inset: 0; pointer-events: none; z-index: 5000; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.1s; }
+      #tag-flash.show-red { background: radial-gradient(circle, transparent 20%, rgba(255,0,0,0.6) 100%); opacity: 1; }
+      #tag-flash.show-green { background: radial-gradient(circle, transparent 20%, rgba(0,255,0,0.4) 100%); opacity: 1; }
+      .tag-text-alert { font-family: 'Fredoka One', cursive; font-size: clamp(3rem, 8vw, 6rem); color: #fff; text-shadow: 4px 4px 0 #000, 0 0 40px red; transform: scale(0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      #tag-flash.show-red .tag-text-alert { transform: scale(1); }
+      
       /* OTHER UI / OVERLAYS */
       .teleport-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}.teleport-overlay.show{display:flex;}
       .map-modal { background:linear-gradient(160deg,#1a2a4a,#2a3a5e); border:3px solid var(--cyan); border-radius:20px; padding:1.5rem; width:95%; max-width:650px; text-align:center; box-shadow:0 0 40px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5); animation:confirmPop .2s ease; }
@@ -74,6 +95,10 @@
   </head>
   <body>
     <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <div id="tag-flash">
+        <div class="tag-text-alert" id="tag-text-alert">YOU ARE IT!</div>
+    </div>
 
     <div class="loading-overlay" id="loading">
       <div class="loading-title">FRED CITY</div>
@@ -129,23 +154,23 @@
 
     <div class="admin-panel-overlay" id="admin-panel-overlay" onclick="if(event.target===this) closeAdminPanel()">
       <div class="admin-modal">
-        <h2>👑 ADMIN CONTROLS</h2>
+        <h2>👑 ADMIN DASHBOARD</h2>
         
-        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start TAG Lobby</button>
+        <div class="admin-section-title">🏃 TAG MINIGAME</div>
+        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">1. Open Tag Lobby (Invites All)</button>
+        <button class="admin-btn go" onclick="beginGlobalGame()">2. Force Start Tag (You are IT)</button>
+        <button class="admin-btn" onclick="endGlobalGame()">🛑 End Tag Match</button>
         
-        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin TAG Game (You are IT)</button>
-        <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
-        
-        <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
+        <div class="admin-section-title" style="margin-top: 1.5rem;">👥 SERVER MODERATION</div>
         <div class="admin-player-list" id="admin-player-list"></div>
         
-        <button class="admin-btn safe" style="background:transparent;border-color:#555;color:#aaa;" onclick="closeAdminPanel()">Close Panel</button>
+        <button class="admin-btn" style="background:transparent;border-color:#777;color:#aaa;box-shadow:none;margin-bottom:0;" onclick="closeAdminPanel()">Close Dashboard</button>
       </div>
     </div>
 
     <div id="fred-dialogue">
        <div class="fred-box">
-           <img src="costume1.svg" width="90" style="background:#ffe566; border-radius:50%; border:3px solid #000; padding:5px; margin-bottom:1rem;">
+           <img src="costume1.svg" width="90" style="background:#ffe566; border-radius:50%; border:3px solid #000; padding:5px; margin-bottom:1rem;" onerror="this.style.display='none'">
            <h3 style="color:#fff; margin-bottom: 1.5rem; font-size:1.2rem; line-height:1.4;" id="fred-text">...</h3>
            <button class="btn-main" onclick="closeFred()" id="fred-btn">Got it!</button>
        </div>
@@ -427,7 +452,7 @@ function openAdminPanel() {
         el.innerHTML = `<span>${p.username}</span> <button class="admin-kick-btn" onclick="kickPlayer('${id}', '${p.username}')">Kick</button>`;
         list.appendChild(el);
     });
-    if(list.innerHTML === '') list.innerHTML = '<span style="color:#aaa;">No other players online</span>';
+    if(list.innerHTML === '') list.innerHTML = '<span style="color:#aaa;font-weight:normal;">No other players online</span>';
     
     document.getElementById('admin-panel-overlay').classList.add('show');
 }
@@ -440,48 +465,49 @@ function kickPlayer(uid, name) {
     closeAdminPanel();
 }
 
+// TAG MINIGAME ADMIN CONTROLS
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', immunityUntil: 0 });
-
+    db.ref('global_game').set({ active: true, name: 'Tag', seeker: null, seekerName: '', state: 'lobby', lastTagTime: 0 });
+    
     Object.keys(otherPlayers).forEach(uid => {
         db.ref('invites/' + uid).push().set({
-            from: G.uid, fromName: '👑 Admin', type: 'global_game', game: gameName, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP 
+            from: G.uid, fromName: '👑 Admin', type: 'global_game', game: 'Tag', status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP 
         });
     });
     
-    showToast(`Started global TAG lobby! Players are joining.`);
-    switchMap('minigame_map', 6000, 6000); 
+    showToast(`Started TAG lobby! Inviting players...`);
+    switchMap('minigame_map', 2000, 2000); 
+    closeAdminPanel();
 }
 
 function beginGlobalGame() {
     if(!firebaseReady) return;
-
     db.ref('global_game').update({ 
         state: 'playing', 
         seeker: G.uid,
         seekerName: G.username,
-        immunityUntil: Date.now() + 3000 // 3 seconds immunity on start
+        lastTagTime: firebase.database.ServerValue.TIMESTAMP
     });
     
     closeAdminPanel();
-    showToast("TAG Started! YOU are IT!");
+    showToast("Game Started! YOU are IT!");
 }
 
 function endGlobalGame() {
     if(!firebaseReady) return;
     db.ref('global_game').set({ active: false });
     switchMap('main', 1200, 1300);
-    showToast("Global game ended.");
+    showToast("Tag match ended.");
     closeAdminPanel();
 }
 
 function leaveGlobalGame() {
     if (G.email === 'masonlevihess@gmail.com') {
-        endGlobalGame(); // Admin leaving ends it for everyone
+        endGlobalGame(); 
     } else {
         switchMap('main', 1200, 1300);
-        showToast("Left the game map.");
+        showToast("Left the minigame.");
     }
 }
 
@@ -506,9 +532,9 @@ try {
   console.warn('Firebase fallback:', e); 
 }
 
-let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false };
+let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false};
 let otherPlayers = {};
-let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', immunityUntil: 0 };
+let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', lastTagTime: 0 };
 
 const SHOP_HATS=[ {id:'none',name:'No Hat',price:0,emoji:'·'}, {id:'crown',name:'Crown',price:150,emoji:'👑'}, {id:'beanie',name:'Beanie',price:100,emoji:'🧢'}, {id:'wizard',name:'Wizard Hat',price:200,emoji:'🧙'}, {id:'tophat',name:'Top Hat',price:120,emoji:'🎩'}, {id:'prop',name:'Propeller Cap',price:180,emoji:'🌀'}, {id:'cowboy',name:'Cowboy Hat',price:130,emoji:'🤠'}, {id:'halo',name:'Angel Halo',price:250,emoji:'👼'}, {id:'headphones',name:'Headphones',price:160,emoji:'🎧'} ];
 const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'}, {id:'#66d6ff',name:'Ocean Blue',price:80,color:'#66d6ff'}, {id:'#ff9966',name:'Sunset Orange',price:80,color:'#ff9966'}, {id:'#aa88ff',name:'Purple Dream',price:80,color:'#aa88ff'}, {id:'#5dea7a',name:'Forest Green',price:80,color:'#5dea7a'}, {id:'#ffe566',name:'Golden Yellow',price:100,color:'#ffe566'}, {id:'#ff6688',name:'Hot Pink',price:100,color:'#ff6688'}, {id:'#ff4444',name:'Fire Red',price:120,color:'#ff4444'}, {id:'#39ff14',name:'Neon Green',price:150,color:'#39ff14'}, {id:'#00ffff',name:'Cyan Glow',price:150,color:'#00ffff'}, {id:'#111122',name:'Midnight',price:200,color:'#111122'} ];
@@ -583,16 +609,36 @@ async function loadUserData(uid){
 async function saveUserData(){ 
   if(!firebaseReady||!G.uid||G.uid.startsWith('demo'))return; 
   try { 
-    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap }); 
+    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap}); 
   } catch(e){} 
 }
 
 let prevGameState = null;
 let prevSeeker = null;
 
+function triggerTagFlash(isMe, newSeekerName) {
+    const flash = document.getElementById('tag-flash');
+    const text = document.getElementById('tag-text-alert');
+    
+    if (isMe) {
+        flash.className = 'show-red';
+        text.textContent = "YOU ARE IT!";
+        text.style.color = "#ffdddd";
+    } else {
+        flash.className = 'show-green';
+        text.textContent = `${newSeekerName.toUpperCase()} IS IT!`;
+        text.style.color = "#ddffdd";
+    }
+    
+    setTimeout(() => {
+        flash.className = '';
+    }, 1800);
+}
+
 function listenToPlayers() {
   if(!firebaseReady) return;
   
+  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -601,16 +647,17 @@ function listenToPlayers() {
       }
   });
 
+  // Global Game Listener (TAG)
   db.ref('global_game').on('value', snap => {
       let data = snap.val();
       if(data && data.active) {
           globalGameState = data;
           
           if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
-              if (globalGameState.seeker === G.uid) {
-                  showToast("🚨 YOU ARE IT! TAG SOMEONE!");
-              } else {
-                  showToast("🚨 RUN! " + (globalGameState.seekerName || 'Someone') + " is IT!");
+              if (prevSeeker !== null && G.currentMap === 'minigame_map') {
+                  triggerTagFlash(globalGameState.seeker === G.uid, globalGameState.seekerName);
+              } else if (globalGameState.seeker === G.uid) {
+                  showToast("🚨 GAME START! YOU ARE IT!");
               }
               prevSeeker = globalGameState.seeker;
           }
@@ -622,11 +669,11 @@ function listenToPlayers() {
           prevGameState = globalGameState.state;
 
       } else {
-          globalGameState = { active: false, seeker: null, state: 'lobby', immunityUntil: 0 };
+          globalGameState = { active: false, seeker: null, state: 'lobby', lastTagTime: 0 };
           
           if(G.currentMap === 'minigame_map') {
               switchMap('main', 1200, 1300); 
-              showToast("The game of TAG has ended.");
+              showToast("The Tag match has ended.");
           }
           
           prevGameState = null;
@@ -843,36 +890,33 @@ function updateMap(){
   
   if(speedBoostTimer > 0) { speedBoostTimer--; p.speed = 9; } else { p.speed = 4.5; }
   
-  // Tag Game Logic checks
-  if(globalGameState.name === 'Tag' && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
-      let now = Date.now();
-      // If I am the seeker (It)...
-      if(globalGameState.seeker === G.uid) {
-          // Check immunity. We can only tag if immunity has passed.
-          if (now > (globalGameState.immunityUntil || 0)) {
-              Object.keys(otherPlayers).forEach(id => {
-                  let op = otherPlayers[id];
-                  if(op.currentMap === 'minigame_map') {
-                      let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
-                      if (dist < 60) {
-                          // TAG! Transfer Seeker and set new immunity
-                          db.ref('global_game').update({ 
-                              seeker: id, 
-                              seekerName: op.username,
-                              immunityUntil: now + 3000 // 3 seconds of immunity for the new "IT"
-                          });
-                          showToast("You tagged " + op.username + "!");
-                      }
+  // Tag Minigame Collision Logic
+  if(globalGameState.active && globalGameState.state === 'playing' && G.currentMap === 'minigame_map' && globalGameState.name === 'Tag') {
+      let isImmune = (Date.now() - (globalGameState.lastTagTime || 0)) < 2500;
+      
+      // If I am the seeker and NOT immune
+      if(globalGameState.seeker === G.uid && !isImmune) {
+          Object.keys(otherPlayers).forEach(id => {
+              let op = otherPlayers[id];
+              if(op.currentMap === 'minigame_map') {
+                  let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
+                  if (dist < 60) {
+                      db.ref('global_game').update({ 
+                          seeker: id, 
+                          seekerName: op.username,
+                          lastTagTime: firebase.database.ServerValue.TIMESTAMP
+                      });
                   }
-              });
-          }
+              }
+          });
       }
   }
 
   if(map.keys['w']||map.keys['arrowup']) p.y-=p.speed; if(map.keys['s']||map.keys['arrowdown']) p.y+=p.speed; if(map.keys['a']||map.keys['arrowleft']) p.x-=p.speed; if(map.keys['d']||map.keys['arrowright']) p.x+=p.speed;
   
-  const curW = G.currentMap === 'minigame_map' ? 12000 : MAP_W;
-  const curH = G.currentMap === 'minigame_map' ? 12000 : MAP_H;
+  // Tag Map is strictly 4000x4000 for tight action
+  const curW = G.currentMap === 'minigame_map' ? 4000 : MAP_W;
+  const curH = G.currentMap === 'minigame_map' ? 4000 : MAP_H;
   
   p.x=Math.max(p.size,Math.min(curW-p.size,p.x)); p.y=Math.max(p.size,Math.min(curH-p.size,p.y));
   const cw=map.canvas.width,ch=map.canvas.height; map.cam.x=Math.max(0,Math.min(curW-cw,p.x-cw/2)); map.cam.y=Math.max(0,Math.min(curH-ch,p.y-ch/2));
@@ -926,11 +970,11 @@ function updateMap(){
 
 function getSeededRandom(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
 let hsSpots = [];
-let seedNum = 12345;
-for(let i=0; i<350; i++) {
+let seedNum = 54321;
+for(let i=0; i<100; i++) {
     hsSpots.push({
-        x: getSeededRandom(seedNum++) * 12000, 
-        y: getSeededRandom(seedNum++) * 12000,
+        x: getSeededRandom(seedNum++) * 4000, 
+        y: getSeededRandom(seedNum++) * 4000,
         type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush'
     });
 }
@@ -939,37 +983,34 @@ function renderMap(){
   const ctx=map.ctx; if(!ctx)return; ctx.save(); ctx.translate(-map.cam.x,-map.cam.y);
   
   if (G.currentMap === 'minigame_map') {
-      // Awesome Cyber Tag Arena Map
-      ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,12000,12000); 
+      ctx.fillStyle='#2c3e30'; ctx.fillRect(0,0,4000,4000); 
       
-      // Cyber Grid Floor
-      ctx.strokeStyle = 'rgba(102, 214, 255, 0.15)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      // Draw Grid dynamically based on camera bounds to save performance
-      const startX = Math.floor(map.cam.x / 200) * 200;
-      const endX = startX + map.canvas.width + 200;
-      const startY = Math.floor(map.cam.y / 200) * 200;
-      const endY = startY + map.canvas.height + 200;
-      for (let x = startX; x <= endX; x += 200) { ctx.moveTo(x, startY); ctx.lineTo(x, endY); }
-      for (let y = startY; y <= endY; y += 200) { ctx.moveTo(startX, y); ctx.lineTo(endX, y); }
-      ctx.stroke();
+      // Draw grid lines for tag map
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 2;
+      for(let i=0; i<4000; i+=100) {
+          ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 4000); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(4000, i); ctx.stroke();
+      }
 
-      // Border bounds
-      ctx.strokeStyle = '#ff5566'; ctx.lineWidth = 20; ctx.shadowBlur = 30; ctx.shadowColor = '#ff5566';
-      ctx.strokeRect(0, 0, 12000, 12000); ctx.shadowBlur = 0;
-
-      // Render players
-      drawAllPlayers(ctx);
-
-      // Arena Obstacles
       hsSpots.forEach(s => { 
           if(s.type === 'tree') {
-              ctx.fillStyle='#111122'; ctx.fillRect(s.x-20, s.y-20, 40, 40); 
-              ctx.strokeStyle='#66d6ff'; ctx.lineWidth=3; ctx.strokeRect(s.x-20, s.y-20, 40, 40);
+              ctx.fillStyle='#1e110b'; ctx.fillRect(s.x-10, s.y+10, 20, 30); 
           } else {
-              ctx.fillStyle='#111122'; ctx.beginPath(); ctx.arc(s.x, s.y, 30, 0, Math.PI*2); ctx.fill();
-              ctx.strokeStyle='#ffe566'; ctx.lineWidth=3; ctx.stroke();
+              ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill();
+          }
+      });
+
+      drawAllPlayers(ctx);
+
+      hsSpots.forEach(s => { 
+          if(s.type === 'tree') {
+              ctx.fillStyle='#2d613e'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill(); 
+              ctx.beginPath(); ctx.moveTo(s.x, s.y-80); ctx.lineTo(s.x+30, s.y-10); ctx.lineTo(s.x-30, s.y-10); ctx.fill(); 
+          } else {
+              ctx.fillStyle='#367d4e'; ctx.beginPath(); ctx.arc(s.x, s.y, 45, 0, Math.PI*2); ctx.fill();
+              ctx.fillStyle='#42965e'; ctx.beginPath(); ctx.arc(s.x-15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+              ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
           }
       });
 
@@ -1042,8 +1083,6 @@ function renderMap(){
           ctx.restore();
       });
 
-      drawAllPlayers(ctx);
-
       const trees = [[250,100],[700,200],[1500,100],[300,800],[1300,700],[2100,600],[200,1600],
                      [1000,1700],[2200,1500],[1100,250],[3200,2200],[3400,2600],[3600,2400],
                      [3800,2700],[3100,2800], [4200,800], [5500, 500], [4800, 1800], [5200, 3200]];
@@ -1051,40 +1090,36 @@ function renderMap(){
   }
   
   ctx.restore();
+}
 
-  // Draw Screen Effects for TAG
-  if (globalGameState.name === 'Tag' && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
-      if (globalGameState.seeker === G.uid) {
-          ctx.save();
-          ctx.strokeStyle = `rgba(255, 0, 0, ${0.3 + Math.sin(Date.now() * 0.005) * 0.2})`;
-          ctx.lineWidth = 15;
-          ctx.strokeRect(0, 0, map.canvas.width, map.canvas.height);
-          ctx.font = "bold 40px 'Fredoka One'";
-          ctx.fillStyle = `rgba(255, 0, 0, ${0.5 + Math.sin(Date.now() * 0.005) * 0.5})`;
-          ctx.textAlign = 'center';
-          ctx.fillText("YOU ARE IT! TAG SOMEONE!", map.canvas.width/2, 60);
-          ctx.restore();
-      }
-  }
+function renderPlayerAura(ctx, isSeeker, px, py) {
+    if(!isSeeker) return;
+    let isImmune = (Date.now() - (globalGameState.lastTagTime || 0)) < 2500;
+    let pulse = Math.abs(Math.sin(Date.now() * 0.005));
+    
+    ctx.beginPath(); 
+    ctx.arc(px, py, 45 + pulse * 5, 0, Math.PI * 2);
+    
+    if (isImmune) {
+        ctx.fillStyle = 'rgba(200, 255, 255, 0.3)';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+    } else {
+        ctx.fillStyle = 'rgba(255, 50, 50, 0.3)';
+        ctx.fill();
+        ctx.strokeStyle = '#ff3333';
+    }
+    
+    ctx.lineWidth = 4 + pulse * 2;
+    ctx.stroke();
 }
 
 function drawAllPlayers(ctx) {
-  let now = Date.now();
   Object.values(otherPlayers).forEach(p => {
     if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
       
-      let isIt = (globalGameState.name === 'Tag' && globalGameState.seeker === p.uid);
-      let isImmune = (globalGameState.name === 'Tag' && globalGameState.seeker === p.uid && now < globalGameState.immunityUntil);
-
-      ctx.save();
-      if (isIt) {
-          ctx.shadowBlur = 30; ctx.shadowColor = '#ff2244';
-      }
-      if (isImmune) {
-          ctx.globalAlpha = 0.6;
-          ctx.beginPath(); ctx.arc(p.x, p.y, 45, 0, Math.PI*2); 
-          ctx.strokeStyle = '#66d6ff'; ctx.lineWidth = 4; ctx.stroke();
-      }
+      let isSeeker = globalGameState.active && globalGameState.seeker === p.uid && G.currentMap === 'minigame_map';
+      renderPlayerAura(ctx, isSeeker, p.x, p.y);
 
       if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
         ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
@@ -1093,37 +1128,32 @@ function drawAllPlayers(ctx) {
       } else {
         drawFred(ctx, p.x, p.y, 60, p.color || '#ffffff', p.hat || 'none'); 
       }
-      ctx.restore();
+      
+      let showName = true;
+      if (isSeeker) showName = true; 
 
-      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle='#fff';
-      if (isIt) {
-          ctx.fillStyle = '#ff5566';
-          ctx.font="900 20px 'Fredoka One',cursive";
-          ctx.fillText("🔴 IT", p.x, p.y-60);
-          ctx.font="bold 14px 'Nunito',sans-serif";
+      if(showName) {
+          ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
+          ctx.fillText(p.username || 'Player', p.x, p.y-40);
       }
-      ctx.fillText(p.username || 'Player', p.x, p.y-40);
+      
+      if(isSeeker) {
+          let isImmune = (Date.now() - (globalGameState.lastTagTime || 0)) < 2500;
+          ctx.fillStyle = isImmune ? '#ffffff' : '#ff5566';
+          ctx.font="900 16px 'Nunito',sans-serif";
+          ctx.fillText(isImmune ? "🛡️ IMMUNE" : "🔴 IT", p.x, p.y-60);
+      }
       
       if (p.emote && p.emoteExpires > Date.now()) {
         ctx.font = "28px Arial";
         ctx.fillText(p.emote, p.x, p.y - 80);
       }
+      ctx.globalAlpha = 1.0;
     }
   });
 
-  // Local Player
-  let isMeIt = (globalGameState.name === 'Tag' && globalGameState.seeker === G.uid);
-  let isMeImmune = (globalGameState.name === 'Tag' && globalGameState.seeker === G.uid && now < globalGameState.immunityUntil);
-
-  ctx.save();
-  if (isMeIt) {
-      ctx.shadowBlur = 30; ctx.shadowColor = '#ff2244';
-  }
-  if (isMeImmune) {
-      ctx.globalAlpha = 0.6;
-      ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 45, 0, Math.PI*2); 
-      ctx.strokeStyle = '#66d6ff'; ctx.lineWidth = 4; ctx.stroke();
-  }
+  let myIsSeeker = globalGameState.active && globalGameState.seeker === G.uid && G.currentMap === 'minigame_map';
+  renderPlayerAura(ctx, myIsSeeker, map.player.x, map.player.y);
 
   if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
     ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 22, 0, Math.PI * 2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
@@ -1132,16 +1162,16 @@ function drawAllPlayers(ctx) {
   } else { 
     drawFred(ctx, map.player.x, map.player.y, 60, G.color, G.hat); 
   }
-  ctx.restore();
   
-  ctx.textAlign='center'; 
-  if (isMeIt) {
-      ctx.fillStyle = '#ff5566';
-      ctx.font="900 20px 'Fredoka One',cursive";
-      ctx.fillText("🔴 IT (YOU)", map.player.x, map.player.y-60);
-  }
-  ctx.font="bold 14px 'Nunito',sans-serif"; ctx.fillStyle='#fff';
+  ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
   ctx.fillText(G.username, map.player.x, map.player.y-40);
+  
+  if(myIsSeeker) {
+      let isImmune = (Date.now() - (globalGameState.lastTagTime || 0)) < 2500;
+      ctx.fillStyle = isImmune ? '#ffffff' : '#ff5566';
+      ctx.font="900 16px 'Nunito',sans-serif";
+      ctx.fillText(isImmune ? "🛡️ IMMUNE" : "🔴 IT (YOU)", map.player.x, map.player.y-60);
+  }
 
   if (map.player.emoteTimer > 0) {
     map.player.emoteTimer--;
@@ -1362,8 +1392,8 @@ async function respondInvite(accept){
     if (_inviteIsGlobal) {
         if (accept) { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
-          showToast('🌲 Teleporting to the Tag Arena...'); 
-          switchMap('minigame_map', 6000, 6000);
+          showToast('🌲 Teleporting to the map...'); 
+          switchMap('minigame_map', 2000, 2000);
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 
         }

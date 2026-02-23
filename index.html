@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FRED CITY</title>
+    <title>FRED CITY - TAG EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -131,10 +131,9 @@
       <div class="admin-modal">
         <h2>👑 ADMIN CONTROLS</h2>
         
-        <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 1. Start Hide & Seek Lobby</button>
-        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start Tag Lobby</button>
+        <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start TAG Lobby</button>
         
-        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin Game (You are Seeker)</button>
+        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin TAG Game (You are IT)</button>
         <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
         
         <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
@@ -395,7 +394,6 @@ function switchMap(mapId, startX, startY) {
     G.currentMap = mapId;
     map.player.x = startX;
     map.player.y = startY;
-    G.hsCaught = false; 
     updateNavButtons();
     saveUserData();
 }
@@ -444,14 +442,7 @@ function kickPlayer(uid, name) {
 
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0 });
-    
-    // Reset everyone's caught status
-    db.ref('users').once('value', snap => {
-        snap.forEach(child => {
-            db.ref('users/' + child.key).update({ hsCaught: false });
-        });
-    });
+    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', immunityUntil: 0 });
 
     Object.keys(otherPlayers).forEach(uid => {
         db.ref('invites/' + uid).push().set({
@@ -459,26 +450,22 @@ function startGlobalGame(gameName) {
         });
     });
     
-    showToast(`Started global game lobby! Players are joining.`);
+    showToast(`Started global TAG lobby! Players are joining.`);
     switchMap('minigame_map', 6000, 6000); 
 }
 
 function beginGlobalGame() {
     if(!firebaseReady) return;
 
-    // Count how many OTHER players are currently in the minigame map
-    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
-    
-    // Assign admin as seeker and start instantly
     db.ref('global_game').update({ 
         state: 'playing', 
-        hidersLeft: totalHiders,
         seeker: G.uid,
-        seekerName: G.username
+        seekerName: G.username,
+        immunityUntil: Date.now() + 3000 // 3 seconds immunity on start
     });
     
     closeAdminPanel();
-    showToast("Game Started! YOU are the Seeker!");
+    showToast("TAG Started! YOU are IT!");
 }
 
 function endGlobalGame() {
@@ -519,9 +506,9 @@ try {
   console.warn('Firebase fallback:', e); 
 }
 
-let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false, hsCaught: false};
+let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false };
 let otherPlayers = {};
-let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', hidersLeft: 0 };
+let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', immunityUntil: 0 };
 
 const SHOP_HATS=[ {id:'none',name:'No Hat',price:0,emoji:'·'}, {id:'crown',name:'Crown',price:150,emoji:'👑'}, {id:'beanie',name:'Beanie',price:100,emoji:'🧢'}, {id:'wizard',name:'Wizard Hat',price:200,emoji:'🧙'}, {id:'tophat',name:'Top Hat',price:120,emoji:'🎩'}, {id:'prop',name:'Propeller Cap',price:180,emoji:'🌀'}, {id:'cowboy',name:'Cowboy Hat',price:130,emoji:'🤠'}, {id:'halo',name:'Angel Halo',price:250,emoji:'👼'}, {id:'headphones',name:'Headphones',price:160,emoji:'🎧'} ];
 const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'}, {id:'#66d6ff',name:'Ocean Blue',price:80,color:'#66d6ff'}, {id:'#ff9966',name:'Sunset Orange',price:80,color:'#ff9966'}, {id:'#aa88ff',name:'Purple Dream',price:80,color:'#aa88ff'}, {id:'#5dea7a',name:'Forest Green',price:80,color:'#5dea7a'}, {id:'#ffe566',name:'Golden Yellow',price:100,color:'#ffe566'}, {id:'#ff6688',name:'Hot Pink',price:100,color:'#ff6688'}, {id:'#ff4444',name:'Fire Red',price:120,color:'#ff4444'}, {id:'#39ff14',name:'Neon Green',price:150,color:'#39ff14'}, {id:'#00ffff',name:'Cyan Glow',price:150,color:'#00ffff'}, {id:'#111122',name:'Midnight',price:200,color:'#111122'} ];
@@ -569,7 +556,7 @@ async function doAuth(){
     try{ 
       setAuthMsg('Creating account...'); 
       const cred=await auth.createUserWithEmailAndPassword(email,pass); 
-      const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,color:'#ffffff',hat:'none',wallpaper:'default',ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', hsCaught: false, couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null}; 
+      const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,color:'#ffffff',hat:'none',wallpaper:'default',ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null}; 
       await db.ref('users/' + cred.user.uid).set(data); 
       setAuthMsg('Account created!',true); showScreen('screen-map'); showToast('Welcome to the world!'); 
     } catch(e){ setAuthMsg(e.message); }
@@ -596,7 +583,7 @@ async function loadUserData(uid){
 async function saveUserData(){ 
   if(!firebaseReady||!G.uid||G.uid.startsWith('demo'))return; 
   try { 
-    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap, hsCaught: G.hsCaught}); 
+    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap }); 
   } catch(e){} 
 }
 
@@ -606,7 +593,6 @@ let prevSeeker = null;
 function listenToPlayers() {
   if(!firebaseReady) return;
   
-  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -615,44 +601,32 @@ function listenToPlayers() {
       }
   });
 
-  // Global Game Listener
   db.ref('global_game').on('value', snap => {
       let data = snap.val();
       if(data && data.active) {
           globalGameState = data;
           
           if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
-              showToast("🚨 SEEKER CHOSEN: " + (globalGameState.seekerName || 'Someone') + "!");
+              if (globalGameState.seeker === G.uid) {
+                  showToast("🚨 YOU ARE IT! TAG SOMEONE!");
+              } else {
+                  showToast("🚨 RUN! " + (globalGameState.seekerName || 'Someone') + " is IT!");
+              }
               prevSeeker = globalGameState.seeker;
           }
 
           if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
-              showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
-          }
-          
-          if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
-              if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
-                  // Find the last person standing
-                  let winnerName = "Someone";
-                  if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
-                  else {
-                      Object.keys(otherPlayers).forEach(id => {
-                          if(!otherPlayers[id].hsCaught && id !== globalGameState.seeker) winnerName = otherPlayers[id].username;
-                      });
-                  }
-                  alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
-              }
+              showToast("🏃‍♂️💨 TAG STARTED! RUN!");
           }
           
           prevGameState = globalGameState.state;
 
       } else {
-          globalGameState = { active: false, seeker: null, state: 'lobby' };
+          globalGameState = { active: false, seeker: null, state: 'lobby', immunityUntil: 0 };
           
           if(G.currentMap === 'minigame_map') {
               switchMap('main', 1200, 1300); 
-              showToast("The game has ended.");
+              showToast("The game of TAG has ended.");
           }
           
           prevGameState = null;
@@ -677,7 +651,6 @@ function listenToPlayers() {
           otherPlayers[docId].color = d.color;
           otherPlayers[docId].emote = d.emote;
           otherPlayers[docId].currentMap = d.currentMap || 'main';
-          otherPlayers[docId].hsCaught = d.hsCaught || false;
           otherPlayers[docId].emoteExpires = d.emoteExpires;
         }
       }
@@ -694,7 +667,7 @@ function startPositionSync() {
   clearInterval(_syncTimer);
   _syncTimer = setInterval(() => {
     if (document.getElementById('screen-map').classList.contains('active') && G.uid && !G.uid.startsWith('demo')) {
-        db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap, hsCaught: G.hsCaught }).catch(e => console.log(e));
+        db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap }).catch(e => console.log(e));
     }
   }, 100); 
 }
@@ -870,31 +843,28 @@ function updateMap(){
   
   if(speedBoostTimer > 0) { speedBoostTimer--; p.speed = 9; } else { p.speed = 4.5; }
   
-  // Game Logic checks
-  if(globalGameState.active && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
-      // If I am the seeker...
+  // Tag Game Logic checks
+  if(globalGameState.name === 'Tag' && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
+      let now = Date.now();
+      // If I am the seeker (It)...
       if(globalGameState.seeker === G.uid) {
-          Object.keys(otherPlayers).forEach(id => {
-              let op = otherPlayers[id];
-              if(op.currentMap === 'minigame_map' && !op.hsCaught) {
-                  let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
-                  if (dist < 60) {
-                      if(globalGameState.name === 'Hide & Seek') {
-                          db.ref('users/' + id).update({ hsCaught: true });
-                          db.ref('global_game').transaction(gg => { if(gg) gg.hidersLeft--; return gg; });
-                          showToast("You caught " + op.username + "!");
-                      } else if (globalGameState.name === 'Tag') {
-                          db.ref('global_game').update({ seeker: id, seekerName: op.username });
+          // Check immunity. We can only tag if immunity has passed.
+          if (now > (globalGameState.immunityUntil || 0)) {
+              Object.keys(otherPlayers).forEach(id => {
+                  let op = otherPlayers[id];
+                  if(op.currentMap === 'minigame_map') {
+                      let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
+                      if (dist < 60) {
+                          // TAG! Transfer Seeker and set new immunity
+                          db.ref('global_game').update({ 
+                              seeker: id, 
+                              seekerName: op.username,
+                              immunityUntil: now + 3000 // 3 seconds of immunity for the new "IT"
+                          });
                           showToast("You tagged " + op.username + "!");
                       }
                   }
-              }
-          });
-      } else {
-          // If I am a hider and I got caught
-          if(G.hsCaught && globalGameState.name === 'Hide & Seek') {
-              p.x = 6000; p.y = 6000; // Teleport to "Jail" in middle
-              p.speed = 0; // Can't move
+              });
           }
       }
   }
@@ -969,35 +939,37 @@ function renderMap(){
   const ctx=map.ctx; if(!ctx)return; ctx.save(); ctx.translate(-map.cam.x,-map.cam.y);
   
   if (G.currentMap === 'minigame_map') {
-      ctx.fillStyle='#132616'; ctx.fillRect(0,0,12000,12000); 
+      // Awesome Cyber Tag Arena Map
+      ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,12000,12000); 
       
-      if(globalGameState.name === 'Hide & Seek') {
-          ctx.fillStyle = 'rgba(0,0,0,0.5)';
-          ctx.fillRect(5800, 5800, 400, 400);
-          ctx.strokeStyle = '#ff5566'; ctx.lineWidth=5;
-          ctx.strokeRect(5800, 5800, 400, 400);
-          ctx.font = "bold 30px 'Nunito',sans-serif"; ctx.fillStyle='#ff5566'; ctx.textAlign='center';
-          ctx.fillText("JAIL", 6000, 6000);
-      }
+      // Cyber Grid Floor
+      ctx.strokeStyle = 'rgba(102, 214, 255, 0.15)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      // Draw Grid dynamically based on camera bounds to save performance
+      const startX = Math.floor(map.cam.x / 200) * 200;
+      const endX = startX + map.canvas.width + 200;
+      const startY = Math.floor(map.cam.y / 200) * 200;
+      const endY = startY + map.canvas.height + 200;
+      for (let x = startX; x <= endX; x += 200) { ctx.moveTo(x, startY); ctx.lineTo(x, endY); }
+      for (let y = startY; y <= endY; y += 200) { ctx.moveTo(startX, y); ctx.lineTo(endX, y); }
+      ctx.stroke();
 
-      hsSpots.forEach(s => { 
-          if(s.type === 'tree') {
-              ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); 
-          } else {
-              ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill();
-          }
-      });
+      // Border bounds
+      ctx.strokeStyle = '#ff5566'; ctx.lineWidth = 20; ctx.shadowBlur = 30; ctx.shadowColor = '#ff5566';
+      ctx.strokeRect(0, 0, 12000, 12000); ctx.shadowBlur = 0;
 
+      // Render players
       drawAllPlayers(ctx);
 
+      // Arena Obstacles
       hsSpots.forEach(s => { 
           if(s.type === 'tree') {
-              ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill(); 
-              ctx.beginPath(); ctx.moveTo(s.x, s.y-80); ctx.lineTo(s.x+30, s.y-10); ctx.lineTo(s.x-30, s.y-10); ctx.fill(); 
+              ctx.fillStyle='#111122'; ctx.fillRect(s.x-20, s.y-20, 40, 40); 
+              ctx.strokeStyle='#66d6ff'; ctx.lineWidth=3; ctx.strokeRect(s.x-20, s.y-20, 40, 40);
           } else {
-              ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(s.x, s.y, 45, 0, Math.PI*2); ctx.fill();
-              ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(s.x-15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
-              ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+              ctx.fillStyle='#111122'; ctx.beginPath(); ctx.arc(s.x, s.y, 30, 0, Math.PI*2); ctx.fill();
+              ctx.strokeStyle='#ffe566'; ctx.lineWidth=3; ctx.stroke();
           }
       });
 
@@ -1079,13 +1051,41 @@ function renderMap(){
   }
   
   ctx.restore();
+
+  // Draw Screen Effects for TAG
+  if (globalGameState.name === 'Tag' && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
+      if (globalGameState.seeker === G.uid) {
+          ctx.save();
+          ctx.strokeStyle = `rgba(255, 0, 0, ${0.3 + Math.sin(Date.now() * 0.005) * 0.2})`;
+          ctx.lineWidth = 15;
+          ctx.strokeRect(0, 0, map.canvas.width, map.canvas.height);
+          ctx.font = "bold 40px 'Fredoka One'";
+          ctx.fillStyle = `rgba(255, 0, 0, ${0.5 + Math.sin(Date.now() * 0.005) * 0.5})`;
+          ctx.textAlign = 'center';
+          ctx.fillText("YOU ARE IT! TAG SOMEONE!", map.canvas.width/2, 60);
+          ctx.restore();
+      }
+  }
 }
 
 function drawAllPlayers(ctx) {
+  let now = Date.now();
   Object.values(otherPlayers).forEach(p => {
     if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
-      if(p.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
       
+      let isIt = (globalGameState.name === 'Tag' && globalGameState.seeker === p.uid);
+      let isImmune = (globalGameState.name === 'Tag' && globalGameState.seeker === p.uid && now < globalGameState.immunityUntil);
+
+      ctx.save();
+      if (isIt) {
+          ctx.shadowBlur = 30; ctx.shadowColor = '#ff2244';
+      }
+      if (isImmune) {
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 45, 0, Math.PI*2); 
+          ctx.strokeStyle = '#66d6ff'; ctx.lineWidth = 4; ctx.stroke();
+      }
+
       if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
         ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
         ctx.drawImage(costume1Img, p.x - 30, p.y - 30, 60, 60); 
@@ -1093,31 +1093,37 @@ function drawAllPlayers(ctx) {
       } else {
         drawFred(ctx, p.x, p.y, 60, p.color || '#ffffff', p.hat || 'none'); 
       }
-      
-      let showName = true;
-      if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
-      if (globalGameState.active && globalGameState.seeker === p.uid) showName = true; 
+      ctx.restore();
 
-      if(showName) {
-          ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
-          ctx.fillText(p.username || 'Player', p.x, p.y-40);
-      }
-      
-      if(globalGameState.active && globalGameState.seeker === p.uid) {
+      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle='#fff';
+      if (isIt) {
           ctx.fillStyle = '#ff5566';
-          ctx.font="900 16px 'Nunito',sans-serif";
-          ctx.fillText("🔴 SEEKER", p.x, p.y-60);
+          ctx.font="900 20px 'Fredoka One',cursive";
+          ctx.fillText("🔴 IT", p.x, p.y-60);
+          ctx.font="bold 14px 'Nunito',sans-serif";
       }
+      ctx.fillText(p.username || 'Player', p.x, p.y-40);
       
       if (p.emote && p.emoteExpires > Date.now()) {
         ctx.font = "28px Arial";
         ctx.fillText(p.emote, p.x, p.y - 80);
       }
-      ctx.globalAlpha = 1.0;
     }
   });
 
-  if(G.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
+  // Local Player
+  let isMeIt = (globalGameState.name === 'Tag' && globalGameState.seeker === G.uid);
+  let isMeImmune = (globalGameState.name === 'Tag' && globalGameState.seeker === G.uid && now < globalGameState.immunityUntil);
+
+  ctx.save();
+  if (isMeIt) {
+      ctx.shadowBlur = 30; ctx.shadowColor = '#ff2244';
+  }
+  if (isMeImmune) {
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 45, 0, Math.PI*2); 
+      ctx.strokeStyle = '#66d6ff'; ctx.lineWidth = 4; ctx.stroke();
+  }
 
   if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
     ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 22, 0, Math.PI * 2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
@@ -1126,28 +1132,22 @@ function drawAllPlayers(ctx) {
   } else { 
     drawFred(ctx, map.player.x, map.player.y, 60, G.color, G.hat); 
   }
+  ctx.restore();
   
-  let showMyName = true;
-  if (G.currentMap !== 'main' && globalGameState.state === 'playing') showMyName = false;
-  if (globalGameState.active && globalGameState.seeker === G.uid) showMyName = true;
-  
-  if(showMyName) {
-      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
-      ctx.fillText(G.username, map.player.x, map.player.y-40);
-  }
-  
-  if(globalGameState.active && globalGameState.seeker === G.uid) {
+  ctx.textAlign='center'; 
+  if (isMeIt) {
       ctx.fillStyle = '#ff5566';
-      ctx.font="900 16px 'Nunito',sans-serif";
-      ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
+      ctx.font="900 20px 'Fredoka One',cursive";
+      ctx.fillText("🔴 IT (YOU)", map.player.x, map.player.y-60);
   }
+  ctx.font="bold 14px 'Nunito',sans-serif"; ctx.fillStyle='#fff';
+  ctx.fillText(G.username, map.player.x, map.player.y-40);
 
   if (map.player.emoteTimer > 0) {
     map.player.emoteTimer--;
     ctx.font = "28px Arial";
     ctx.fillText(map.player.emote, map.player.x, map.player.y - 80); 
   }
-  ctx.globalAlpha = 1.0;
 }
 
 function startFishing() {
@@ -1362,7 +1362,7 @@ async function respondInvite(accept){
     if (_inviteIsGlobal) {
         if (accept) { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
-          showToast('🌲 Teleporting to the map...'); 
+          showToast('🌲 Teleporting to the Tag Arena...'); 
           switchMap('minigame_map', 6000, 6000);
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 

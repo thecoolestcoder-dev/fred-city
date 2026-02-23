@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FRED CITY - NEON TAG UPDATE</title>
+    <title>FRED CITY</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -16,10 +16,7 @@
       
       /* AUTH */#screen-auth{flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#2233aa 0%,#5566ee 50%,#3355cc 100%);}.auth-back-btn{position:absolute;top:1.2rem;left:1.2rem;padding:.5rem 1rem;background:rgba(0,0,0,.35);border:2px solid rgba(102,214,255,.5);border-radius:10px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s;z-index:5;}.auth-back-btn:hover{border-color:var(--cyan);background:rgba(102,214,255,.15);}.auth-logo{font-family:'Fredoka One',cursive;font-size:2.2rem;color:var(--cyan);text-shadow:3px 3px 0 #000;margin-bottom:1.5rem;position:relative;z-index:2;}.auth-box{background:rgba(0,0,0,.45);border:3px solid var(--cyan);border-radius:22px;padding:2rem 2.5rem;width:clamp(300px,90vw,380px);backdrop-filter:blur(12px);box-shadow:0 0 35px rgba(102,214,255,.3),inset 0 1px 0 rgba(255,255,255,.1);position:relative;z-index:2;}.auth-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;}.auth-tab{flex:1;padding:.6rem;border:2px solid var(--cyan);background:transparent;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;border-radius:10px;cursor:pointer;transition:all .2s;}.auth-tab.active{background:var(--cyan);color:#000;}.auth-tab:hover:not(.active){background:rgba(102,214,255,.2);}.auth-field{margin-bottom:1rem;}.auth-field label{display:block;color:var(--cyan);font-size:.8rem;font-weight:700;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.06em;}.auth-field input{width:100%;padding:.7rem 1rem;background:rgba(0,0,0,.4);border:2px solid rgba(102,214,255,.35);border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;}.auth-field input:focus{border-color:var(--cyan);}.btn-main{width:100%;padding:.9rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.2rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 0 var(--darkteal);letter-spacing:.05em;}.btn-main:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--darkteal);}.btn-main:active{transform:translateY(2px);box-shadow:0 2px 0 var(--darkteal);}.auth-msg{color:var(--red);font-size:.85rem;font-weight:700;margin-top:.8rem;text-align:center;min-height:1.2em;}.auth-msg.ok{color:var(--green);}
       
-      /* MAP */#screen-map{flex-direction:column; background:#a2d149;} .map-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:2px solid var(--cyan);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:100;}.map-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.3rem;letter-spacing:.05em;}.hud-coins{background:rgba(255,229,102,.12);border:2px solid var(--yellow);border-radius:20px;padding:.2rem .7rem;color:var(--yellow);font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.3rem;margin-left:auto;}.map-back-btn,.shop-back-btn,.admin-hdr-btn{padding:.4rem .9rem;background:rgba(0,0,0,.4);border:2px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;}.map-back-btn:hover,.shop-back-btn:hover,.admin-hdr-btn:hover{background:rgba(102,214,255,.2)}.admin-hdr-btn{border-color:#ff5566;color:#ff5566;display:none;}.admin-hdr-btn:hover{background:rgba(255,85,102,.2)}#map-canvas{position:absolute;top:56px;left:0;width:100vw;height:calc(100vh - 56px);display:block;}.map-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border:2px solid var(--cyan);border-radius:12px;padding:.5rem 1.2rem;color:var(--cyan);font-size:.8rem;font-weight:700;pointer-events:none; z-index:10;}.zone-popup{position:absolute;display:none;background:rgba(0,0,20,.88);border:2px solid var(--cyan);border-radius:14px;padding:1rem 1.5rem;color:#fff;text-align:center;backdrop-filter:blur(10px);z-index:20;transform:translate(-50%,-130%);}.zone-popup h3{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.1rem;margin-bottom:.4rem;}.zone-popup .enter-btn{background:var(--cyan);border:none;border-radius:8px;padding:.5rem 1.2rem;color:#000;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;margin-top:.5rem;box-shadow:0 3px 0 var(--darkteal);transition:all .15s;}.zone-popup .enter-btn:hover{transform:translateY(-2px);}
-
-      /* TAG GAME STATUS PANEL */
-      #tag-status-panel { display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%); background:rgba(5,5,15,0.85); border:3px solid #ff5566; border-radius:20px; padding:10px 25px; color:#fff; font-family:'Fredoka One',cursive; font-size:1.3rem; z-index:90; box-shadow:0 0 20px rgba(255,85,102,0.6); backdrop-filter:blur(5px); text-align:center; }
+      /* MAP */#screen-map{flex-direction:column; background:#a2d149;} .map-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-bottom:2px solid var(--cyan);display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.map-header-title{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.3rem;letter-spacing:.05em;}.hud-coins{background:rgba(255,229,102,.12);border:2px solid var(--yellow);border-radius:20px;padding:.2rem .7rem;color:var(--yellow);font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:.3rem;margin-left:auto;}.map-back-btn,.shop-back-btn,.admin-hdr-btn{padding:.4rem .9rem;background:rgba(0,0,0,.4);border:2px solid var(--cyan);border-radius:8px;color:var(--cyan);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;}.map-back-btn:hover,.shop-back-btn:hover,.admin-hdr-btn:hover{background:rgba(102,214,255,.2)}.admin-hdr-btn{border-color:#ff5566;color:#ff5566;display:none;}.admin-hdr-btn:hover{background:rgba(255,85,102,.2)}#map-canvas{position:absolute;top:56px;left:0;width:100vw;height:calc(100vh - 56px);display:block;}.map-hint{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border:2px solid var(--cyan);border-radius:12px;padding:.5rem 1.2rem;color:var(--cyan);font-size:.8rem;font-weight:700;pointer-events:none;}.zone-popup{position:absolute;display:none;background:rgba(0,0,20,.88);border:2px solid var(--cyan);border-radius:14px;padding:1rem 1.5rem;color:#fff;text-align:center;backdrop-filter:blur(10px);z-index:20;transform:translate(-50%,-130%);}.zone-popup h3{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.1rem;margin-bottom:.4rem;}.zone-popup .enter-btn{background:var(--cyan);border:none;border-radius:8px;padding:.5rem 1.2rem;color:#000;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;margin-top:.5rem;box-shadow:0 3px 0 var(--darkteal);transition:all .15s;}.zone-popup .enter-btn:hover{transform:translateY(-2px);}
 
       /* ADMIN PANEL */
       .admin-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}.admin-panel-overlay.show{display:flex;}.admin-modal{background:linear-gradient(160deg,#2a1a2a,#4a1a2a);border:3px solid var(--red);border-radius:20px;padding:1.5rem;width:95%;max-width:500px;box-shadow:0 0 40px rgba(255,85,102,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.admin-modal h2{color:var(--red);font-family:'Fredoka One',cursive;margin-bottom:.5rem;text-align:center;}.admin-btn{width:100%;padding:.8rem;background:rgba(255,85,102,.15);border:2px solid var(--red);border-radius:12px;color:#fff;font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .15s;margin-bottom:0.8rem;}.admin-btn:hover{background:var(--red);color:#000;}.admin-btn.safe{border-color:var(--cyan);background:rgba(102,214,255,.15);}.admin-btn.safe:hover{background:var(--cyan);color:#000;}.admin-player-list{max-height:150px;overflow-y:auto;background:rgba(0,0,0,.5);border-radius:10px;padding:1rem;margin-bottom:1rem;}.admin-player-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-size:.9rem;}.admin-kick-btn{padding:.3rem .6rem;background:var(--red);border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:bold;}
@@ -94,10 +91,6 @@
         </div>
         <div class="m-act" ontouchstart="simAct()" onmousedown="simAct()">ACTION</div>
     </div>
-
-    <div id="tag-status-panel">
-        🚨 IT: <span id="it-name-display" style="color:var(--red);">None</span> 🚨
-    </div>
     
     <div class="teleport-overlay" id="teleport-overlay" onclick="if(event.target===this) closeTeleportMenu()">
       <div class="map-modal">
@@ -138,8 +131,10 @@
       <div class="admin-modal">
         <h2>👑 ADMIN CONTROLS</h2>
         
+        <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 1. Start Hide & Seek Lobby</button>
         <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start Tag Lobby</button>
-        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin Game (Auto-picks IT)</button>
+        
+        <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin Game (You are Seeker)</button>
         <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
         
         <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
@@ -398,21 +393,23 @@ function switchMap(mapId, startX, startY) {
     G.currentMap = mapId;
     map.player.x = startX;
     map.player.y = startY;
-    
+    G.hsCaught = false; 
+    updateNavButtons();
+    saveUserData();
+}
+
+function updateNavButtons() {
     const mapBtn = document.getElementById('nav-map-btn');
     const leaveBtn = document.getElementById('nav-leave-btn');
-    const statusPanel = document.getElementById('tag-status-panel');
-
-    if(G.currentMap === 'main') {
-        mapBtn.style.display = 'block';
-        leaveBtn.style.display = 'none';
-        statusPanel.style.display = 'none';
-    } else {
-        mapBtn.style.display = 'none';
-        leaveBtn.style.display = 'block';
-        if(globalGameState.state === 'playing') statusPanel.style.display = 'block';
+    if(mapBtn && leaveBtn) {
+        if(G.currentMap === 'main') {
+            mapBtn.style.display = 'block';
+            leaveBtn.style.display = 'none';
+        } else {
+            mapBtn.style.display = 'none';
+            leaveBtn.style.display = 'block';
+        }
     }
-    saveUserData();
 }
 
 function openTeleportMenu() { document.getElementById('teleport-overlay').classList.add('show'); }
@@ -445,7 +442,14 @@ function kickPlayer(uid, name) {
 
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', lastTagTime: 0 });
+    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0 });
+    
+    // Reset everyone's caught status
+    db.ref('users').once('value', snap => {
+        snap.forEach(child => {
+            db.ref('users/' + child.key).update({ hsCaught: false });
+        });
+    });
 
     Object.keys(otherPlayers).forEach(uid => {
         db.ref('invites/' + uid).push().set({
@@ -453,30 +457,26 @@ function startGlobalGame(gameName) {
         });
     });
     
-    showToast(`Started Tag lobby! Waiting for players...`);
+    showToast(`Started global game lobby! Players are joining.`);
     switchMap('minigame_map', 6000, 6000); 
 }
 
-async function beginGlobalGame() {
+function beginGlobalGame() {
     if(!firebaseReady) return;
 
-    let pool = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map');
-    if (G.currentMap === 'minigame_map') pool.push(G.uid);
+    // Count how many OTHER players are currently in the minigame map
+    let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
     
-    if(pool.length === 0) { showToast("No one has joined the map yet!"); return; }
-    
-    let chosen = pool[Math.floor(Math.random() * pool.length)];
-    let chosenName = chosen === G.uid ? G.username : otherPlayers[chosen].username;
-
+    // Assign admin as seeker and start instantly
     db.ref('global_game').update({ 
         state: 'playing', 
-        seeker: chosen,
-        seekerName: chosenName,
-        lastTagTime: Date.now()
+        hidersLeft: totalHiders,
+        seeker: G.uid,
+        seekerName: G.username
     });
     
     closeAdminPanel();
-    showToast("Game Started! IT has been chosen!");
+    showToast("Game Started! YOU are the Seeker!");
 }
 
 function endGlobalGame() {
@@ -489,7 +489,7 @@ function endGlobalGame() {
 
 function leaveGlobalGame() {
     if (G.email === 'masonlevihess@gmail.com') {
-        endGlobalGame(); 
+        endGlobalGame(); // Admin leaving ends it for everyone
     } else {
         switchMap('main', 1200, 1300);
         showToast("Left the game map.");
@@ -517,21 +517,94 @@ try {
   console.warn('Firebase fallback:', e); 
 }
 
-let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false};
+let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false, hsCaught: false};
 let otherPlayers = {};
-let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: 'Tag', lastTagTime: 0 };
-let localLastTagTime = 0; 
+let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', hidersLeft: 0 };
 
 const SHOP_HATS=[ {id:'none',name:'No Hat',price:0,emoji:'·'}, {id:'crown',name:'Crown',price:150,emoji:'👑'}, {id:'beanie',name:'Beanie',price:100,emoji:'🧢'}, {id:'wizard',name:'Wizard Hat',price:200,emoji:'🧙'}, {id:'tophat',name:'Top Hat',price:120,emoji:'🎩'}, {id:'prop',name:'Propeller Cap',price:180,emoji:'🌀'}, {id:'cowboy',name:'Cowboy Hat',price:130,emoji:'🤠'}, {id:'halo',name:'Angel Halo',price:250,emoji:'👼'}, {id:'headphones',name:'Headphones',price:160,emoji:'🎧'} ];
 const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'}, {id:'#66d6ff',name:'Ocean Blue',price:80,color:'#66d6ff'}, {id:'#ff9966',name:'Sunset Orange',price:80,color:'#ff9966'}, {id:'#aa88ff',name:'Purple Dream',price:80,color:'#aa88ff'}, {id:'#5dea7a',name:'Forest Green',price:80,color:'#5dea7a'}, {id:'#ffe566',name:'Golden Yellow',price:100,color:'#ffe566'}, {id:'#ff6688',name:'Hot Pink',price:100,color:'#ff6688'}, {id:'#ff4444',name:'Fire Red',price:120,color:'#ff4444'}, {id:'#39ff14',name:'Neon Green',price:150,color:'#39ff14'}, {id:'#00ffff',name:'Cyan Glow',price:150,color:'#00ffff'}, {id:'#111122',name:'Midnight',price:200,color:'#111122'} ];
 const SHOP_WALLS=[ {id:'default',name:'Basic Blue',price:0,color:'#2a3a7a'}, {id:'forest',name:'Forest',price:200,color:'#1a4a2a'}, {id:'candy',name:'Candy Land',price:250,color:'#ff88bb'}, {id:'space',name:'Deep Space',price:300,color:'#0a0a1e'}, {id:'sunset',name:'Sunset',price:200,color:'#aa4422'}, {id:'ocean',name:'Ocean',price:250,color:'#114466'}, {id:'lava',name:'Volcano Lair',price:300,color:'#882211'}, {id:'ice',name:'Ice Castle',price:250,color:'#aaddff'}, {id:'cyber',name:'Cyberpunk',price:350,color:'#220044'} ];
 
-let prevGameStateStr = null;
+function showScreen(id){ 
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+    const s=document.getElementById(id); if(!s)return; 
+    s.classList.add('active'); 
+    updateAllHUDs(); 
+    
+    if(isMobile && (id==='screen-map' || id==='screen-battle' || id==='screen-home')) {
+        document.getElementById('mobile-ui').style.display = 'block';
+        document.getElementById('map-hint').style.display = 'none';
+        document.getElementById('battle-hint').style.display = 'none';
+        document.getElementById('home-hint2').style.display = 'none';
+    } else {
+        document.getElementById('mobile-ui').style.display = 'none';
+    }
+
+    if(id==='screen-map') {
+        initMap(); 
+        startMusicAuto(); 
+    }
+    if(id==='screen-shop') renderShop(); 
+    if(id==='screen-home') initHome(); 
+}
+function clickPlay() { if (G.uid && !G.uid.startsWith('demo')) { showScreen('screen-map'); } else { showScreen('screen-auth'); } }
+function updateAllHUDs(){ document.querySelectorAll('.coins-hud').forEach(el=>el.textContent=G.coins); const mu=document.getElementById('map-username-hud'); if(mu) mu.textContent=G.username; }
+
+let currentTab='login';
+function switchTab(tab){ currentTab=tab; document.querySelectorAll('.auth-tab').forEach((t,i)=>{ t.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register')); }); document.getElementById('auth-login-fields').style.display=tab==='login'?'':'none'; document.getElementById('auth-register-fields').style.display=tab==='register'?'':'none'; document.getElementById('auth-submit-btn').textContent=tab==='login'?'Play Now!':'Create Account!'; }
+function setAuthMsg(msg,ok=false){ const el=document.getElementById('auth-msg'); el.textContent=msg; el.className='auth-msg'+(ok?' ok':''); }
+
+async function doAuth(){
+  if(!firebaseReady){ const un=(currentTab==='register'?document.getElementById('reg-username').value.trim():document.getElementById('login-email').value.split('@')[0])||'Fred'; G.username=un; G.uid='demo_'+Date.now(); showScreen('screen-map'); showToast('👋 Welcome, '+G.username+'! (Demo)'); return; }
+  if(currentTab==='login'){
+    const email=document.getElementById('login-email').value.trim(); const pass=document.getElementById('login-pass').value;
+    if(!email||!pass){setAuthMsg('Please fill all fields');return;}
+    try{ setAuthMsg('Logging in...'); await auth.signInWithEmailAndPassword(email,pass); showScreen('screen-map'); showToast('Welcome back!'); }
+    catch(e){ setAuthMsg(e.message); }
+  } else {
+    const username=document.getElementById('reg-username').value.trim(); const email=document.getElementById('reg-email').value.trim(); const pass=document.getElementById('reg-pass').value;
+    if(!username||!email||!pass){setAuthMsg('Please fill all fields');return;} if(username.length<3){setAuthMsg('Username needs 3+ characters');return;}
+    try{ 
+      setAuthMsg('Creating account...'); 
+      const cred=await auth.createUserWithEmailAndPassword(email,pass); 
+      const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,color:'#ffffff',hat:'none',wallpaper:'default',ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', hsCaught: false, couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null}; 
+      await db.ref('users/' + cred.user.uid).set(data); 
+      setAuthMsg('Account created!',true); showScreen('screen-map'); showToast('Welcome to the world!'); 
+    } catch(e){ setAuthMsg(e.message); }
+  }
+}
+
+async function doLogout(){
+  if(firebaseReady && G.uid && !G.uid.startsWith('demo')){
+    await db.ref('users/' + G.uid).update({online:false}).catch(()=>{});
+    await auth.signOut();
+  }
+  unsubscribeInvites(); 
+  window.location.reload(); 
+}
+
+async function loadUserData(uid){ 
+  if(!firebaseReady)return; 
+  try { 
+    const snap = await db.ref('users/' + uid).once('value'); 
+    if(snap.exists()) Object.assign(G, snap.val(), {uid}); 
+  } catch(e){} 
+}
+
+async function saveUserData(){ 
+  if(!firebaseReady||!G.uid||G.uid.startsWith('demo'))return; 
+  try { 
+    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap, hsCaught: G.hsCaught}); 
+  } catch(e){} 
+}
+
+let prevGameState = null;
 let prevSeeker = null;
 
 function listenToPlayers() {
   if(!firebaseReady) return;
   
+  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -540,39 +613,47 @@ function listenToPlayers() {
       }
   });
 
+  // Global Game Listener
   db.ref('global_game').on('value', snap => {
       let data = snap.val();
       if(data && data.active) {
           globalGameState = data;
           
           if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
-              if (globalGameState.seeker === G.uid) {
-                  showToast("🚨 YOU ARE IT! TAG SOMEONE!");
-              } else {
-                  showToast(`🚨 ${globalGameState.seekerName} IS IT! RUN!`);
-              }
+              showToast("🚨 SEEKER CHOSEN: " + (globalGameState.seekerName || 'Someone') + "!");
               prevSeeker = globalGameState.seeker;
           }
 
-          if(globalGameState.state === 'playing') {
-              if (G.currentMap === 'minigame_map') {
-                  document.getElementById('tag-status-panel').style.display = 'block';
-                  document.getElementById('it-name-display').textContent = globalGameState.seekerName || 'Someone';
+          if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
+              showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
+          }
+          
+          if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
+              if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
+                  // Find the last person standing
+                  let winnerName = "Someone";
+                  if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
+                  else {
+                      Object.keys(otherPlayers).forEach(id => {
+                          if(!otherPlayers[id].hsCaught && id !== globalGameState.seeker) winnerName = otherPlayers[id].username;
+                      });
+                  }
+                  alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
+                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
               }
           }
           
-          prevGameStateStr = globalGameState.state;
+          prevGameState = globalGameState.state;
 
       } else {
-          globalGameState = { active: false, seeker: null, state: 'lobby', name: 'Tag' };
+          globalGameState = { active: false, seeker: null, state: 'lobby' };
           
           if(G.currentMap === 'minigame_map') {
               switchMap('main', 1200, 1300); 
               showToast("The game has ended.");
           }
-          document.getElementById('tag-status-panel').style.display = 'none';
           
-          prevGameStateStr = null;
+          prevGameState = null;
           prevSeeker = null;
       }
   });
@@ -594,6 +675,7 @@ function listenToPlayers() {
           otherPlayers[docId].color = d.color;
           otherPlayers[docId].emote = d.emote;
           otherPlayers[docId].currentMap = d.currentMap || 'main';
+          otherPlayers[docId].hsCaught = d.hsCaught || false;
           otherPlayers[docId].emoteExpires = d.emoteExpires;
         }
       }
@@ -610,7 +692,7 @@ function startPositionSync() {
   clearInterval(_syncTimer);
   _syncTimer = setInterval(() => {
     if (document.getElementById('screen-map').classList.contains('active') && G.uid && !G.uid.startsWith('demo')) {
-        db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap }).catch(e => console.log(e));
+        db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap, hsCaught: G.hsCaught }).catch(e => console.log(e));
     }
   }, 100); 
 }
@@ -634,7 +716,7 @@ if(firebaseReady){
         }
       });
       
-      switchMap(G.currentMap || 'main', G.x || 1200, G.y || 1300);
+      updateNavButtons();
       startInviteListener(); listenToPlots(); listenToPlayers(); startPositionSync(); 
     } 
     hideLoading(); showScreen('screen-title'); 
@@ -642,81 +724,186 @@ if(firebaseReady){
 } else { setTimeout(()=>{hideLoading();showScreen('screen-title');},1800); }
 function hideLoading(){ document.getElementById('loading').classList.add('hide'); }
 
-// NEON MAP GENERATION
-function getSeededRandom(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
-let neonObstacles = [];
-let seedNum = 9999;
-const neonColors = ['#0eefff', '#ff5566', '#5dea7a', '#ffe566', '#a233ff'];
-for(let i=0; i<400; i++) {
-    neonObstacles.push({
-        x: getSeededRandom(seedNum++) * 12000, 
-        y: getSeededRandom(seedNum++) * 12000,
-        r: 40 + getSeededRandom(seedNum++) * 60,
-        color: neonColors[Math.floor(getSeededRandom(seedNum++) * neonColors.length)]
-    });
+function drawHatOnly(ctx,hat,cx,cy){
+  if(!hat||hat==='none')return;
+  ctx.save();
+  switch(hat){
+    case 'crown': ctx.fillStyle='#ffe566'; ctx.strokeStyle='#cc8800'; ctx.lineWidth=2; ctx.beginPath(); ctx.rect(cx-18,cy+4,36,10); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx-18,cy+4); ctx.lineTo(cx-18,cy-8); ctx.lineTo(cx-8,cy+4); ctx.lineTo(cx,cy-12); ctx.lineTo(cx+8,cy+4); ctx.lineTo(cx+18,cy-8); ctx.lineTo(cx+18,cy+4); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle='#ff4466'; ctx.beginPath(); ctx.arc(cx,cy-10,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#4488ff'; ctx.beginPath(); ctx.arc(cx-11,cy-2,2.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(cx+11,cy-2,2.5,0,Math.PI*2); ctx.fill(); break;
+    case 'beanie': ctx.fillStyle='#66d6ff'; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy+2,20,13,0,Math.PI,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,cy-11,6,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx-18,cy+4); ctx.lineTo(cx+18,cy+4); ctx.stroke(); break;
+    case 'wizard': ctx.fillStyle='#8866ff'; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy+8,24,6,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx-20,cy+8); ctx.lineTo(cx,cy-28); ctx.lineTo(cx+20,cy+8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle='#ffe566'; ctx.font='10px sans-serif'; ctx.fillText('✦',cx-6,cy-2); ctx.font='7px sans-serif'; ctx.fillText('✦',cx+4,cy-14); break;
+    case 'tophat': ctx.fillStyle='#222'; ctx.strokeStyle='#555'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy+6,22,6,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.rect(cx-13,cy-18,26,24); ctx.fill(); ctx.stroke(); ctx.fillStyle='#ff6688'; ctx.beginPath(); ctx.rect(cx-13,cy+2,26,4); ctx.fill(); break;
+    case 'prop': ctx.fillStyle='#ff5566'; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx+6,cy+4,14,4,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#ffe566'; ctx.beginPath(); ctx.arc(cx,cy+4,12,Math.PI,0); ctx.fill(); ctx.stroke(); ctx.strokeStyle='#aaa'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(cx,cy-8); ctx.lineTo(cx,cy-18); ctx.stroke(); ctx.fillStyle='#eee'; ctx.strokeStyle='#000'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.ellipse(cx-8,cy-18,10,3,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(cx+8,cy-18,10,3,-0.1,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle='#ff5566'; ctx.beginPath(); ctx.arc(cx,cy-19,3.5,0,Math.PI*2); ctx.fill(); ctx.stroke(); break;
+    case 'halo': ctx.strokeStyle = 'rgba(255, 235, 100, 0.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(cx, cy - 12, 16, 5, 0, 0, Math.PI*2); ctx.stroke(); ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - 8, cy - 8); ctx.lineTo(cx - 5, cy + 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx + 8, cy - 8); ctx.lineTo(cx + 5, cy + 2); ctx.stroke(); break;
+    case 'headphones': ctx.strokeStyle = '#222'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(cx, cy + 5, 20, Math.PI, 0); ctx.stroke(); ctx.fillStyle = '#ff4466'; ctx.fillRect(cx - 24, cy + 2, 8, 14); ctx.fillRect(cx + 16, cy + 2, 8, 14); ctx.fillStyle = '#222'; ctx.fillRect(cx - 21, cy + 4, 3, 10); ctx.fillRect(cx + 18, cy + 4, 3, 10); break;
+    case 'cowboy': ctx.fillStyle = '#8B4513'; ctx.strokeStyle = '#5C3A21'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy + 4, 26, 8, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cx - 14, cy + 2); ctx.quadraticCurveTo(cx - 10, cy - 18, cx, cy - 14); ctx.quadraticCurveTo(cx + 10, cy - 18, cx + 14, cy + 2); ctx.fill(); ctx.stroke(); ctx.strokeStyle = '#222'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx - 13, cy + 1); ctx.lineTo(cx + 13, cy + 1); ctx.stroke(); break;
+  }
+  ctx.restore();
 }
 
-function updateMap() {
-  const p = map.player;
-  
-  // Tag Seeker Speed Boost
-  if(speedBoostTimer > 0) { 
-      speedBoostTimer--; p.speed = 9; 
-  } else if (globalGameState.active && globalGameState.state === 'playing' && globalGameState.seeker === G.uid) {
-      p.speed = 5.2; // IT moves slightly faster
-  } else { 
-      p.speed = 4.5; 
+function drawFred(ctx,x,y,size,color,hat){
+  const s=size/100; ctx.save(); ctx.translate(x-size*0.5,y-size*0.48); ctx.scale(s,s);
+  ctx.beginPath(); ctx.ellipse(50,50,40,37,0,0,Math.PI*2); ctx.fillStyle=color||'#ffffff'; ctx.fill(); ctx.strokeStyle='#000'; ctx.lineWidth=6; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(50,60,17,13,0,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.fill();
+  ctx.save(); ctx.translate(34,41); ctx.rotate(-0.15); ctx.beginPath(); ctx.ellipse(0,0,5,6.5,0,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.restore(); ctx.beginPath(); ctx.arc(36,39,2,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.save(); ctx.translate(63,39); ctx.rotate(0.15); ctx.beginPath(); ctx.ellipse(0,0,5,6.5,0,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.restore(); ctx.beginPath(); ctx.arc(65,37,2,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+  ctx.strokeStyle='#000'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(36,68); ctx.quadraticCurveTo(50,80,64,68); ctx.stroke();
+  ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(32,85); ctx.lineTo(28,95); ctx.stroke(); ctx.beginPath(); ctx.moveTo(20,95); ctx.lineTo(37,95); ctx.stroke(); ctx.beginPath(); ctx.moveTo(68,83); ctx.lineTo(72,93); ctx.stroke(); ctx.beginPath(); ctx.moveTo(64,93); ctx.lineTo(80,93); ctx.stroke();
+  ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(12,50); ctx.quadraticCurveTo(0,61,10,73); ctx.stroke(); ctx.beginPath(); ctx.moveTo(88,48); ctx.quadraticCurveTo(100,59,90,71); ctx.stroke();
+  ctx.restore(); drawHatOnly(ctx, hat, x, y - (size * 0.35)); 
+}
+
+const MAP_W=6000, MAP_H=4000;
+const ZONES=[
+  {id:'arena',x:1150,y:420,w:100,h:80,name:'⚔️ Arena Door',desc:'Enter the Battle!',color:'#003399',floor:'#222233'},
+  {id:'shop',x:600,y:1000,w:210,h:190,name:'🏪 item shop ',desc:'Buy cool stuff!',color:'#ff6699',floor:'#ffffff'},
+  {id:'fishing',x:1800,y:850,w:400,h:300,name:'🎣 Freds Lake',desc:'Catch some fish for coins!',color:'#00aaff',floor:'rgba(0,0,0,0)'},
+  {id:'mining',x:400,y:100,w:400,h:300,name:'⛏️ Fred Peak',desc:'Mine for shiny gems!',color:'#555555',floor:'rgba(0,0,0,0)'},
+  {id:'fredhouse',x:2000,y:800,w:120,h:100,name:'🏠 Fred\'s House',desc:'Talk to Fred',color:'#ffaa00',floor:'rgba(0,0,0,0)'}
+];
+const HOUSE_PLOTS=[ 
+  {id:'plot1',x:400,y:1400,w:120,h:100}, {id:'plot2',x:1100,y:1500,w:120,h:100}, 
+  {id:'plot4',x:1800,y:500,w:120,h:100}, {id:'plot5',x:1800,y:1400,w:120,h:100}, 
+  {id:'plot6',x:200,y:800,w:120,h:100}, {id:'plot7',x:3500,y:1000,w:120,h:100}, 
+  {id:'plot8',x:4500,y:1200,w:120,h:100}, {id:'plot9',x:3000,y:2500,w:120,h:100}, 
+  {id:'plot10',x:5000,y:2500,w:120,h:100}
+];
+
+let mapPlots = {}; 
+function listenToPlots() { 
+  if(!firebaseReady) return; 
+  db.ref('houses').on('value', snap => { 
+    mapPlots = {}; 
+    snap.forEach(child => { mapPlots[child.key] = child.val(); }); 
+  }); 
+}
+
+async function claimPlot(plotId) { 
+  if (!firebaseReady) { mapPlots[plotId] = { uid: G.uid, username: G.username, color: G.color }; G.plotId = plotId; showToast('🏡 You moved in! (Demo)'); document.getElementById('zone-popup').style.display='none'; enterHouse(mapPlots[plotId]); return; } 
+  if (G.plotId) await db.ref('houses/' + G.plotId).remove().catch(e => console.log(e)); 
+  G.plotId = plotId; 
+  await saveUserData(); 
+  await db.ref('houses/' + plotId).set({ uid: G.uid, username: G.username, color: G.color }); 
+  showToast('🏡 You moved into a new house!'); 
+  document.getElementById('zone-popup').style.display='none'; 
+  enterHouse({ uid: G.uid, username: G.username }); 
+}
+
+const map={canvas:null,ctx:null,cam:{x:0,y:0}, player:{x:1200,y:1300,speed:4.5,size:28, emote:null, emoteTimer:0},keys:{},activeZone:null,activePlot:null,animFrame:null};
+
+let mapCoins = [];
+const BOOST_PADS = [{x: 1400, y: 1200}, {x: 3500, y: 1500}, {x: 800, y: 2200}];
+let speedBoostTimer = 0;
+
+setInterval(() => {
+    if(mapCoins.length < 8 && document.getElementById('screen-map').classList.contains('active') && G.currentMap === 'main') {
+        mapCoins.push({ x: 200+Math.random()*(MAP_W-400), y: 200+Math.random()*(MAP_H-400), bob:Math.random()*Math.PI*2 });
+    }
+}, 6000);
+
+let quest = { active: false, needed: 0, items: [], type: null };
+const questTypes = [
+    { name: "Blueprints", emoji: "📄", reward: 80 },
+    { name: "Wrenches", emoji: "🔧", reward: 100 },
+    { name: "Coffee Cups", emoji: "☕", reward: 60 }
+];
+
+function startFredTask() {
+    document.getElementById('fred-dialogue').style.display = 'flex';
+    let btn = document.getElementById('fred-btn');
+    
+    if (quest.active && quest.needed > 0) {
+        document.getElementById('fred-text').innerHTML = `Hey! I'm still waiting for you to find my<br><strong style="color:var(--cyan)">${quest.needed} ${quest.type.name}</strong> out on the map!`;
+        btn.textContent = "I'm looking!";
+        return;
+    }
+    if (quest.active && quest.needed === 0) {
+        document.getElementById('fred-text').innerHTML = `You found them all! You're a lifesaver.<br><strong style="color:var(--green)">+${quest.type.reward} Coins!</strong>`;
+        btn.textContent = "Awesome!";
+        G.coins += quest.type.reward; saveUserData(); updateAllHUDs();
+        quest.active = false;
+        return;
+    }
+    
+    quest.type = questTypes[Math.floor(Math.random() * questTypes.length)];
+    quest.needed = 3; quest.active = true; quest.items = [];
+    for (let i = 0; i < 3; i++) {
+        quest.items.push({
+            x: 200 + Math.random() * (MAP_W - 400),
+            y: 200 + Math.random() * (MAP_H - 400),
+            emoji: quest.type.emoji
+        });
+    }
+    document.getElementById('fred-text').innerHTML = `Oh man, I dropped 3 of my <strong style="color:var(--cyan)">${quest.type.name}</strong> (${quest.type.emoji}) somewhere out in the world...<br><br>Can you explore the map and bring them back?`;
+    btn.textContent = "I'm on it!";
+}
+function closeFred() { document.getElementById('fred-dialogue').style.display = 'none'; }
+
+function initMap(){
+  map.canvas=document.getElementById('map-canvas'); if(!map.canvas)return; map.canvas.width=window.innerWidth; map.canvas.height=window.innerHeight-56; map.ctx=map.canvas.getContext('2d');
+  document.removeEventListener('keydown',mapKD); document.removeEventListener('keyup',mapKU); document.addEventListener('keydown',mapKD); document.addEventListener('keyup',mapKU); cancelAnimationFrame(map.animFrame); mapLoop();
+}
+
+function mapKD(e){
+  if(!document.getElementById('screen-map').classList.contains('active'))return;
+  map.keys[e.key.toLowerCase()]=true;
+  if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();
+  if(e.key === '1') triggerEmote('👋');
+  if(e.key === '2') triggerEmote('😂');
+  if(e.key === '3') triggerEmote('❤️');
+  if(e.key === '4') triggerEmote('🐧');
+}
+function mapKU(e){map.keys[e.key.toLowerCase()]=false;}
+function triggerEmote(emoji) { 
+  map.player.emote = emoji; 
+  map.player.emoteTimer = 90; 
+  if(firebaseReady && G.uid && !G.uid.startsWith('demo')) {
+    db.ref('users/' + G.uid).update({ emote: emoji, emoteExpires: Date.now() + 1500 }).catch(e => console.log(e));
   }
+}
+
+function mapLoop(){ if(!document.getElementById('screen-map').classList.contains('active'))return; updateMap(); renderMap(); map.animFrame=requestAnimationFrame(mapLoop); }
+
+function updateMap(){
+  const p=map.player;
   
-  // Tag Logic
+  if(speedBoostTimer > 0) { speedBoostTimer--; p.speed = 9; } else { p.speed = 4.5; }
+  
+  // Game Logic checks
   if(globalGameState.active && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
-      if(globalGameState.seeker === G.uid && Date.now() - localLastTagTime > 2000) {
-          // Check collision with others
+      // If I am the seeker...
+      if(globalGameState.seeker === G.uid) {
           Object.keys(otherPlayers).forEach(id => {
               let op = otherPlayers[id];
-              if(op.currentMap === 'minigame_map') {
+              if(op.currentMap === 'minigame_map' && !op.hsCaught) {
                   let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
                   if (dist < 60) {
-                      localLastTagTime = Date.now();
-                      db.ref('global_game').update({ seeker: id, seekerName: op.username });
-                      showToast("You tagged " + op.username + "!");
+                      if(globalGameState.name === 'Hide & Seek') {
+                          db.ref('users/' + id).update({ hsCaught: true });
+                          db.ref('global_game').transaction(gg => { if(gg) gg.hidersLeft--; return gg; });
+                          showToast("You caught " + op.username + "!");
+                      } else if (globalGameState.name === 'Tag') {
+                          db.ref('global_game').update({ seeker: id, seekerName: op.username });
+                          showToast("You tagged " + op.username + "!");
+                      }
                   }
               }
           });
-      }
-  }
-
-  let nextX = p.x;
-  let nextY = p.y;
-
-  if(map.keys['w']||map.keys['arrowup']) nextY -= p.speed; 
-  if(map.keys['s']||map.keys['arrowdown']) nextY += p.speed; 
-  if(map.keys['a']||map.keys['arrowleft']) nextX -= p.speed; 
-  if(map.keys['d']||map.keys['arrowright']) nextX += p.speed;
-  
-  // Basic Obstacle Collision in Neon Map
-  if (G.currentMap === 'minigame_map') {
-      for(let obs of neonObstacles) {
-          let dx = nextX - obs.x;
-          let dy = nextY - obs.y;
-          let dist = Math.sqrt(dx*dx + dy*dy);
-          if(dist < p.size + obs.r) {
-              let angle = Math.atan2(dy, dx);
-              nextX = obs.x + Math.cos(angle) * (p.size + obs.r);
-              nextY = obs.y + Math.sin(angle) * (p.size + obs.r);
+      } else {
+          // If I am a hider and I got caught
+          if(G.hsCaught && globalGameState.name === 'Hide & Seek') {
+              p.x = 6000; p.y = 6000; // Teleport to "Jail" in middle
+              p.speed = 0; // Can't move
           }
       }
   }
+
+  if(map.keys['w']||map.keys['arrowup']) p.y-=p.speed; if(map.keys['s']||map.keys['arrowdown']) p.y+=p.speed; if(map.keys['a']||map.keys['arrowleft']) p.x-=p.speed; if(map.keys['d']||map.keys['arrowright']) p.x+=p.speed;
   
   const curW = G.currentMap === 'minigame_map' ? 12000 : MAP_W;
   const curH = G.currentMap === 'minigame_map' ? 12000 : MAP_H;
   
-  p.x=Math.max(p.size,Math.min(curW-p.size, nextX)); 
-  p.y=Math.max(p.size,Math.min(curH-p.size, nextY));
-
-  const cw=map.canvas.width,ch=map.canvas.height; 
-  map.cam.x=Math.max(0,Math.min(curW-cw,p.x-cw/2)); 
-  map.cam.y=Math.max(0,Math.min(curH-ch,p.y-ch/2));
+  p.x=Math.max(p.size,Math.min(curW-p.size,p.x)); p.y=Math.max(p.size,Math.min(curH-p.size,p.y));
+  const cw=map.canvas.width,ch=map.canvas.height; map.cam.x=Math.max(0,Math.min(curW-cw,p.x-cw/2)); map.cam.y=Math.max(0,Math.min(curH-ch,p.y-ch/2));
   
   if (G.currentMap === 'main') {
       for(let i=quest.items.length-1; i>=0; i--) {
@@ -765,34 +952,54 @@ function updateMap() {
   });
 }
 
+function getSeededRandom(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
+let hsSpots = [];
+let seedNum = 12345;
+for(let i=0; i<350; i++) {
+    hsSpots.push({
+        x: getSeededRandom(seedNum++) * 12000, 
+        y: getSeededRandom(seedNum++) * 12000,
+        type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush'
+    });
+}
+
 function renderMap(){
   const ctx=map.ctx; if(!ctx)return; ctx.save(); ctx.translate(-map.cam.x,-map.cam.y);
   
   if (G.currentMap === 'minigame_map') {
-      // Neon Dark Theme
-      ctx.fillStyle='#050510'; ctx.fillRect(0,0,12000,12000); 
+      ctx.fillStyle='#132616'; ctx.fillRect(0,0,12000,12000); 
       
-      // Draw Grid
-      ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=2;
-      for(let x=0; x<12000; x+=200) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,12000); ctx.stroke(); }
-      for(let y=0; y<12000; y+=200) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(12000,y); ctx.stroke(); }
+      if(globalGameState.name === 'Hide & Seek') {
+          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillRect(5800, 5800, 400, 400);
+          ctx.strokeStyle = '#ff5566'; ctx.lineWidth=5;
+          ctx.strokeRect(5800, 5800, 400, 400);
+          ctx.font = "bold 30px 'Nunito',sans-serif"; ctx.fillStyle='#ff5566'; ctx.textAlign='center';
+          ctx.fillText("JAIL", 6000, 6000);
+      }
 
-      // Draw Neon Obstacles
-      neonObstacles.forEach(obs => {
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = obs.color;
-          ctx.fillStyle = '#0a0a1a';
-          ctx.beginPath(); ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI*2); ctx.fill();
-          
-          ctx.strokeStyle = obs.color; ctx.lineWidth = 6;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
+      hsSpots.forEach(s => { 
+          if(s.type === 'tree') {
+              ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); 
+          } else {
+              ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill();
+          }
       });
 
       drawAllPlayers(ctx);
 
+      hsSpots.forEach(s => { 
+          if(s.type === 'tree') {
+              ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill(); 
+              ctx.beginPath(); ctx.moveTo(s.x, s.y-80); ctx.lineTo(s.x+30, s.y-10); ctx.lineTo(s.x-30, s.y-10); ctx.fill(); 
+          } else {
+              ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(s.x, s.y, 45, 0, Math.PI*2); ctx.fill();
+              ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(s.x-15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+              ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
+          }
+      });
+
   } else {
-      // Town Map rendering...
       ctx.fillStyle='#a2d149'; ctx.fillRect(0,0,MAP_W,MAP_H); 
     
       ctx.fillStyle = 'rgba(255, 230, 100, 0.4)';
@@ -875,6 +1082,8 @@ function renderMap(){
 function drawAllPlayers(ctx) {
   Object.values(otherPlayers).forEach(p => {
     if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
+      if(p.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
+      
       if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
         ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
         ctx.drawImage(costume1Img, p.x - 30, p.y - 30, 60, 60); 
@@ -883,23 +1092,30 @@ function drawAllPlayers(ctx) {
         drawFred(ctx, p.x, p.y, 60, p.color || '#ffffff', p.hat || 'none'); 
       }
       
-      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
-      ctx.fillText(p.username || 'Player', p.x, p.y-40);
+      let showName = true;
+      if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
+      if (globalGameState.active && globalGameState.seeker === p.uid) showName = true; 
+
+      if(showName) {
+          ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
+          ctx.fillText(p.username || 'Player', p.x, p.y-40);
+      }
       
       if(globalGameState.active && globalGameState.seeker === p.uid) {
           ctx.fillStyle = '#ff5566';
           ctx.font="900 16px 'Nunito',sans-serif";
-          ctx.shadowBlur = 10; ctx.shadowColor = '#ff5566';
-          ctx.fillText("🔴 IT", p.x, p.y-60);
-          ctx.shadowBlur = 0;
+          ctx.fillText("🔴 SEEKER", p.x, p.y-60);
       }
       
       if (p.emote && p.emoteExpires > Date.now()) {
         ctx.font = "28px Arial";
         ctx.fillText(p.emote, p.x, p.y - 80);
       }
+      ctx.globalAlpha = 1.0;
     }
   });
+
+  if(G.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
 
   if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
     ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 22, 0, Math.PI * 2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
@@ -909,15 +1125,19 @@ function drawAllPlayers(ctx) {
     drawFred(ctx, map.player.x, map.player.y, 60, G.color, G.hat); 
   }
   
-  ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
-  ctx.fillText(G.username, map.player.x, map.player.y-40);
+  let showMyName = true;
+  if (G.currentMap !== 'main' && globalGameState.state === 'playing') showMyName = false;
+  if (globalGameState.active && globalGameState.seeker === G.uid) showMyName = true;
+  
+  if(showMyName) {
+      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
+      ctx.fillText(G.username, map.player.x, map.player.y-40);
+  }
   
   if(globalGameState.active && globalGameState.seeker === G.uid) {
       ctx.fillStyle = '#ff5566';
       ctx.font="900 16px 'Nunito',sans-serif";
-      ctx.shadowBlur = 10; ctx.shadowColor = '#ff5566';
-      ctx.fillText("🔴 IT (YOU)", map.player.x, map.player.y-60);
-      ctx.shadowBlur = 0;
+      ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
   }
 
   if (map.player.emoteTimer > 0) {
@@ -925,6 +1145,7 @@ function drawAllPlayers(ctx) {
     ctx.font = "28px Arial";
     ctx.fillText(map.player.emote, map.player.x, map.player.y - 80); 
   }
+  ctx.globalAlpha = 1.0;
 }
 
 function startFishing() {
@@ -1118,8 +1339,8 @@ function showInviteNotification(invId,inv){
     
     if(inv.type === 'global_game') {
         _inviteIsGlobal = true;
-        document.getElementById('invite-notif-title').textContent = `🎮 NEW GAME: NEON TAG!`;
-        document.getElementById('invite-notif-sub').textContent = `${inv.fromName} has started a game of Tag! Click accept to teleport to the arena.`;
+        document.getElementById('invite-notif-title').textContent = `🎮 NEW GAME: ${inv.game}!`;
+        document.getElementById('invite-notif-sub').textContent = `${inv.fromName} has started a game! Click accept to teleport to the map.`;
     } else {
         _inviteIsGlobal = false;
         document.getElementById('invite-notif-title').textContent = "⚔️ Battle Challenge!";
@@ -1139,7 +1360,7 @@ async function respondInvite(accept){
     if (_inviteIsGlobal) {
         if (accept) { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
-          showToast('⚡ Teleporting to the Neon Arena...'); 
+          showToast('🌲 Teleporting to the map...'); 
           switchMap('minigame_map', 6000, 6000);
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 

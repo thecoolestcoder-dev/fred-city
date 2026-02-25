@@ -38,16 +38,24 @@
       .fred-box { background:linear-gradient(160deg,#1a2a4a,#2a3a5e); border:4px solid #ffaa00; border-radius:24px; padding:2rem; max-width:450px; width:90%; text-align:center; box-shadow:0 0 50px rgba(255,170,0,0.3); display:flex; flex-direction:column; align-items:center; animation:confirmPop .2s ease; }
 
       #screen-minigame { flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(180deg, #1a2a4a, #0a1a2a); text-align:center; color:#fff;}
-      .mg-box { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:20px; padding:2rem; width:90%; max-width:700px; box-shadow:0 0 40px rgba(102,214,255,0.2); }
+      .mg-box { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:20px; padding:2rem; width:90%; max-width:600px; box-shadow:0 0 40px rgba(102,214,255,0.2); }
 
       @keyframes float-bob { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -65%); } }
-      @keyframes bite-flash { 0%, 100% { box-shadow: inset 0 0 0px rgba(255,34,68,0); } 50% { box-shadow: inset 0 0 60px rgba(255,34,68,0.8); } }
-      @keyframes spark-fly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+      @keyframes bite-flash { 0%, 100% { background: #0055aa; } 50% { background: #ff2244; } }
+      @keyframes waveMove { 0% { transform: translateY(0); } 100% { transform: translateY(20px); } }
 
-      .mg-fishing-scene { width: 100%; height: 260px; background: linear-gradient(180deg, #44ccff 0%, #0055aa 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; overflow: hidden; border: 4px solid #fff; box-shadow: inset 0 -20px 40px rgba(0,0,0,0.3); transition: all 0.2s; }
+      .mg-fishing-scene { width: 100%; height: 220px; background: linear-gradient(180deg, #44ccff 0%, #0055aa 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; overflow: hidden; border: 4px solid #fff; transition: background 0.1s; box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 40px rgba(0,0,0,0.3); }
+      /* Water ripples effect for fishing game */
+      .mg-fishing-scene::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-radial-gradient(circle at 50% 120%, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 10px, transparent 10px, transparent 20px); animation: waveMove 4s linear infinite; pointer-events: none; }
+      
       .mg-fishing-scene.bite { animation: bite-flash 0.3s infinite; }
-      .mg-bobber { font-size: 4rem; position: absolute; left: 50%; top: 50%; animation: float-bob 2.5s infinite ease-in-out; user-select: none; filter:drop-shadow(0 15px 10px rgba(0,0,0,0.6)); }
-      .mg-bobber.bitten { animation: none; top: 75%; filter: brightness(0.6) drop-shadow(0 5px 2px rgba(0,0,0,0.8)); transform: translate(-50%, -50%) scale(0.8); }
+      .mg-bobber { font-size: 4rem; position: absolute; left: 50%; top: 50%; animation: float-bob 2.5s infinite ease-in-out; user-select: none; filter:drop-shadow(0 10px 5px rgba(0,0,0,0.5)); z-index: 2; }
+      .mg-bobber.bitten { animation: none; top: 75%; filter: brightness(0.5); transform: translate(-50%, -50%) scale(0.8); }
+
+      /* New Runner Minigame Styles */
+      .runner-canvas-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; border: 4px solid var(--darkteal); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+      #runner-canvas { display: block; width: 100%; background: #2c1e16; touch-action: none; }
+      .runner-btn-group { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
 
       /* BATTLE */#screen-battle{flex-direction:column;background:#1a1a2e;align-items:center;justify-content:center;}.battle-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.7);border-bottom:2px solid #333;display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.battle-title{font-family:'Fredoka One',cursive;color:#fff;font-size:1.1rem;flex-shrink:0;}.health-bar-wrap{display:flex;flex-direction:column;gap:2px;flex:1;}.health-bar-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;}.health-bar-outer{height:14px;background:rgba(255,255,255,.1);border-radius:7px;border:1px solid rgba(255,255,255,.2);overflow:hidden;}.health-bar-inner{height:100%;border-radius:7px;transition:width .3s;}.health-bar-inner.player{background:linear-gradient(90deg,#5dea7a,#00cc44);}.health-bar-inner.enemy{background:linear-gradient(90deg,#ff5566,#cc0022);}#battle-canvas{display:block;border:3px solid rgba(255,255,255,.1);border-radius:8px;box-shadow:0 0 40px rgba(68,170,255,.2);cursor:crosshair;}.battle-controls{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;gap:1rem;align-items:center;}.battle-key{background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.2);border-radius:8px;padding:.3rem .7rem;color:rgba(255,255,255,.5);font-size:.8rem;font-weight:700;}.battle-result-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:50;}.battle-result-title{font-family:'Fredoka One',cursive;font-size:clamp(2.5rem,6vw,4rem);text-shadow:4px 4px 0 rgba(0,0,0,.5);margin-bottom:1rem;}.battle-result-coins{color:var(--yellow);font-size:1.2rem;font-weight:800;margin-bottom:2rem;}.battle-result-btn{padding:.8rem 2rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 0 var(--darkteal);transition:all .15s;}.battle-result-btn:hover{transform:translateY(-2px);}.battle-leave-btn{position:absolute;top:70px;left:1rem;padding:.5rem 1rem;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;z-index:50;}.battle-leave-btn:hover{border-color:var(--red);color:var(--red);}
       /* ARENA MODAL & OTHER OVERLAYS */.arena-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.arena-modal-overlay.show{display:flex;}.arena-modal{background:linear-gradient(160deg,#1a2a4a,#2a3a5e);border:3px solid var(--cyan);border-radius:24px;padding:2rem;max-width:500px;width:92%;box-shadow:0 0 50px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.arena-modal h2{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.8rem;text-align:center;margin-bottom:.3rem;}.arena-modal .arena-modal-sub{color:rgba(255,255,255,.5);font-size:.85rem;text-align:center;margin-bottom:1.5rem;}.arena-mode-btns{display:flex;gap:1rem;margin-bottom:1.5rem;}.arena-mode-btn{flex:1;padding:1.2rem;border-radius:14px;border:2px solid;cursor:pointer;text-align:center;transition:all .2s;}.arena-mode-btn.ai{border-color:var(--yellow);background:rgba(255,229,102,.08);color:var(--yellow);}.arena-mode-btn.ai:hover{background:rgba(255,229,102,.18);transform:translateY(-2px);}.arena-mode-btn.pvp{border-color:var(--cyan);background:rgba(102,214,255,.08);color:var(--cyan);}.arena-mode-btn.pvp:hover{background:rgba(102,214,255,.18);transform:translateY(-2px);}.arena-mode-btn .mode-icon{font-size:2rem;margin-bottom:.4rem;}.arena-mode-btn .mode-title{font-family:'Fredoka One',cursive;font-size:1.1rem;}.arena-mode-btn .mode-desc{font-size:.75rem;opacity:.7;margin-top:.2rem;}.online-players-section{display:none;}.online-players-section h3{font-family:'Fredoka One',cursive;color:#fff;font-size:1rem;margin-bottom:.8rem;}.online-player-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;}.online-player-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:all .2s;}.online-player-item:hover{border-color:var(--cyan);background:rgba(102,214,255,.1);}.online-player-dot{width:10px;height:10px;border-radius:50%;background:#5dea7a;box-shadow:0 0 6px #5dea7a;flex-shrink:0;}.online-player-name{flex:1;font-weight:700;color:#fff;}.online-player-invite-btn{padding:.3rem .8rem;background:var(--cyan);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:.85rem;cursor:pointer;}.no-online{color:rgba(255,255,255,.4);text-align:center;padding:1rem;font-size:.9rem;}.arena-modal-close{margin-top:1rem;width:100%;padding:.7rem;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s;}.arena-modal-close:hover{border-color:var(--red);color:var(--red);}
@@ -257,7 +265,7 @@
     </div>
     
     <div class="screen" id="screen-minigame">
-      <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="leaveMinigame()">← Leave</button>
+      <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="showScreen('screen-map')">← Leave</button>
       <h1 id="mg-title" style="font-family:'Fredoka One',cursive; color:var(--cyan); margin-bottom:2rem; font-size:2.5rem; text-shadow:2px 2px 0 #000;">Minigame</h1>
       <div class="mg-box" id="mg-content"></div>
     </div>
@@ -338,6 +346,13 @@
 const costume1Img = new Image();
 costume1Img.src = "costume1.svg";
 
+// MINIGAME GLOBALS
+let currentArena = 'arena';
+let mgState = 'idle';
+let mgClicks = 0;
+let mgTimer = null;
+let runner = { active: false, canvas: null, ctx: null, lane: 1, rocks: [], speed: 3.5, score: 0, frame: null, lastSpawn: 0 };
+
 // MUSIC LOGIC
 let bgMusic = document.getElementById('bg-music');
 bgMusic.volume = 0.25;
@@ -363,11 +378,6 @@ function startMusicAuto() {
     }
 }
 
-// ENDLESS RUNNER GLOBAL VARIABLES
-let runnerGame = { active: false, frame: null, lane: 1, obs: [], speed: 4, dist: 0, coins: 0, lastTick: 0 };
-let runnerKeys = {};
-let runnerKeysPrev = {};
-
 // MOBILE CONTROLS LOGIC
 let isMobile = false;
 function toggleMobile(val) { isMobile = val; }
@@ -376,7 +386,6 @@ function simK(k, state) {
     if(document.getElementById('screen-map').classList.contains('active')) map.keys[k] = state; 
     if(document.getElementById('screen-battle').classList.contains('active')) B.keys[k] = state; 
     if(document.getElementById('screen-home').classList.contains('active')) HOME.keys[k] = state; 
-    if(document.getElementById('screen-minigame').classList.contains('active')) runnerKeys[k] = state;
 }
 function simAct() {
     event.preventDefault();
@@ -464,8 +473,10 @@ function startGlobalGame(gameName) {
 function beginGlobalGame() {
     if(!firebaseReady) return;
 
+    // Count how many OTHER players are currently in the minigame map
     let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
     
+    // Assign admin as seeker and start instantly
     db.ref('global_game').update({ 
         state: 'playing', 
         hidersLeft: totalHiders,
@@ -487,7 +498,7 @@ function endGlobalGame() {
 
 function leaveGlobalGame() {
     if (G.email === 'masonlevihess@gmail.com') {
-        endGlobalGame(); 
+        endGlobalGame(); // Admin leaving ends it for everyone
     } else {
         switchMap('main', 1200, 1300);
         showToast("Left the game map.");
@@ -524,26 +535,26 @@ const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'},
 const SHOP_WALLS=[ {id:'default',name:'Basic Blue',price:0,color:'#2a3a7a'}, {id:'forest',name:'Forest',price:200,color:'#1a4a2a'}, {id:'candy',name:'Candy Land',price:250,color:'#ff88bb'}, {id:'space',name:'Deep Space',price:300,color:'#0a0a1e'}, {id:'sunset',name:'Sunset',price:200,color:'#aa4422'}, {id:'ocean',name:'Ocean',price:250,color:'#114466'}, {id:'lava',name:'Volcano Lair',price:300,color:'#882211'}, {id:'ice',name:'Ice Castle',price:250,color:'#aaddff'}, {id:'cyber',name:'Cyberpunk',price:350,color:'#220044'} ];
 
 function showScreen(id){ 
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
-  const s=document.getElementById(id); if(!s)return; 
-  s.classList.add('active'); 
-  updateAllHUDs(); 
-  
-  if(isMobile && (id==='screen-map' || id==='screen-battle' || id==='screen-home' || id==='screen-minigame')) {
-      document.getElementById('mobile-ui').style.display = 'block';
-      document.getElementById('map-hint').style.display = 'none';
-      document.getElementById('battle-hint').style.display = 'none';
-      document.getElementById('home-hint2').style.display = 'none';
-  } else {
-      document.getElementById('mobile-ui').style.display = 'none';
-  }
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+    const s=document.getElementById(id); if(!s)return; 
+    s.classList.add('active'); 
+    updateAllHUDs(); 
+    
+    if(isMobile && (id==='screen-map' || id==='screen-battle' || id==='screen-home')) {
+        document.getElementById('mobile-ui').style.display = 'block';
+        document.getElementById('map-hint').style.display = 'none';
+        document.getElementById('battle-hint').style.display = 'none';
+        document.getElementById('home-hint2').style.display = 'none';
+    } else {
+        document.getElementById('mobile-ui').style.display = 'none';
+    }
 
-  if(id==='screen-map') {
-      initMap(); 
-      startMusicAuto(); 
-  }
-  if(id==='screen-shop') renderShop(); 
-  if(id==='screen-home') initHome(); 
+    if(id==='screen-map') {
+        initMap(); 
+        startMusicAuto(); 
+    }
+    if(id==='screen-shop') renderShop(); 
+    if(id==='screen-home') initHome(); 
 }
 function clickPlay() { if (G.uid && !G.uid.startsWith('demo')) { showScreen('screen-map'); } else { showScreen('screen-auth'); } }
 function updateAllHUDs(){ document.querySelectorAll('.coins-hud').forEach(el=>el.textContent=G.coins); const mu=document.getElementById('map-username-hud'); if(mu) mu.textContent=G.username; }
@@ -628,6 +639,7 @@ function listenToPlayers() {
           
           if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
               if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
+                  // Find the last person standing
                   let winnerName = "Someone";
                   if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
                   else {
@@ -636,7 +648,7 @@ function listenToPlayers() {
                       });
                   }
                   alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); 
+                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
               }
           }
           
@@ -754,7 +766,7 @@ const ZONES=[
   {id:'arena',x:1150,y:420,w:100,h:80,name:'⚔️ Arena Door',desc:'Enter the Battle!',color:'#003399',floor:'#222233'},
   {id:'shop',x:600,y:1000,w:210,h:190,name:'🏪 item shop ',desc:'Buy cool stuff!',color:'#ff6699',floor:'#ffffff'},
   {id:'fishing',x:1800,y:850,w:400,h:300,name:'🎣 Freds Lake',desc:'Catch some fish for coins!',color:'#00aaff',floor:'rgba(0,0,0,0)'},
-  {id:'mining',x:400,y:100,w:400,h:300,name:'🏃 Fred Peak Dodger',desc:'Dodge rocks for coins!',color:'#555555',floor:'rgba(0,0,0,0)'},
+  {id:'mining',x:400,y:100,w:400,h:300,name:'⛏️ Fred Peak',desc:'Mine for shiny gems!',color:'#555555',floor:'rgba(0,0,0,0)'},
   {id:'fredhouse',x:2000,y:800,w:120,h:100,name:'🏠 Fred\'s House',desc:'Talk to Fred',color:'#ffaa00',floor:'rgba(0,0,0,0)'}
 ];
 const HOUSE_PLOTS=[ 
@@ -837,15 +849,8 @@ function closeFred() { document.getElementById('fred-dialogue').style.display = 
 
 function initMap(){
   map.canvas=document.getElementById('map-canvas'); if(!map.canvas)return; map.canvas.width=window.innerWidth; map.canvas.height=window.innerHeight-56; map.ctx=map.canvas.getContext('2d');
-  document.addEventListener('keydown',mapKD); document.addEventListener('keyup',mapKU); cancelAnimationFrame(map.animFrame); mapLoop();
+  document.removeEventListener('keydown',mapKD); document.removeEventListener('keyup',mapKU); document.addEventListener('keydown',mapKD); document.addEventListener('keyup',mapKU); cancelAnimationFrame(map.animFrame); mapLoop();
 }
-
-document.addEventListener('keydown', e => { 
-    if(runnerGame && runnerGame.active) runnerKeys[e.key.toLowerCase()] = true; 
-});
-document.addEventListener('keyup', e => { 
-    if(runnerGame && runnerGame.active) runnerKeys[e.key.toLowerCase()] = false; 
-});
 
 function mapKD(e){
   if(!document.getElementById('screen-map').classList.contains('active'))return;
@@ -874,6 +879,7 @@ function updateMap(){
   
   // Game Logic checks
   if(globalGameState.active && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
+      // If I am the seeker...
       if(globalGameState.seeker === G.uid) {
           Object.keys(otherPlayers).forEach(id => {
               let op = otherPlayers[id];
@@ -892,9 +898,10 @@ function updateMap(){
               }
           });
       } else {
+          // If I am a hider and I got caught
           if(G.hsCaught && globalGameState.name === 'Hide & Seek') {
-              p.x = 6000; p.y = 6000; 
-              p.speed = 0; 
+              p.x = 6000; p.y = 6000; // Teleport to "Jail" in middle
+              p.speed = 0; // Can't move
           }
       }
   }
@@ -1150,12 +1157,6 @@ function drawAllPlayers(ctx) {
   ctx.globalAlpha = 1.0;
 }
 
-function leaveMinigame() {
-    runnerGame.active = false;
-    cancelAnimationFrame(runnerGame.frame);
-    showScreen('screen-map');
-}
-
 function startFishing() {
     showScreen('screen-minigame');
     document.getElementById('mg-title').textContent = "🎣 Fishing at Freds Lake";
@@ -1167,7 +1168,6 @@ function startFishing() {
     `;
     mgState = 'idle'; clearTimeout(mgTimer);
 }
-
 function doFishAction() {
     let bobber = document.getElementById('fish-bobber');
     let scene = document.getElementById('fish-scene');
@@ -1214,133 +1214,220 @@ function doFishAction() {
     }
 }
 
-// ENDLESS RUNNER REWRITTEN
-function startRunner() {
+function startMining() {
     showScreen('screen-minigame');
-    document.getElementById('mg-title').textContent = "🏃 Fred Peak Dodger!";
+    document.getElementById('mg-title').textContent = "🏃‍♂️ Cave Escape!";
     document.getElementById('mg-content').innerHTML = `
-        <div style="font-size:1.2rem; margin-bottom:0.5rem; color:var(--cyan); font-weight:bold;">Use A / D (or ⬅️ / ➡️) to dodge!</div>
-        <div style="position:relative; width:100%; max-width:600px; margin:0 auto;">
-            <canvas id="runner-canvas" width="600" height="300" style="background: linear-gradient(#2b2b2b, #1a1a1a); border: 4px solid #555; border-radius: 12px; display: block; width:100%;"></canvas>
-            <div id="runner-overlay" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); border-radius:12px; display:none;">
-                <h2 style="color:var(--red); font-size:3rem; margin-bottom:1rem; font-family:'Fredoka One',cursive;">CRASHED!</h2>
-                <button class="btn-main" style="width:auto; padding:0.8rem 2.5rem;" onclick="startRunner()">Try Again</button>
-            </div>
+        <div style="font-size:1.1rem; margin-bottom:1rem; color:var(--cyan); font-weight:bold;">A/D or Tap Left/Right to dodge!</div>
+        <div class="runner-canvas-container">
+            <canvas id="runner-canvas" width="300" height="400"></canvas>
         </div>
-        <div id="runner-prog" style="color:var(--yellow); font-size:1.3rem; font-weight:bold; margin-top:1.5rem;">Distance: 0m | Earned: 0 🪙</div>
+        <div id="runner-score" style="color:var(--yellow); font-size:1.8rem; font-weight:bold; margin-top:1rem;">Score: 0</div>
+        <div class="runner-btn-group">
+            <button class="btn-main" id="runner-btn" onclick="stopMining()" style="display:none; background:var(--red);">Exit Cave</button>
+            <button class="btn-main" id="runner-retry-btn" onclick="startMining()" style="display:none; background:var(--green);">Play Again</button>
+        </div>
     `;
-    runnerGame = { active: true, lane: 1, obs: [], speed: 6, dist: 0, coins: 0, lastTick: Date.now() };
-    runnerKeys = {};
-    runnerKeysPrev = {};
-    cancelAnimationFrame(runnerGame.frame);
+    
+    runner.active = true;
+    runner.canvas = document.getElementById('runner-canvas');
+    runner.ctx = runner.canvas.getContext('2d');
+    runner.lane = 1; // 0: Left, 1: Middle, 2: Right
+    runner.rocks = [];
+    runner.speed = 3.5; // Always ensure speed is reset strictly on start/restart
+    runner.score = 0;
+    runner.lastSpawn = Date.now();
+
+    // Mobile touch controls (tap left/right side of canvas)
+    runner.canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const rect = runner.canvas.getBoundingClientRect();
+        const touchX = e.touches[0].clientX - rect.left;
+        if(touchX < rect.width / 2 && runner.lane > 0) runner.lane--;
+        else if(touchX > rect.width / 2 && runner.lane < 2) runner.lane++;
+    });
+
+    document.removeEventListener('keydown', runnerKeyHandler);
+    document.addEventListener('keydown', runnerKeyHandler);
+
+    cancelAnimationFrame(runner.frame);
     runnerLoop();
 }
 
+function runnerKeyHandler(e) {
+    if(!runner.active) return;
+    if((e.key === 'a' || e.key === 'ArrowLeft') && runner.lane > 0) runner.lane--;
+    if((e.key === 'd' || e.key === 'ArrowRight') && runner.lane < 2) runner.lane++;
+}
+
 function runnerLoop() {
-    if(!document.getElementById('screen-minigame').classList.contains('active')) {
-        runnerGame.active = false;
-        return;
-    }
-    if(runnerGame.active) updateRunner();
+    if(!runner.active) return;
+    updateRunner();
     renderRunner();
-    if(runnerGame.active || document.getElementById('runner-overlay').style.display === 'flex') {
-        runnerGame.frame = requestAnimationFrame(runnerLoop);
-    }
+    runner.frame = requestAnimationFrame(runnerLoop);
 }
 
 function updateRunner() {
-    let now = Date.now();
-    let dt = (now - runnerGame.lastTick) / 1000;
-    runnerGame.lastTick = now;
+    runner.score++;
+    
+    // Gets faster the longer you go! (Caps at 12 so it stays playable)
+    if (runner.score % 200 === 0 && runner.speed < 12) runner.speed += 0.5;
+    
+    document.getElementById('runner-score').textContent = "Score: " + runner.score;
 
-    runnerGame.dist += runnerGame.speed * 0.1;
-    runnerGame.speed += 0.003; // Gets faster!
-
-    // Handle lane changes safely avoiding key-spam
-    if ((runnerKeys['a'] || runnerKeys['arrowleft']) && !(runnerKeysPrev['a'] || runnerKeysPrev['arrowleft'])) {
-        runnerGame.lane = Math.max(0, runnerGame.lane - 1);
-    }
-    if ((runnerKeys['d'] || runnerKeys['arrowright']) && !(runnerKeysPrev['d'] || runnerKeysPrev['arrowright'])) {
-        runnerGame.lane = Math.min(2, runnerGame.lane + 1);
-    }
-    runnerKeysPrev = { ...runnerKeys };
-
-    // Spawning logic
-    if(Math.random() < 0.03 * (runnerGame.speed / 5)) {
-        let l = Math.floor(Math.random() * 3);
-        let canSpawn = true;
-        for(let o of runnerGame.obs) {
-            if(o.lane === l && o.y < 70) canSpawn = false; // ensure gap
-        }
-        if(canSpawn) runnerGame.obs.push({ lane: l, y: -40 });
-    }
-
-    // Moving and collisions
-    for(let i = runnerGame.obs.length - 1; i >= 0; i--) {
-        let o = runnerGame.obs[i];
-        o.y += runnerGame.speed;
+    // Spawn rocks (spawns rows of rocks so it's fair!)
+    let spawnRate = Math.max(400, 1200 - (runner.speed * 60)); // Timed slightly slower due to rows
+    if (Date.now() - runner.lastSpawn > spawnRate) {
         
-        // collision box math (player is roughly at Y 250)
-        if(o.lane === runnerGame.lane && o.y > 210 && o.y < 280) {
-            runnerGame.active = false;
-            document.getElementById('runner-overlay').style.display = 'flex';
-            
-            // Limit the coins to 150 max!
-            runnerGame.coins = Math.min(Math.floor(runnerGame.dist / 10), 150); 
-            if(runnerGame.coins > 0) {
-                G.coins += runnerGame.coins;
-                saveUserData();
-                updateAllHUDs();
-                showToast(`Ran ${Math.floor(runnerGame.dist)}m! Earned ${runnerGame.coins} 🪙`);
-            }
+        let numRocks = Math.random() > 0.6 ? 2 : 1; // Sometimes 1 rock, sometimes 2
+        let lanes = [0, 1, 2];
+        
+        // Shuffle the lanes array to randomize where the rocks go
+        lanes.sort(() => Math.random() - 0.5);
+        
+        for (let i = 0; i < numRocks; i++) {
+            runner.rocks.push({
+                lane: lanes[i],
+                y: -40,
+                size: 35
+            });
         }
-
-        if(o.y > 350) runnerGame.obs.splice(i, 1);
+        
+        runner.lastSpawn = Date.now();
     }
 
-    runnerGame.coins = Math.min(Math.floor(runnerGame.dist / 10), 150);
-    document.getElementById('runner-prog').textContent = `Distance: ${Math.floor(runnerGame.dist)}m | Earned: ${runnerGame.coins} 🪙 (Max 150)`;
+    // Move rocks & Check collisions
+    const laneWidth = runner.canvas.width / 3;
+    const playerX = runner.lane * laneWidth + laneWidth / 2;
+    const playerY = runner.canvas.height - 50;
+    const playerSize = 20;
+
+    for (let i = runner.rocks.length - 1; i >= 0; i--) {
+        let r = runner.rocks[i];
+        r.y += runner.speed;
+        
+        // Remove rocks that went off screen
+        if (r.y > runner.canvas.height + 50) {
+            runner.rocks.splice(i, 1);
+            continue;
+        }
+
+        // Collision detection logic
+        let rockX = r.lane * laneWidth + laneWidth / 2;
+        let dx = rockX - playerX;
+        let dy = r.y - playerY;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        
+        // If the distance between Fred and the rock is smaller than their combined sizes
+        if (dist < playerSize + r.size/2 - 5) {
+            gameOverRunner();
+        }
+    }
 }
 
 function renderRunner() {
-    const cv = document.getElementById('runner-canvas');
-    if(!cv) return;
-    const ctx = cv.getContext('2d');
-    
-    ctx.clearRect(0,0,600,300);
+    const ctx = runner.ctx;
+    const w = runner.canvas.width;
+    const h = runner.canvas.height;
+    const laneWidth = w / 3;
 
-    // Draw Lanes
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 6;
-    ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 300); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(400, 0); ctx.lineTo(400, 300); ctx.stroke();
+    // Draw track background (Dark dirt)
+    ctx.fillStyle = '#2c1e16'; 
+    ctx.fillRect(0, 0, w, h);
 
-    // Draw Player
-    let px = 100 + runnerGame.lane * 200;
-    ctx.font = '50px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let bob = runnerGame.active ? Math.sin(Date.now() * 0.02) * 5 : 0;
-    
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.fillText('🏃', px, 250 + bob);
+    // Draw moving floor stripes (Creates the illusion of speed!)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    let offset = (Date.now() / 15 * runner.speed) % 100;
+    for(let i = -100; i < h; i += 100) {
+         ctx.fillRect(0, i + offset, w, 50);
+    }
+
+    // Cave walls (Left and Right edges)
+    ctx.fillStyle = '#1a110b';
+    ctx.fillRect(0, 0, 12, h);
+    ctx.fillRect(w - 12, 0, 12, h);
+
+    // Draw lane dividers (Dotted lines moving with you)
+    ctx.strokeStyle = '#4a3325';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([20, 20]);
+    ctx.lineDashOffset = -(Date.now() / 15 * runner.speed) % 40;
+    ctx.beginPath();
+    ctx.moveTo(laneWidth, 0); ctx.lineTo(laneWidth, h);
+    ctx.moveTo(laneWidth * 2, 0); ctx.lineTo(laneWidth * 2, h);
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset line dash
 
     // Draw Rocks
-    ctx.font = '50px Arial';
-    for(let o of runnerGame.obs) {
-        let ox = 100 + o.lane * 200;
-        ctx.fillText('🪨', ox, o.y);
+    ctx.font = "35px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (let r of runner.rocks) {
+        let rx = r.lane * laneWidth + laneWidth / 2;
+        
+        // Drop shadow under the rock
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.beginPath();
+        ctx.ellipse(rx, r.y + 15, 15, 5, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillText("🪨", rx, r.y);
     }
-    ctx.shadowBlur = 0; // reset
+
+    // Draw Player (Using your existing Fred drawing logic!)
+    let px = runner.lane * laneWidth + laneWidth / 2;
+    let py = h - 50;
+    
+    // Add player shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    ctx.ellipse(px, py + 25, 20, 8, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // Re-use your global drawing function so players see their equipped colors/hats
+    if (costume1Img.complete && costume1Img.naturalHeight !== 0) {
+        ctx.beginPath(); ctx.arc(px, py, 18, 0, Math.PI*2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
+        ctx.drawImage(costume1Img, px - 25, py - 25, 50, 50);
+        drawHatOnly(ctx, G.hat, px, py - 16);
+    } else {
+        drawFred(ctx, px, py, 50, G.color, G.hat);
+    }
 }
 
-let currentArena = 'arena';
+function gameOverRunner() {
+    runner.active = false;
+    document.removeEventListener('keydown', runnerKeyHandler);
+    
+    // Coin Math: 1 coin per 50 score points.
+    let baseCoins = Math.floor(runner.score / 50);
+    // Diminishing returns after 40 coins so the economy doesn't break
+    let earned = baseCoins > 40 ? 40 + Math.floor((baseCoins - 40) * 0.2) : baseCoins;
+    
+    // Give at least 1 coin if they survived past a score of 100
+    if(earned === 0 && runner.score > 100) earned = 1;
+
+    G.coins += earned;
+    saveUserData();
+    updateAllHUDs();
+
+    document.getElementById('runner-score').innerHTML = `💥 CRASHED! 💥<br>Score: ${runner.score}<br><span style="color:var(--green)">+${earned} Coins</span>`;
+    
+    // Show BOTH the Exit and Retry buttons
+    document.getElementById('runner-btn').style.display = 'inline-block';
+    document.getElementById('runner-retry-btn').style.display = 'inline-block';
+}
+
+function stopMining() {
+    runner.active = false;
+    document.removeEventListener('keydown', runnerKeyHandler);
+    showScreen('screen-map');
+}
+
 function enterZone(id){ 
     if(id.startsWith('arena')){ currentArena=id; document.getElementById('battle-arena-name').textContent = document.getElementById('zone-popup-title').textContent; document.getElementById('arena-modal-title').textContent = document.getElementById('zone-popup-title').textContent; document.getElementById('arena-modal-sub').textContent='Choose how to battle'; document.getElementById('online-players-section').style.display='none'; document.getElementById('arena-modal-overlay').classList.add('show'); } 
     else if(id==='shop') showScreen('screen-shop'); 
     else if(id==='fishing') startFishing();
-    else if(id==='mining') startRunner();
+    else if(id==='mining') startMining();
     else if(id==='fredhouse') startFredTask();
 }
 

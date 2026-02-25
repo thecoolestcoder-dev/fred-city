@@ -1267,19 +1267,15 @@ function runnerLoop() {
     runner.frame = requestAnimationFrame(runnerLoop);
 }
 
-function updateRunner() {
-    runner.score++;
+// Spawn rocks (spawns rows of rocks so it's fair!)
     
-    // Gets faster the longer you go! (Caps at 12 so it stays playable)
-    if (runner.score % 200 === 0 && runner.speed < 12) runner.speed += 0.5;
+    // INCREASED BASE RATE: Spreads the rocks out further apart vertically
+    let spawnRate = Math.max(600, 1600 - (runner.speed * 50)); 
     
-    document.getElementById('runner-score').textContent = "Score: " + runner.score;
-
-    // Spawn rocks (spawns rows of rocks so it's fair!)
-    let spawnRate = Math.max(400, 1200 - (runner.speed * 60)); // Timed slightly slower due to rows
     if (Date.now() - runner.lastSpawn > spawnRate) {
         
-        let numRocks = Math.random() > 0.9 ? 2 : 1;
+        // REDUCED CLUMPING: Now only a 15% chance to spawn 2 rocks instead of 40%
+        let numRocks = Math.random() > 0.85 ? 2 : 1; 
         let lanes = [0, 1, 2];
         
         // Shuffle the lanes array to randomize where the rocks go
@@ -1288,7 +1284,9 @@ function updateRunner() {
         for (let i = 0; i < numRocks; i++) {
             runner.rocks.push({
                 lane: lanes[i],
-                y: -40,
+                // SLIGHT OFFSET: Adds a random stagger to the Y position so 
+                // multiple rocks in the same wave aren't perfectly side-by-side
+                y: -40 - (Math.random() * 60), 
                 size: 35
             });
         }

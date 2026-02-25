@@ -38,22 +38,16 @@
       .fred-box { background:linear-gradient(160deg,#1a2a4a,#2a3a5e); border:4px solid #ffaa00; border-radius:24px; padding:2rem; max-width:450px; width:90%; text-align:center; box-shadow:0 0 50px rgba(255,170,0,0.3); display:flex; flex-direction:column; align-items:center; animation:confirmPop .2s ease; }
 
       #screen-minigame { flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(180deg, #1a2a4a, #0a1a2a); text-align:center; color:#fff;}
-      .mg-box { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:20px; padding:2rem; width:90%; max-width:600px; box-shadow:0 0 40px rgba(102,214,255,0.2); }
+      .mg-box { background:rgba(0,0,0,0.5); border:3px solid var(--cyan); border-radius:20px; padding:2rem; width:90%; max-width:700px; box-shadow:0 0 40px rgba(102,214,255,0.2); }
 
       @keyframes float-bob { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -65%); } }
-      @keyframes bite-flash { 0%, 100% { background: #0055aa; } 50% { background: #ff2244; } }
-      @keyframes rock-shake { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+      @keyframes bite-flash { 0%, 100% { box-shadow: inset 0 0 0px rgba(255,34,68,0); } 50% { box-shadow: inset 0 0 60px rgba(255,34,68,0.8); } }
       @keyframes spark-fly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 
-      .mg-fishing-scene { width: 100%; height: 220px; background: linear-gradient(180deg, #44ccff 0%, #0055aa 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; overflow: hidden; border: 4px solid #fff; transition: background 0.1s; }
+      .mg-fishing-scene { width: 100%; height: 260px; background: linear-gradient(180deg, #44ccff 0%, #0055aa 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; overflow: hidden; border: 4px solid #fff; box-shadow: inset 0 -20px 40px rgba(0,0,0,0.3); transition: all 0.2s; }
       .mg-fishing-scene.bite { animation: bite-flash 0.3s infinite; }
-      .mg-bobber { font-size: 4rem; position: absolute; left: 50%; top: 50%; animation: float-bob 2.5s infinite ease-in-out; user-select: none; filter:drop-shadow(0 10px 5px rgba(0,0,0,0.5)); }
-      .mg-bobber.bitten { animation: none; top: 75%; filter: brightness(0.5); transform: translate(-50%, -50%) scale(0.8); }
-
-      .mg-mining-scene { width: 100%; height: 220px; background: radial-gradient(circle, #444 0%, #111 100%); border-radius: 12px; position: relative; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; border: 4px solid #777; cursor: pointer; overflow:hidden;}
-      .mg-rock { font-size: 7rem; user-select: none; transition: transform 0.05s; filter:drop-shadow(0 10px 10px #000); z-index:2; }
-      .mg-rock.shaking { animation: rock-shake 0.2s infinite; }
-      .mg-spark { position: absolute; font-size: 1.5rem; pointer-events: none; animation: spark-fly 0.5s forwards ease-out; z-index:1; }
+      .mg-bobber { font-size: 4rem; position: absolute; left: 50%; top: 50%; animation: float-bob 2.5s infinite ease-in-out; user-select: none; filter:drop-shadow(0 15px 10px rgba(0,0,0,0.6)); }
+      .mg-bobber.bitten { animation: none; top: 75%; filter: brightness(0.6) drop-shadow(0 5px 2px rgba(0,0,0,0.8)); transform: translate(-50%, -50%) scale(0.8); }
 
       /* BATTLE */#screen-battle{flex-direction:column;background:#1a1a2e;align-items:center;justify-content:center;}.battle-header{position:absolute;top:0;left:0;right:0;height:56px;background:rgba(0,0,0,.7);border-bottom:2px solid #333;display:flex;align-items:center;padding:0 1rem;gap:1rem;z-index:10;}.battle-title{font-family:'Fredoka One',cursive;color:#fff;font-size:1.1rem;flex-shrink:0;}.health-bar-wrap{display:flex;flex-direction:column;gap:2px;flex:1;}.health-bar-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;}.health-bar-outer{height:14px;background:rgba(255,255,255,.1);border-radius:7px;border:1px solid rgba(255,255,255,.2);overflow:hidden;}.health-bar-inner{height:100%;border-radius:7px;transition:width .3s;}.health-bar-inner.player{background:linear-gradient(90deg,#5dea7a,#00cc44);}.health-bar-inner.enemy{background:linear-gradient(90deg,#ff5566,#cc0022);}#battle-canvas{display:block;border:3px solid rgba(255,255,255,.1);border-radius:8px;box-shadow:0 0 40px rgba(68,170,255,.2);cursor:crosshair;}.battle-controls{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;gap:1rem;align-items:center;}.battle-key{background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.2);border-radius:8px;padding:.3rem .7rem;color:rgba(255,255,255,.5);font-size:.8rem;font-weight:700;}.battle-result-overlay{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:50;}.battle-result-title{font-family:'Fredoka One',cursive;font-size:clamp(2.5rem,6vw,4rem);text-shadow:4px 4px 0 rgba(0,0,0,.5);margin-bottom:1rem;}.battle-result-coins{color:var(--yellow);font-size:1.2rem;font-weight:800;margin-bottom:2rem;}.battle-result-btn{padding:.8rem 2rem;background:var(--cyan);border:none;border-radius:12px;color:#000;font-family:'Fredoka One',cursive;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 0 var(--darkteal);transition:all .15s;}.battle-result-btn:hover{transform:translateY(-2px);}.battle-leave-btn{position:absolute;top:70px;left:1rem;padding:.5rem 1rem;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;z-index:50;}.battle-leave-btn:hover{border-color:var(--red);color:var(--red);}
       /* ARENA MODAL & OTHER OVERLAYS */.arena-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}.arena-modal-overlay.show{display:flex;}.arena-modal{background:linear-gradient(160deg,#1a2a4a,#2a3a5e);border:3px solid var(--cyan);border-radius:24px;padding:2rem;max-width:500px;width:92%;box-shadow:0 0 50px rgba(102,214,255,.35),0 20px 60px rgba(0,0,0,.5);animation:confirmPop .2s ease;}.arena-modal h2{font-family:'Fredoka One',cursive;color:var(--cyan);font-size:1.8rem;text-align:center;margin-bottom:.3rem;}.arena-modal .arena-modal-sub{color:rgba(255,255,255,.5);font-size:.85rem;text-align:center;margin-bottom:1.5rem;}.arena-mode-btns{display:flex;gap:1rem;margin-bottom:1.5rem;}.arena-mode-btn{flex:1;padding:1.2rem;border-radius:14px;border:2px solid;cursor:pointer;text-align:center;transition:all .2s;}.arena-mode-btn.ai{border-color:var(--yellow);background:rgba(255,229,102,.08);color:var(--yellow);}.arena-mode-btn.ai:hover{background:rgba(255,229,102,.18);transform:translateY(-2px);}.arena-mode-btn.pvp{border-color:var(--cyan);background:rgba(102,214,255,.08);color:var(--cyan);}.arena-mode-btn.pvp:hover{background:rgba(102,214,255,.18);transform:translateY(-2px);}.arena-mode-btn .mode-icon{font-size:2rem;margin-bottom:.4rem;}.arena-mode-btn .mode-title{font-family:'Fredoka One',cursive;font-size:1.1rem;}.arena-mode-btn .mode-desc{font-size:.75rem;opacity:.7;margin-top:.2rem;}.online-players-section{display:none;}.online-players-section h3{font-family:'Fredoka One',cursive;color:#fff;font-size:1rem;margin-bottom:.8rem;}.online-player-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;}.online-player-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1rem;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:all .2s;}.online-player-item:hover{border-color:var(--cyan);background:rgba(102,214,255,.1);}.online-player-dot{width:10px;height:10px;border-radius:50%;background:#5dea7a;box-shadow:0 0 6px #5dea7a;flex-shrink:0;}.online-player-name{flex:1;font-weight:700;color:#fff;}.online-player-invite-btn{padding:.3rem .8rem;background:var(--cyan);border:none;border-radius:8px;color:#000;font-family:'Fredoka One',cursive;font-size:.85rem;cursor:pointer;}.no-online{color:rgba(255,255,255,.4);text-align:center;padding:1rem;font-size:.9rem;}.arena-modal-close{margin-top:1rem;width:100%;padding:.7rem;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.15);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .15s;}.arena-modal-close:hover{border-color:var(--red);color:var(--red);}
@@ -263,7 +257,7 @@
     </div>
     
     <div class="screen" id="screen-minigame">
-      <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="showScreen('screen-map')">← Leave</button>
+      <button class="map-back-btn" style="position:absolute;top:1rem;left:1rem;z-index:20;" onclick="leaveMinigame()">← Leave</button>
       <h1 id="mg-title" style="font-family:'Fredoka One',cursive; color:var(--cyan); margin-bottom:2rem; font-size:2.5rem; text-shadow:2px 2px 0 #000;">Minigame</h1>
       <div class="mg-box" id="mg-content"></div>
     </div>
@@ -369,6 +363,11 @@ function startMusicAuto() {
     }
 }
 
+// ENDLESS RUNNER GLOBAL VARIABLES
+let runnerGame = { active: false, frame: null, lane: 1, obs: [], speed: 4, dist: 0, coins: 0, lastTick: 0 };
+let runnerKeys = {};
+let runnerKeysPrev = {};
+
 // MOBILE CONTROLS LOGIC
 let isMobile = false;
 function toggleMobile(val) { isMobile = val; }
@@ -377,6 +376,7 @@ function simK(k, state) {
     if(document.getElementById('screen-map').classList.contains('active')) map.keys[k] = state; 
     if(document.getElementById('screen-battle').classList.contains('active')) B.keys[k] = state; 
     if(document.getElementById('screen-home').classList.contains('active')) HOME.keys[k] = state; 
+    if(document.getElementById('screen-minigame').classList.contains('active')) runnerKeys[k] = state;
 }
 function simAct() {
     event.preventDefault();
@@ -464,10 +464,8 @@ function startGlobalGame(gameName) {
 function beginGlobalGame() {
     if(!firebaseReady) return;
 
-    // Count how many OTHER players are currently in the minigame map
     let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
     
-    // Assign admin as seeker and start instantly
     db.ref('global_game').update({ 
         state: 'playing', 
         hidersLeft: totalHiders,
@@ -489,7 +487,7 @@ function endGlobalGame() {
 
 function leaveGlobalGame() {
     if (G.email === 'masonlevihess@gmail.com') {
-        endGlobalGame(); // Admin leaving ends it for everyone
+        endGlobalGame(); 
     } else {
         switchMap('main', 1200, 1300);
         showToast("Left the game map.");
@@ -526,26 +524,26 @@ const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'},
 const SHOP_WALLS=[ {id:'default',name:'Basic Blue',price:0,color:'#2a3a7a'}, {id:'forest',name:'Forest',price:200,color:'#1a4a2a'}, {id:'candy',name:'Candy Land',price:250,color:'#ff88bb'}, {id:'space',name:'Deep Space',price:300,color:'#0a0a1e'}, {id:'sunset',name:'Sunset',price:200,color:'#aa4422'}, {id:'ocean',name:'Ocean',price:250,color:'#114466'}, {id:'lava',name:'Volcano Lair',price:300,color:'#882211'}, {id:'ice',name:'Ice Castle',price:250,color:'#aaddff'}, {id:'cyber',name:'Cyberpunk',price:350,color:'#220044'} ];
 
 function showScreen(id){ 
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
-    const s=document.getElementById(id); if(!s)return; 
-    s.classList.add('active'); 
-    updateAllHUDs(); 
-    
-    if(isMobile && (id==='screen-map' || id==='screen-battle' || id==='screen-home')) {
-        document.getElementById('mobile-ui').style.display = 'block';
-        document.getElementById('map-hint').style.display = 'none';
-        document.getElementById('battle-hint').style.display = 'none';
-        document.getElementById('home-hint2').style.display = 'none';
-    } else {
-        document.getElementById('mobile-ui').style.display = 'none';
-    }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+  const s=document.getElementById(id); if(!s)return; 
+  s.classList.add('active'); 
+  updateAllHUDs(); 
+  
+  if(isMobile && (id==='screen-map' || id==='screen-battle' || id==='screen-home' || id==='screen-minigame')) {
+      document.getElementById('mobile-ui').style.display = 'block';
+      document.getElementById('map-hint').style.display = 'none';
+      document.getElementById('battle-hint').style.display = 'none';
+      document.getElementById('home-hint2').style.display = 'none';
+  } else {
+      document.getElementById('mobile-ui').style.display = 'none';
+  }
 
-    if(id==='screen-map') {
-        initMap(); 
-        startMusicAuto(); 
-    }
-    if(id==='screen-shop') renderShop(); 
-    if(id==='screen-home') initHome(); 
+  if(id==='screen-map') {
+      initMap(); 
+      startMusicAuto(); 
+  }
+  if(id==='screen-shop') renderShop(); 
+  if(id==='screen-home') initHome(); 
 }
 function clickPlay() { if (G.uid && !G.uid.startsWith('demo')) { showScreen('screen-map'); } else { showScreen('screen-auth'); } }
 function updateAllHUDs(){ document.querySelectorAll('.coins-hud').forEach(el=>el.textContent=G.coins); const mu=document.getElementById('map-username-hud'); if(mu) mu.textContent=G.username; }
@@ -630,7 +628,6 @@ function listenToPlayers() {
           
           if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
               if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
-                  // Find the last person standing
                   let winnerName = "Someone";
                   if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
                   else {
@@ -639,7 +636,7 @@ function listenToPlayers() {
                       });
                   }
                   alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); // Admin auto ends it
+                  if (G.email === 'masonlevihess@gmail.com') endGlobalGame(); 
               }
           }
           
@@ -757,7 +754,7 @@ const ZONES=[
   {id:'arena',x:1150,y:420,w:100,h:80,name:'⚔️ Arena Door',desc:'Enter the Battle!',color:'#003399',floor:'#222233'},
   {id:'shop',x:600,y:1000,w:210,h:190,name:'🏪 item shop ',desc:'Buy cool stuff!',color:'#ff6699',floor:'#ffffff'},
   {id:'fishing',x:1800,y:850,w:400,h:300,name:'🎣 Freds Lake',desc:'Catch some fish for coins!',color:'#00aaff',floor:'rgba(0,0,0,0)'},
-  {id:'mining',x:400,y:100,w:400,h:300,name:'⛏️ Fred Peak',desc:'Mine for shiny gems!',color:'#555555',floor:'rgba(0,0,0,0)'},
+  {id:'mining',x:400,y:100,w:400,h:300,name:'🏃 Fred Peak Dodger',desc:'Dodge rocks for coins!',color:'#555555',floor:'rgba(0,0,0,0)'},
   {id:'fredhouse',x:2000,y:800,w:120,h:100,name:'🏠 Fred\'s House',desc:'Talk to Fred',color:'#ffaa00',floor:'rgba(0,0,0,0)'}
 ];
 const HOUSE_PLOTS=[ 
@@ -840,8 +837,15 @@ function closeFred() { document.getElementById('fred-dialogue').style.display = 
 
 function initMap(){
   map.canvas=document.getElementById('map-canvas'); if(!map.canvas)return; map.canvas.width=window.innerWidth; map.canvas.height=window.innerHeight-56; map.ctx=map.canvas.getContext('2d');
-  document.removeEventListener('keydown',mapKD); document.removeEventListener('keyup',mapKU); document.addEventListener('keydown',mapKD); document.addEventListener('keyup',mapKU); cancelAnimationFrame(map.animFrame); mapLoop();
+  document.addEventListener('keydown',mapKD); document.addEventListener('keyup',mapKU); cancelAnimationFrame(map.animFrame); mapLoop();
 }
+
+document.addEventListener('keydown', e => { 
+    if(runnerGame && runnerGame.active) runnerKeys[e.key.toLowerCase()] = true; 
+});
+document.addEventListener('keyup', e => { 
+    if(runnerGame && runnerGame.active) runnerKeys[e.key.toLowerCase()] = false; 
+});
 
 function mapKD(e){
   if(!document.getElementById('screen-map').classList.contains('active'))return;
@@ -870,7 +874,6 @@ function updateMap(){
   
   // Game Logic checks
   if(globalGameState.active && globalGameState.state === 'playing' && G.currentMap === 'minigame_map') {
-      // If I am the seeker...
       if(globalGameState.seeker === G.uid) {
           Object.keys(otherPlayers).forEach(id => {
               let op = otherPlayers[id];
@@ -889,10 +892,9 @@ function updateMap(){
               }
           });
       } else {
-          // If I am a hider and I got caught
           if(G.hsCaught && globalGameState.name === 'Hide & Seek') {
-              p.x = 6000; p.y = 6000; // Teleport to "Jail" in middle
-              p.speed = 0; // Can't move
+              p.x = 6000; p.y = 6000; 
+              p.speed = 0; 
           }
       }
   }
@@ -1148,6 +1150,12 @@ function drawAllPlayers(ctx) {
   ctx.globalAlpha = 1.0;
 }
 
+function leaveMinigame() {
+    runnerGame.active = false;
+    cancelAnimationFrame(runnerGame.frame);
+    showScreen('screen-map');
+}
+
 function startFishing() {
     showScreen('screen-minigame');
     document.getElementById('mg-title').textContent = "🎣 Fishing at Freds Lake";
@@ -1159,6 +1167,7 @@ function startFishing() {
     `;
     mgState = 'idle'; clearTimeout(mgTimer);
 }
+
 function doFishAction() {
     let bobber = document.getElementById('fish-bobber');
     let scene = document.getElementById('fish-scene');
@@ -1205,58 +1214,125 @@ function doFishAction() {
     }
 }
 
-function startMining() {
+// ENDLESS RUNNER REWRITTEN
+function startRunner() {
     showScreen('screen-minigame');
-    document.getElementById('mg-title').textContent = "⛏️ Mining at Fred Peak";
+    document.getElementById('mg-title').textContent = "🏃 Fred Peak Dodger!";
     document.getElementById('mg-content').innerHTML = `
-        <div style="font-size:1.2rem; margin-bottom:1rem; color:var(--cyan); font-weight:bold;">Tap the rock 15 times in 5 seconds!</div>
-        <div class="mg-mining-scene" onmousedown="doMineAction()" ontouchstart="doMineAction()">
-            <div id="mine-rock" class="mg-rock">🪨</div>
+        <div style="font-size:1.2rem; margin-bottom:0.5rem; color:var(--cyan); font-weight:bold;">Use A / D (or ⬅️ / ➡️) to dodge!</div>
+        <div style="position:relative; width:100%; max-width:600px; margin:0 auto;">
+            <canvas id="runner-canvas" width="600" height="300" style="background: linear-gradient(#2b2b2b, #1a1a1a); border: 4px solid #555; border-radius: 12px; display: block; width:100%;"></canvas>
+            <div id="runner-overlay" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.8); border-radius:12px; display:none;">
+                <h2 style="color:var(--red); font-size:3rem; margin-bottom:1rem; font-family:'Fredoka One',cursive;">CRASHED!</h2>
+                <button class="btn-main" style="width:auto; padding:0.8rem 2.5rem;" onclick="startRunner()">Try Again</button>
+            </div>
         </div>
-        <div id="mine-prog" style="color:var(--yellow); font-size:2rem; font-weight:bold; margin-top:1rem;">0 / 15</div>
+        <div id="runner-prog" style="color:var(--yellow); font-size:1.3rem; font-weight:bold; margin-top:1.5rem;">Distance: 0m | Earned: 0 🪙</div>
     `;
-    mgState = 'idle'; mgClicks = 0; clearTimeout(mgTimer);
+    runnerGame = { active: true, lane: 1, obs: [], speed: 6, dist: 0, coins: 0, lastTick: Date.now() };
+    runnerKeys = {};
+    runnerKeysPrev = {};
+    cancelAnimationFrame(runnerGame.frame);
+    runnerLoop();
 }
-function doMineAction() {
-    event.preventDefault();
-    let rock = document.getElementById('mine-rock');
 
-    if(mgState === 'idle') {
-        mgState = 'mining';
-        mgClicks = 1;
-        document.getElementById('mine-prog').textContent = mgClicks + " / 15";
-        rock.classList.add('shaking');
-        
-        mgTimer = setTimeout(() => {
-            if(mgState === 'mining') {
-                rock.classList.remove('shaking');
-                if(mgClicks >= 15) {
-                    let reward = 30 + Math.floor(Math.random()*20);
-                    G.coins += reward; saveUserData(); updateAllHUDs();
-                    rock.textContent = "💎";
-                    document.getElementById('mine-prog').textContent = "Success! +"+reward+" Coins!";
-                    document.getElementById('mine-prog').style.color = "var(--green)";
-                    showToast("Mined gems for "+reward+" coins!");
-                } else {
-                    document.getElementById('mine-prog').textContent = "Too slow! Try again.";
-                    document.getElementById('mine-prog').style.color = "var(--red)";
-                }
-                mgState = 'done';
-                setTimeout(startMining, 2500);
-            }
-        }, 5000);
-    } else if(mgState === 'mining') {
-        mgClicks++;
-        document.getElementById('mine-prog').textContent = mgClicks + " / 15";
-        
-        let spark = document.createElement('div');
-        spark.className = 'mg-spark';
-        spark.textContent = "✨";
-        spark.style.setProperty('--tx', (Math.random() * 200 - 100) + 'px');
-        spark.style.setProperty('--ty', (Math.random() * 200 - 100) + 'px');
-        rock.parentElement.appendChild(spark);
-        setTimeout(() => spark.remove(), 500);
+function runnerLoop() {
+    if(!document.getElementById('screen-minigame').classList.contains('active')) {
+        runnerGame.active = false;
+        return;
     }
+    if(runnerGame.active) updateRunner();
+    renderRunner();
+    if(runnerGame.active || document.getElementById('runner-overlay').style.display === 'flex') {
+        runnerGame.frame = requestAnimationFrame(runnerLoop);
+    }
+}
+
+function updateRunner() {
+    let now = Date.now();
+    let dt = (now - runnerGame.lastTick) / 1000;
+    runnerGame.lastTick = now;
+
+    runnerGame.dist += runnerGame.speed * 0.1;
+    runnerGame.speed += 0.003; // Gets faster!
+
+    // Handle lane changes safely avoiding key-spam
+    if ((runnerKeys['a'] || runnerKeys['arrowleft']) && !(runnerKeysPrev['a'] || runnerKeysPrev['arrowleft'])) {
+        runnerGame.lane = Math.max(0, runnerGame.lane - 1);
+    }
+    if ((runnerKeys['d'] || runnerKeys['arrowright']) && !(runnerKeysPrev['d'] || runnerKeysPrev['arrowright'])) {
+        runnerGame.lane = Math.min(2, runnerGame.lane + 1);
+    }
+    runnerKeysPrev = { ...runnerKeys };
+
+    // Spawning logic
+    if(Math.random() < 0.03 * (runnerGame.speed / 5)) {
+        let l = Math.floor(Math.random() * 3);
+        let canSpawn = true;
+        for(let o of runnerGame.obs) {
+            if(o.lane === l && o.y < 70) canSpawn = false; // ensure gap
+        }
+        if(canSpawn) runnerGame.obs.push({ lane: l, y: -40 });
+    }
+
+    // Moving and collisions
+    for(let i = runnerGame.obs.length - 1; i >= 0; i--) {
+        let o = runnerGame.obs[i];
+        o.y += runnerGame.speed;
+        
+        // collision box math (player is roughly at Y 250)
+        if(o.lane === runnerGame.lane && o.y > 210 && o.y < 280) {
+            runnerGame.active = false;
+            document.getElementById('runner-overlay').style.display = 'flex';
+            
+            // Limit the coins to 150 max!
+            runnerGame.coins = Math.min(Math.floor(runnerGame.dist / 10), 150); 
+            if(runnerGame.coins > 0) {
+                G.coins += runnerGame.coins;
+                saveUserData();
+                updateAllHUDs();
+                showToast(`Ran ${Math.floor(runnerGame.dist)}m! Earned ${runnerGame.coins} 🪙`);
+            }
+        }
+
+        if(o.y > 350) runnerGame.obs.splice(i, 1);
+    }
+
+    runnerGame.coins = Math.min(Math.floor(runnerGame.dist / 10), 150);
+    document.getElementById('runner-prog').textContent = `Distance: ${Math.floor(runnerGame.dist)}m | Earned: ${runnerGame.coins} 🪙 (Max 150)`;
+}
+
+function renderRunner() {
+    const cv = document.getElementById('runner-canvas');
+    if(!cv) return;
+    const ctx = cv.getContext('2d');
+    
+    ctx.clearRect(0,0,600,300);
+
+    // Draw Lanes
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 300); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(400, 0); ctx.lineTo(400, 300); ctx.stroke();
+
+    // Draw Player
+    let px = 100 + runnerGame.lane * 200;
+    ctx.font = '50px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let bob = runnerGame.active ? Math.sin(Date.now() * 0.02) * 5 : 0;
+    
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.fillText('🏃', px, 250 + bob);
+
+    // Draw Rocks
+    ctx.font = '50px Arial';
+    for(let o of runnerGame.obs) {
+        let ox = 100 + o.lane * 200;
+        ctx.fillText('🪨', ox, o.y);
+    }
+    ctx.shadowBlur = 0; // reset
 }
 
 let currentArena = 'arena';
@@ -1264,7 +1340,7 @@ function enterZone(id){
     if(id.startsWith('arena')){ currentArena=id; document.getElementById('battle-arena-name').textContent = document.getElementById('zone-popup-title').textContent; document.getElementById('arena-modal-title').textContent = document.getElementById('zone-popup-title').textContent; document.getElementById('arena-modal-sub').textContent='Choose how to battle'; document.getElementById('online-players-section').style.display='none'; document.getElementById('arena-modal-overlay').classList.add('show'); } 
     else if(id==='shop') showScreen('screen-shop'); 
     else if(id==='fishing') startFishing();
-    else if(id==='mining') startMining();
+    else if(id==='mining') startRunner();
     else if(id==='fredhouse') startFredTask();
 }
 

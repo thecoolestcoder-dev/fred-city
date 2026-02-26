@@ -322,6 +322,10 @@
         <button class="shop-back-btn" onclick="showScreen('screen-map')">← Back to World</button>
       </div>
       <div class="shop-section">
+        <div class="shop-section-title">👕 Skins</div>
+        <div class="shop-grid" id="shop-skins-grid"></div>
+      </div>
+      <div class="shop-section">
         <div class="shop-section-title">🎩 Hats</div>
         <div class="shop-grid" id="shop-hats-grid"></div>
       </div>
@@ -362,6 +366,13 @@
     <script>
 const costume1Img = new Image();
 costume1Img.src = "costume1.svg";
+
+const skinImgs = {
+    banana: new Image(),
+    freddy: new Image()
+};
+skinImgs.banana.src = 'bananacostume.svg';
+skinImgs.freddy.src = 'freddycostume.svg';
 
 // MINIGAME GLOBALS
 let currentArena = 'arena';
@@ -411,7 +422,6 @@ function simAct() {
         else playerShoot(BW/2, BH/2);
     } else if(document.getElementById('screen-map').classList.contains('active')) {
         if(globalGameState.name === 'Free For All' && globalGameState.state === 'playing') {
-            // Auto shoot towards nearest player in FFA mobile
             let nearest = null, minDist = Infinity;
             Object.values(otherPlayers).forEach(op => {
                 if(op.currentMap === 'main') {
@@ -481,13 +491,10 @@ function kickPlayer(uid, name) {
 
 function startGlobalGame(gameName) {
     if(!firebaseReady) return;
-    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0 });
+    db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0, startTime: Date.now() });
     
-    // Reset everyone's caught status
     db.ref('users').once('value', snap => {
-        snap.forEach(child => {
-            db.ref('users/' + child.key).update({ hsCaught: false });
-        });
+        snap.forEach(child => { db.ref('users/' + child.key).update({ hsCaught: false }); });
     });
 
     Object.keys(otherPlayers).forEach(uid => {
@@ -502,18 +509,14 @@ function startGlobalGame(gameName) {
 
 function beginGlobalGame() {
     if(!firebaseReady) return;
-
-    // Count how many OTHER players are currently in the minigame map
     let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
-    
-    // Assign admin as seeker and start instantly
     db.ref('global_game').update({ 
         state: 'playing', 
         hidersLeft: totalHiders,
         seeker: G.uid,
-        seekerName: G.username
+        seekerName: G.username,
+        startTime: Date.now()
     });
-    
     closeAdminPanel();
     showToast("Game Started! YOU are the Seeker!");
 }
@@ -528,7 +531,7 @@ function endGlobalGame() {
 
 function leaveGlobalGame() {
     if (G.email === 'masonlevihess@gmail.com') {
-        endGlobalGame(); // Admin leaving ends it for everyone
+        endGlobalGame();
     } else {
         switchMap('main', 1200, 1300);
         showToast("Left the game map.");
@@ -537,8 +540,6 @@ function leaveGlobalGame() {
 
 function startFFA() {
     if(!firebaseReady) return;
-    
-    // Get 4 unique random spots from MAIN_FLORA
     let indices = [];
     while(indices.length < 4) {
         let r = Math.floor(Math.random() * MAIN_FLORA.length);
@@ -549,6 +550,7 @@ function startFFA() {
         active: true,
         name: 'Free For All',
         state: 'playing',
+        startTime: Date.now(), // Triggers notification properly for ALL connected clients
         coins: {
             c0: { x: MAIN_FLORA[indices[0]].x, y: MAIN_FLORA[indices[0]].y, real: true },
             c1: { x: MAIN_FLORA[indices[1]].x, y: MAIN_FLORA[indices[1]].y, real: false },
@@ -582,11 +584,12 @@ try {
   console.warn('Firebase fallback:', e); 
 }
 
-let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, color:'#ffffff', hat:'none', wallpaper:'default', ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false, hsCaught: false};
+let G={ uid:null, email: '', username:'Fred', coins:100, wins:0, battles:0, coinsEarned:0, skin:'none', color:'#ffffff', hat:'none', wallpaper:'default', ownedSkins:['none'], ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'], couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null, currentMap: 'main', kick: false, hsCaught: false};
 let otherPlayers = {};
 let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', hidersLeft: 0 };
-let mapOrbs = []; // For FFA shooting
+let mapOrbs = [];
 
+const SHOP_SKINS=[ {id:'none',name:'Default',price:0,emoji:'·'}, {id:'banana',name:'Banana',price:1000,emoji:'🍌'}, {id:'freddy',name:'Freddy Fazbear',price:2000,emoji:'🐻'} ];
 const SHOP_HATS=[ {id:'none',name:'No Hat',price:0,emoji:'·'}, {id:'crown',name:'Crown',price:150,emoji:'👑'}, {id:'beanie',name:'Beanie',price:100,emoji:'🧢'}, {id:'wizard',name:'Wizard Hat',price:200,emoji:'🧙'}, {id:'tophat',name:'Top Hat',price:120,emoji:'🎩'}, {id:'prop',name:'Propeller Cap',price:180,emoji:'🌀'}, {id:'cowboy',name:'Cowboy Hat',price:130,emoji:'🤠'}, {id:'halo',name:'Angel Halo',price:250,emoji:'👼'}, {id:'headphones',name:'Headphones',price:160,emoji:'🎧'} ];
 const SHOP_COLORS=[ {id:'#ffffff',name:'Classic White',price:0,color:'#ffffff'}, {id:'#66d6ff',name:'Ocean Blue',price:80,color:'#66d6ff'}, {id:'#ff9966',name:'Sunset Orange',price:80,color:'#ff9966'}, {id:'#aa88ff',name:'Purple Dream',price:80,color:'#aa88ff'}, {id:'#5dea7a',name:'Forest Green',price:80,color:'#5dea7a'}, {id:'#ffe566',name:'Golden Yellow',price:100,color:'#ffe566'}, {id:'#ff6688',name:'Hot Pink',price:100,color:'#ff6688'}, {id:'#ff4444',name:'Fire Red',price:120,color:'#ff4444'}, {id:'#39ff14',name:'Neon Green',price:150,color:'#39ff14'}, {id:'#00ffff',name:'Cyan Glow',price:150,color:'#00ffff'}, {id:'#111122',name:'Midnight',price:200,color:'#111122'} ];
 const SHOP_WALLS=[ {id:'default',name:'Basic Blue',price:0,color:'#2a3a7a'}, {id:'forest',name:'Forest',price:200,color:'#1a4a2a'}, {id:'candy',name:'Candy Land',price:250,color:'#ff88bb'}, {id:'space',name:'Deep Space',price:300,color:'#0a0a1e'}, {id:'sunset',name:'Sunset',price:200,color:'#aa4422'}, {id:'ocean',name:'Ocean',price:250,color:'#114466'}, {id:'lava',name:'Volcano Lair',price:300,color:'#882211'}, {id:'ice',name:'Ice Castle',price:250,color:'#aaddff'}, {id:'cyber',name:'Cyberpunk',price:350,color:'#220044'} ];
@@ -606,10 +609,7 @@ function showScreen(id){
         document.getElementById('mobile-ui').style.display = 'none';
     }
 
-    if(id==='screen-map') {
-        initMap(); 
-        startMusicAuto(); 
-    }
+    if(id==='screen-map') { initMap(); startMusicAuto(); }
     if(id==='screen-shop') renderShop(); 
     if(id==='screen-home') initHome(); 
 }
@@ -633,7 +633,7 @@ async function doAuth(){
     try{ 
       setAuthMsg('Creating account...'); 
       const cred=await auth.createUserWithEmailAndPassword(email,pass); 
-      const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,color:'#ffffff',hat:'none',wallpaper:'default',ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', hsCaught: false, couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null}; 
+      const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,skin:'none',color:'#ffffff',hat:'none',wallpaper:'default',ownedSkins:['none'],ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', hsCaught: false, couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null}; 
       await db.ref('users/' + cred.user.uid).set(data); 
       setAuthMsg('Account created!',true); showScreen('screen-map'); showToast('Welcome to the world!'); 
     } catch(e){ setAuthMsg(e.message); }
@@ -653,24 +653,28 @@ async function loadUserData(uid){
   if(!firebaseReady)return; 
   try { 
     const snap = await db.ref('users/' + uid).once('value'); 
-    if(snap.exists()) Object.assign(G, snap.val(), {uid}); 
+    if(snap.exists()) {
+        Object.assign(G, snap.val(), {uid}); 
+        if(!G.skin) G.skin = 'none';
+        if(!G.ownedSkins) G.ownedSkins = ['none'];
+    }
   } catch(e){} 
 }
 
 async function saveUserData(){ 
   if(!firebaseReady||!G.uid||G.uid.startsWith('demo'))return; 
   try { 
-    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap, hsCaught: G.hsCaught}); 
+    await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,skin:G.skin,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedSkins:G.ownedSkins,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap, hsCaught: G.hsCaught}); 
   } catch(e){} 
 }
 
 let prevGameState = null;
 let prevSeeker = null;
+let lastFFATime = 0;
 
 function listenToPlayers() {
   if(!firebaseReady) return;
   
-  // Kick listener
   db.ref('users/' + G.uid + '/kick').on('value', snap => {
       if(snap.val() === true) {
           db.ref('users/' + G.uid + '/kick').remove();
@@ -679,7 +683,6 @@ function listenToPlayers() {
       }
   });
 
-  // Global Game Listener
   db.ref('global_game').on('value', snap => {
       let data = snap.val();
       if(data && data.active) {
@@ -690,17 +693,19 @@ function listenToPlayers() {
               prevSeeker = globalGameState.seeker;
           }
 
-          if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
-              if (globalGameState.name === 'Free For All') {
+          // Properly trigger FFA Alert overlay via synchronized startTime
+          if (globalGameState.name === 'Free For All' && globalGameState.state === 'playing') {
+              if (globalGameState.startTime && globalGameState.startTime !== lastFFATime) {
+                  lastFFATime = globalGameState.startTime;
                   const ffaAlert = document.getElementById('ffa-alert');
-                  ffaAlert.style.display = 'flex'; 
+                  ffaAlert.style.display = 'flex';
                   ffaAlert.style.animation = 'none';
-                  ffaAlert.offsetHeight; // trigger reflow
+                  void ffaAlert.offsetWidth; // Force CSS reflow to restart animation
                   ffaAlert.style.animation = 'ffaFadeInOut 7s forwards';
                   setTimeout(() => { ffaAlert.style.display = 'none'; }, 7000);
-              } else {
-                  showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
               }
+          } else if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
+              showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
           }
           
           if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
@@ -721,12 +726,10 @@ function listenToPlayers() {
 
       } else {
           globalGameState = { active: false, seeker: null, state: 'lobby' };
-          
           if(G.currentMap === 'minigame_map') {
               switchMap('main', 1200, 1300); 
               showToast("The game has ended.");
           }
-          
           prevGameState = null;
           prevSeeker = null;
       }
@@ -745,6 +748,7 @@ function listenToPlayers() {
           otherPlayers[docId].targetX = d.x !== undefined ? d.x : otherPlayers[docId].x;
           otherPlayers[docId].targetY = d.y !== undefined ? d.y : otherPlayers[docId].y;
           otherPlayers[docId].username = d.username;
+          otherPlayers[docId].skin = d.skin || 'none';
           otherPlayers[docId].hat = d.hat;
           otherPlayers[docId].color = d.color;
           otherPlayers[docId].emote = d.emote;
@@ -752,7 +756,6 @@ function listenToPlayers() {
           otherPlayers[docId].hsCaught = d.hsCaught || false;
           otherPlayers[docId].emoteExpires = d.emoteExpires;
           
-          // Check for FFA shots
           if (d.mapShot && d.mapShot.t > (otherPlayers[docId].lastShotT || 0)) {
               otherPlayers[docId].lastShotT = d.mapShot.t;
               if (globalGameState.name === 'Free For All') {
@@ -791,7 +794,6 @@ if(firebaseReady){
       
       if(G.email === 'masonlevihess@gmail.com') {
           document.getElementById('admin-hdr-btn').style.display = 'block';
-          // Auto trigger FFA securely
           setInterval(() => {
               if (!globalGameState.active) startFFA();
           }, (10 + Math.random() * 6) * 60 * 1000);
@@ -841,6 +843,25 @@ function drawFred(ctx,x,y,size,color,hat){
   ctx.restore(); drawHatOnly(ctx, hat, x, y - (size * 0.35)); 
 }
 
+// Master Player Drawing Function to handle base Fred OR Custom Skins
+function drawPlayerSprite(ctx, x, y, size, p) {
+    let pSkin = p.skin || 'none';
+    let r = size * 0.366; 
+    let hOff = size * 0.35; 
+
+    if (pSkin !== 'none' && skinImgs[pSkin] && skinImgs[pSkin].complete && skinImgs[pSkin].naturalHeight !== 0) {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
+        ctx.drawImage(skinImgs[pSkin], x - size/2, y - size/2, size, size);
+        drawHatOnly(ctx, p.hat || 'none', x, y - hOff);
+    } else if (costume1Img.complete && costume1Img.naturalHeight !== 0) {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
+        ctx.drawImage(costume1Img, x - size/2, y - size/2, size, size);
+        drawHatOnly(ctx, p.hat || 'none', x, y - hOff);
+    } else {
+        drawFred(ctx, x, y, size, p.color || '#ffffff', p.hat || 'none');
+    }
+}
+
 const MAP_W=6000, MAP_H=4000;
 const ZONES=[
   {id:'arena',x:1150,y:420,w:100,h:80,name:'⚔️ Arena Door',desc:'Enter the Battle!',color:'#003399',floor:'#222233'},
@@ -866,11 +887,7 @@ for(let i=0; i<150; i++) {
     let fy = getSeededRandom(mSeed++) * MAP_H;
     // avoid town center roughly
     if (fx > 900 && fx < 1500 && fy > 1000 && fy < 1600) continue;
-    MAIN_FLORA.push({
-        x: fx, 
-        y: fy,
-        type: getSeededRandom(mSeed++) > 0.5 ? 'tree' : 'bush'
-    });
+    MAIN_FLORA.push({ x: fx,  y: fy, type: getSeededRandom(mSeed++) > 0.5 ? 'tree' : 'bush' });
 }
 
 let mapPlots = {}; 
@@ -946,7 +963,6 @@ function closeFred() { document.getElementById('fred-dialogue').style.display = 
 function initMap(){
   map.canvas=document.getElementById('map-canvas'); if(!map.canvas)return; map.canvas.width=window.innerWidth; map.canvas.height=window.innerHeight-56; map.ctx=map.canvas.getContext('2d');
   
-  // Shooting listener for FFA
   map.canvas.onmousedown = (e) => {
       if (globalGameState.name === 'Free For All' && globalGameState.state === 'playing') {
           const rect = map.canvas.getBoundingClientRect();
@@ -999,10 +1015,8 @@ function updateMap(){
   
   if(speedBoostTimer > 0) { speedBoostTimer--; p.speed = 9; } else { p.speed = 4.5; }
   
-  // Game Logic checks
   if(globalGameState.active && globalGameState.state === 'playing') {
       if(G.currentMap === 'minigame_map' && globalGameState.name !== 'Free For All') {
-          // Hide & Seek / Tag Logic
           if(globalGameState.seeker === G.uid) {
               Object.keys(otherPlayers).forEach(id => {
                   let op = otherPlayers[id];
@@ -1027,7 +1041,6 @@ function updateMap(){
               }
           }
       } else if (G.currentMap === 'main' && globalGameState.name === 'Free For All' && globalGameState.coins) {
-          // Free For All Coin/Decoy check
           Object.keys(globalGameState.coins).forEach(cKey => {
               let c = globalGameState.coins[cKey];
               let dx = p.x - c.x, dy = p.y - c.y;
@@ -1041,14 +1054,13 @@ function updateMap(){
                       G.coins += 1;
                       saveUserData(); updateAllHUDs();
                       showToast("Aww, a decoy coin! +1 Coin.");
-                      db.ref('global_game/coins/' + cKey).remove(); // Remove decoy
+                      db.ref('global_game/coins/' + cKey).remove();
                   }
               }
           });
       }
   }
 
-  // Update Map Orbs (FFA Projectiles)
   for (let i = mapOrbs.length - 1; i >= 0; i--) {
       let o = mapOrbs[i];
       o.x += o.vx; o.y += o.vy; o.life--;
@@ -1122,11 +1134,7 @@ function updateMap(){
 let hsSpots = [];
 let seedNum = 12345;
 for(let i=0; i<350; i++) {
-    hsSpots.push({
-        x: getSeededRandom(seedNum++) * 12000, 
-        y: getSeededRandom(seedNum++) * 12000,
-        type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush'
-    });
+    hsSpots.push({ x: getSeededRandom(seedNum++) * 12000, y: getSeededRandom(seedNum++) * 12000, type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush' });
 }
 
 function renderMap(){
@@ -1134,26 +1142,16 @@ function renderMap(){
   
   if (G.currentMap === 'minigame_map') {
       ctx.fillStyle='#132616'; ctx.fillRect(0,0,12000,12000); 
-      
       if(globalGameState.name === 'Hide & Seek') {
-          ctx.fillStyle = 'rgba(0,0,0,0.5)';
-          ctx.fillRect(5800, 5800, 400, 400);
-          ctx.strokeStyle = '#ff5566'; ctx.lineWidth=5;
-          ctx.strokeRect(5800, 5800, 400, 400);
-          ctx.font = "bold 30px 'Nunito',sans-serif"; ctx.fillStyle='#ff5566'; ctx.textAlign='center';
-          ctx.fillText("JAIL", 6000, 6000);
+          ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(5800, 5800, 400, 400);
+          ctx.strokeStyle = '#ff5566'; ctx.lineWidth=5; ctx.strokeRect(5800, 5800, 400, 400);
+          ctx.font = "bold 30px 'Nunito',sans-serif"; ctx.fillStyle='#ff5566'; ctx.textAlign='center'; ctx.fillText("JAIL", 6000, 6000);
       }
-
       hsSpots.forEach(s => { 
-          if(s.type === 'tree') {
-              ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); 
-          } else {
-              ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill();
-          }
+          if(s.type === 'tree') { ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); } 
+          else { ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill(); }
       });
-
       drawAllPlayers(ctx);
-
       hsSpots.forEach(s => { 
           if(s.type === 'tree') {
               ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill(); 
@@ -1164,47 +1162,26 @@ function renderMap(){
               ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
           }
       });
-
   } else {
       ctx.fillStyle='#a2d149'; ctx.fillRect(0,0,MAP_W,MAP_H); 
     
-      ctx.fillStyle = 'rgba(255, 230, 100, 0.4)';
-      ctx.strokeStyle = '#ffe566';
-      ctx.lineWidth = 4;
-      BOOST_PADS.forEach(b => {
-          ctx.beginPath(); ctx.arc(b.x, b.y, 40, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.font = "bold 30px Arial"; ctx.textAlign = 'center';
-          ctx.fillText("⏩", b.x, b.y + 10);
-      });
+      ctx.fillStyle = 'rgba(255, 230, 100, 0.4)'; ctx.strokeStyle = '#ffe566'; ctx.lineWidth = 4;
+      BOOST_PADS.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 40, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = "bold 30px Arial"; ctx.textAlign = 'center'; ctx.fillText("⏩", b.x, b.y + 10); });
     
-      ctx.fillStyle='#00aaff'; 
-      ctx.beginPath(); ctx.ellipse(2000, 1000, 400, 250, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#22aa44';
-      ctx.beginPath(); ctx.arc(1800, 950, 30, 0, Math.PI * 1.8); ctx.fill();
-      ctx.beginPath(); ctx.arc(2100, 1050, 25, 0, Math.PI * 1.8); ctx.fill();
+      ctx.fillStyle='#00aaff'; ctx.beginPath(); ctx.ellipse(2000, 1000, 400, 250, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#22aa44'; ctx.beginPath(); ctx.arc(1800, 950, 30, 0, Math.PI * 1.8); ctx.fill(); ctx.beginPath(); ctx.arc(2100, 1050, 25, 0, Math.PI * 1.8); ctx.fill();
     
-      ctx.fillStyle='#555555'; 
-      ctx.beginPath(); ctx.moveTo(200, 600); ctx.lineTo(700, 100); ctx.lineTo(1200, 600); ctx.fill(); 
-      ctx.fillStyle='#dddddd'; 
-      ctx.beginPath(); ctx.moveTo(500, 300); ctx.lineTo(700, 100); ctx.lineTo(900, 300); ctx.lineTo(800, 340); ctx.lineTo(600, 280); ctx.fill();
+      ctx.fillStyle='#555555'; ctx.beginPath(); ctx.moveTo(200, 600); ctx.lineTo(700, 100); ctx.lineTo(1200, 600); ctx.fill(); 
+      ctx.fillStyle='#dddddd'; ctx.beginPath(); ctx.moveTo(500, 300); ctx.lineTo(700, 100); ctx.lineTo(900, 300); ctx.lineTo(800, 340); ctx.lineTo(600, 280); ctx.fill();
     
       ctx.strokeStyle='#d5edf9'; ctx.lineWidth=60; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); ctx.moveTo(1200, 1500); ctx.lineTo(1200, 500); ctx.moveTo(1200, 1100); ctx.lineTo(705, 1095); ctx.moveTo(1200, 850); ctx.lineTo(260, 850); ctx.moveTo(1200, 850); ctx.lineTo(2060, 850); ctx.stroke();
     
-      ctx.fillStyle = '#222';
-      ctx.fillRect(1150, 420, 100, 80);
-      ctx.fillStyle = '#444';
-      ctx.fillRect(1160, 430, 80, 70);
-      ctx.fillStyle = '#00aaff';
-      ctx.beginPath(); ctx.arc(1220, 470, 5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.font = "bold 16px 'Nunito',sans-serif"; ctx.textAlign = 'center';
-      ctx.fillText("ARENA", 1200, 415);
+      ctx.fillStyle = '#222'; ctx.fillRect(1150, 420, 100, 80); ctx.fillStyle = '#444'; ctx.fillRect(1160, 430, 80, 70);
+      ctx.fillStyle = '#00aaff'; ctx.beginPath(); ctx.arc(1220, 470, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = "bold 16px 'Nunito',sans-serif"; ctx.textAlign = 'center'; ctx.fillText("ARENA", 1200, 415);
     
-      ctx.fillStyle = '#FFD54F'; ctx.fillRect(2000, 800, 120, 100);
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(2000, 800, 120, 100);
+      ctx.fillStyle = '#FFD54F'; ctx.fillRect(2000, 800, 120, 100); ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(2000, 800, 120, 100);
       ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.moveTo(1990, 800); ctx.lineTo(2060, 750); ctx.lineTo(2130, 800); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#5D4037'; ctx.fillRect(2048, 860, 24, 40);
-      ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText("Fred's House", 2060, 915);
+      ctx.fillStyle = '#5D4037'; ctx.fillRect(2048, 860, 24, 40); ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText("Fred's House", 2060, 915);
     
       HOUSE_PLOTS.forEach(h => {
         const owner = mapPlots[h.id]; const isMine = owner && owner.uid === G.uid; const houseColor = owner ? (isMine ? '#FFD54F' : '#D7CCC8') : '#CFD8DC'; ctx.fillStyle = houseColor; ctx.fillRect(h.x, h.y, h.w, h.h); ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(h.x, h.y, h.w, h.h); ctx.fillStyle = '#8B0000'; ctx.beginPath(); ctx.moveTo(h.x-10, h.y); ctx.lineTo(h.x+h.w/2, h.y-50); ctx.lineTo(h.x+h.w+10, h.y); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#5D4037'; ctx.fillRect(h.x+h.w/2-12, h.y+h.h-40, 24, 40); ctx.fillStyle = '#87CEEB'; ctx.fillRect(h.x+15, h.y+30, 25, 25); ctx.fillRect(h.x+h.w-40, h.y+30, 25, 25); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(h.x+27.5, h.y+30); ctx.lineTo(h.x+27.5, h.y+55); ctx.stroke(); ctx.beginPath(); ctx.moveTo(h.x+15, h.y+42.5); ctx.lineTo(h.x+40, h.y+42.5); ctx.stroke(); ctx.beginPath(); ctx.moveTo(h.x+h.w-27.5, h.y+30); ctx.lineTo(h.x+h.w-27.5, h.y+55); ctx.stroke(); ctx.beginPath(); ctx.moveTo(h.x+h.w-40, h.y+42.5); ctx.lineTo(h.x+h.w-15, h.y+42.5); ctx.stroke(); ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center'; const label = owner ? (isMine ? "Your House" : owner.username) : "Empty"; ctx.fillText(label, h.x+h.w/2, h.y+h.h+15);
@@ -1213,29 +1190,25 @@ function renderMap(){
       for(const z of ZONES){
         if(z.id === 'fredhouse') continue; 
         const active=map.activeZone===z; ctx.fillStyle=z.floor; ctx.fillRect(z.x,z.y,z.w,z.h); ctx.strokeStyle=active?'#fff':z.color; ctx.lineWidth=active?5:3; if(active){ctx.shadowBlur=20;ctx.shadowColor=z.color;} ctx.strokeRect(z.x,z.y,z.w,z.h); ctx.shadowBlur=0; 
-        if(z.id !== 'fishing' && z.id !== 'mining') {
-            ctx.fillStyle='#333'; ctx.font="bold 20px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillText(z.name,z.x+z.w/2,z.y+z.h/2-4); ctx.font="14px 'Nunito',sans-serif"; ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText('(Walk in)',z.x+z.w/2,z.y+z.h/2+16);
-        }
+        if(z.id !== 'fishing' && z.id !== 'mining') { ctx.fillStyle='#333'; ctx.font="bold 20px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillText(z.name,z.x+z.w/2,z.y+z.h/2-4); ctx.font="14px 'Nunito',sans-serif"; ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText('(Walk in)',z.x+z.w/2,z.y+z.h/2+16); }
       }
 
-      // Draw Blue Coins (Real & Decoys) with HUGE glow so they shine behind flora
+      // Draw Blue Coins (Real & Decoys) with MASSIVE GLOW
       if (globalGameState.name === 'Free For All' && globalGameState.state === 'playing' && globalGameState.coins) {
           Object.values(globalGameState.coins).forEach(c => {
               ctx.save();
-              ctx.shadowBlur = 60; // MASSIVE GLOW
-              ctx.shadowColor = '#0eefff'; // Bright cyan glow
-              
+              ctx.shadowBlur = 60; 
+              ctx.shadowColor = '#0eefff'; 
               ctx.fillStyle = '#0055ff'; 
               ctx.beginPath(); ctx.arc(c.x, c.y, 18, 0, Math.PI*2); ctx.fill();
               
-              ctx.shadowBlur = 0; // Reset blur for text/borders so it doesn't look messy
+              ctx.shadowBlur = 0; 
               ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 3; ctx.stroke();
               ctx.fillStyle = '#fff'; ctx.font = "bold 16px Arial"; ctx.textAlign = 'center'; ctx.fillText("💎", c.x, c.y + 6);
               ctx.restore();
           });
       }
       
-      // Draw Flora (Bushes & Trees in Main Map) OVER the coins
       MAIN_FLORA.forEach(f => {
           if (f.type === 'tree') {
               ctx.fillStyle='#5D4037'; ctx.fillRect(f.x-6,f.y+10,12,20); 
@@ -1268,7 +1241,6 @@ function renderMap(){
 
       drawAllPlayers(ctx);
 
-      // Map Orbs for FFA
       mapOrbs.forEach(o => {
           ctx.shadowBlur = 10; ctx.shadowColor = '#ff2244';
           ctx.fillStyle = '#ff5566'; ctx.beginPath(); ctx.arc(o.x, o.y, 8, 0, Math.PI*2); ctx.fill();
@@ -1284,13 +1256,7 @@ function drawAllPlayers(ctx) {
     if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
       if(p.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
       
-      if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
-        ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI * 2); ctx.fillStyle = p.color || '#ffffff'; ctx.fill();
-        ctx.drawImage(costume1Img, p.x - 30, p.y - 30, 60, 60); 
-        drawHatOnly(ctx, p.hat || 'none', p.x, p.y - 21);
-      } else {
-        drawFred(ctx, p.x, p.y, 60, p.color || '#ffffff', p.hat || 'none'); 
-      }
+      drawPlayerSprite(ctx, p.x, p.y, 60, p);
       
       let showName = true;
       if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
@@ -1301,16 +1267,11 @@ function drawAllPlayers(ctx) {
           ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
           ctx.fillText(p.username || 'Player', p.x, p.y-40);
       }
-      
       if(globalGameState.active && globalGameState.seeker === p.uid) {
-          ctx.fillStyle = '#ff5566';
-          ctx.font="900 16px 'Nunito',sans-serif";
-          ctx.fillText("🔴 SEEKER", p.x, p.y-60);
+          ctx.fillStyle = '#ff5566'; ctx.font="900 16px 'Nunito',sans-serif"; ctx.fillText("🔴 SEEKER", p.x, p.y-60);
       }
-      
       if (p.emote && p.emoteExpires > Date.now()) {
-        ctx.font = "28px Arial";
-        ctx.fillText(p.emote, p.x, p.y - 80);
+        ctx.font = "28px Arial"; ctx.fillText(p.emote, p.x, p.y - 80);
       }
       ctx.globalAlpha = 1.0;
     }
@@ -1318,13 +1279,7 @@ function drawAllPlayers(ctx) {
 
   if(G.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
 
-  if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
-    ctx.beginPath(); ctx.arc(map.player.x, map.player.y, 22, 0, Math.PI * 2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
-    ctx.drawImage(costume1Img, map.player.x - 30, map.player.y - 30, 60, 60); 
-    drawHatOnly(ctx, G.hat, map.player.x, map.player.y - 21); 
-  } else { 
-    drawFred(ctx, map.player.x, map.player.y, 60, G.color, G.hat); 
-  }
+  drawPlayerSprite(ctx, map.player.x, map.player.y, 60, G);
   
   let showMyName = true;
   if (G.currentMap !== 'main' && globalGameState.state === 'playing') showMyName = false;
@@ -1335,17 +1290,11 @@ function drawAllPlayers(ctx) {
       ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333';
       ctx.fillText(G.username, map.player.x, map.player.y-40);
   }
-  
   if(globalGameState.active && globalGameState.seeker === G.uid) {
-      ctx.fillStyle = '#ff5566';
-      ctx.font="900 16px 'Nunito',sans-serif";
-      ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
+      ctx.fillStyle = '#ff5566'; ctx.font="900 16px 'Nunito',sans-serif"; ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
   }
-
   if (map.player.emoteTimer > 0) {
-    map.player.emoteTimer--;
-    ctx.font = "28px Arial";
-    ctx.fillText(map.player.emote, map.player.x, map.player.y - 80); 
+    map.player.emoteTimer--; ctx.font = "28px Arial"; ctx.fillText(map.player.emote, map.player.x, map.player.y - 80); 
   }
   ctx.globalAlpha = 1.0;
 }
@@ -1367,42 +1316,24 @@ function doFishAction() {
     let btn = document.getElementById('fish-btn');
 
     if(mgState === 'idle') {
-        mgState = 'waiting';
-        btn.textContent = "Wait for it...";
-        btn.disabled = true;
-        bobber.classList.remove('bitten');
-        bobber.textContent = "🔴";
-        
+        mgState = 'waiting'; btn.textContent = "Wait for it..."; btn.disabled = true;
+        bobber.classList.remove('bitten'); bobber.textContent = "🔴";
         setTimeout(() => {
             if(mgState !== 'waiting') return;
-            mgState = 'bite';
-            bobber.textContent = "💥🐟";
-            bobber.classList.add('bitten');
-            scene.classList.add('bite');
-            btn.textContent = "REEL IN!!";
-            btn.disabled = false;
-            btn.style.background = "var(--red)";
-            
+            mgState = 'bite'; bobber.textContent = "💥🐟"; bobber.classList.add('bitten');
+            scene.classList.add('bite'); btn.textContent = "REEL IN!!"; btn.disabled = false; btn.style.background = "var(--red)";
             mgTimer = setTimeout(() => {
                 if(mgState === 'bite') {
-                    mgState = 'idle';
-                    bobber.textContent = "🔴";
-                    bobber.classList.remove('bitten');
-                    scene.classList.remove('bite');
-                    btn.textContent = "Fish Got Away! Try Again";
-                    btn.style.background = "var(--cyan)";
+                    mgState = 'idle'; bobber.textContent = "🔴"; bobber.classList.remove('bitten');
+                    scene.classList.remove('bite'); btn.textContent = "Fish Got Away! Try Again"; btn.style.background = "var(--cyan)";
                 }
             }, 800 + Math.random() * 500); 
         }, 2000 + Math.random() * 3000);
     } else if (mgState === 'bite') {
-        clearTimeout(mgTimer);
-        scene.classList.remove('bite');
-        bobber.classList.remove('bitten');
+        clearTimeout(mgTimer); scene.classList.remove('bite'); bobber.classList.remove('bitten');
         let reward = 20 + Math.floor(Math.random()*30);
         G.coins += reward; saveUserData(); updateAllHUDs();
-        bobber.textContent = "🐟";
-        btn.textContent = "Caught a fish! (+"+reward+" Coins) Cast Again";
-        btn.style.background = "var(--green)";
+        bobber.textContent = "🐟"; btn.textContent = "Caught a fish! (+"+reward+" Coins) Cast Again"; btn.style.background = "var(--green)";
         mgState = 'idle'; showToast("Caught fish for "+reward+" coins!");
     }
 }
@@ -1421,30 +1352,15 @@ function startMining() {
             <button class="btn-main" id="runner-retry-btn" onclick="startMining()" style="display:none; background:var(--green);">Play Again</button>
         </div>
     `;
-    
-    runner.active = true;
-    runner.canvas = document.getElementById('runner-canvas');
-    runner.ctx = runner.canvas.getContext('2d');
-    runner.lane = 1; // 0: Left, 1: Middle, 2: Right
-    runner.rocks = [];
-    runner.speed = 3.5; // Always ensure speed is reset strictly on start/restart
-    runner.score = 0;
-    runner.lastSpawn = Date.now();
-
-    // Mobile touch controls (tap left/right side of canvas)
+    runner.active = true; runner.canvas = document.getElementById('runner-canvas'); runner.ctx = runner.canvas.getContext('2d');
+    runner.lane = 1; runner.rocks = []; runner.speed = 3.5; runner.score = 0; runner.lastSpawn = Date.now();
     runner.canvas.addEventListener('touchstart', e => {
-        e.preventDefault();
-        const rect = runner.canvas.getBoundingClientRect();
-        const touchX = e.touches[0].clientX - rect.left;
+        e.preventDefault(); const rect = runner.canvas.getBoundingClientRect(); const touchX = e.touches[0].clientX - rect.left;
         if(touchX < rect.width / 2 && runner.lane > 0) runner.lane--;
         else if(touchX > rect.width / 2 && runner.lane < 2) runner.lane++;
     });
-
-    document.removeEventListener('keydown', runnerKeyHandler);
-    document.addEventListener('keydown', runnerKeyHandler);
-
-    cancelAnimationFrame(runner.frame);
-    runnerLoop();
+    document.removeEventListener('keydown', runnerKeyHandler); document.addEventListener('keydown', runnerKeyHandler);
+    cancelAnimationFrame(runner.frame); runnerLoop();
 }
 
 function runnerKeyHandler(e) {
@@ -1455,166 +1371,75 @@ function runnerKeyHandler(e) {
 
 function runnerLoop() {
     if(!runner.active) return;
-    updateRunner();
-    renderRunner();
-    runner.frame = requestAnimationFrame(runnerLoop);
+    updateRunner(); renderRunner(); runner.frame = requestAnimationFrame(runnerLoop);
 }
 
 function updateRunner() {
     runner.score++;
-    
-    // Gets faster the longer you go! (Caps at 12 so it stays playable)
     if (runner.score % 200 === 0 && runner.speed < 12) runner.speed += 0.5;
-    
     document.getElementById('runner-score').textContent = "Score: " + runner.score;
 
-    // Spawn rocks (spawns rows of rocks so it's fair!)
     let spawnRate = Math.max(600, 1600 - (runner.speed * 50)); 
-    
     if (Date.now() - runner.lastSpawn > spawnRate) {
-        
         let numRocks = Math.random() > 0.85 ? 2 : 1; 
-        let lanes = [0, 1, 2];
-        
-        // Shuffle the lanes array to randomize where the rocks go
-        lanes.sort(() => Math.random() - 0.5);
-        
+        let lanes = [0, 1, 2]; lanes.sort(() => Math.random() - 0.5);
         for (let i = 0; i < numRocks; i++) {
-            runner.rocks.push({
-                lane: lanes[i],
-                y: -40 - (Math.random() * 60), 
-                size: 35
-            });
+            runner.rocks.push({ lane: lanes[i], y: -40 - (Math.random() * 60), size: 35 });
         }
-        
         runner.lastSpawn = Date.now();
     }
 
-    // Move rocks & Check collisions
     const laneWidth = runner.canvas.width / 3;
     const playerX = runner.lane * laneWidth + laneWidth / 2;
     const playerY = runner.canvas.height - 50;
-    const playerSize = 20;
 
     for (let i = runner.rocks.length - 1; i >= 0; i--) {
-        let r = runner.rocks[i];
-        r.y += runner.speed;
-        
-        // Remove rocks that went off screen
-        if (r.y > runner.canvas.height + 50) {
-            runner.rocks.splice(i, 1);
-            continue;
-        }
-
-        // Collision detection logic
+        let r = runner.rocks[i]; r.y += runner.speed;
+        if (r.y > runner.canvas.height + 50) { runner.rocks.splice(i, 1); continue; }
         let rockX = r.lane * laneWidth + laneWidth / 2;
-        let dx = rockX - playerX;
-        let dy = r.y - playerY;
-        let dist = Math.sqrt(dx*dx + dy*dy);
-        
-        // If the distance between Fred and the rock is smaller than their combined sizes
-        if (dist < playerSize + r.size/2 - 5) {
-            gameOverRunner();
-        }
+        let dist = Math.sqrt(Math.pow(rockX - playerX, 2) + Math.pow(r.y - playerY, 2));
+        if (dist < 20 + r.size/2 - 5) { gameOverRunner(); }
     }
 }
 
 function renderRunner() {
-    const ctx = runner.ctx;
-    const w = runner.canvas.width;
-    const h = runner.canvas.height;
-    const laneWidth = w / 3;
+    const ctx = runner.ctx; const w = runner.canvas.width; const h = runner.canvas.height; const laneWidth = w / 3;
 
-    // Draw track background (Dark dirt)
-    ctx.fillStyle = '#2c1e16'; 
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#2c1e16'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; let offset = (Date.now() / 15 * runner.speed) % 100;
+    for(let i = -100; i < h; i += 100) { ctx.fillRect(0, i + offset, w, 50); }
 
-    // Draw moving floor stripes (Creates the illusion of speed!)
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-    let offset = (Date.now() / 15 * runner.speed) % 100;
-    for(let i = -100; i < h; i += 100) {
-         ctx.fillRect(0, i + offset, w, 50);
-    }
+    ctx.fillStyle = '#1a110b'; ctx.fillRect(0, 0, 12, h); ctx.fillRect(w - 12, 0, 12, h);
 
-    // Cave walls (Left and Right edges)
-    ctx.fillStyle = '#1a110b';
-    ctx.fillRect(0, 0, 12, h);
-    ctx.fillRect(w - 12, 0, 12, h);
-
-    // Draw lane dividers (Dotted lines moving with you)
-    ctx.strokeStyle = '#4a3325';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([20, 20]);
+    ctx.strokeStyle = '#4a3325'; ctx.lineWidth = 4; ctx.setLineDash([20, 20]);
     ctx.lineDashOffset = -(Date.now() / 15 * runner.speed) % 40;
-    ctx.beginPath();
-    ctx.moveTo(laneWidth, 0); ctx.lineTo(laneWidth, h);
-    ctx.moveTo(laneWidth * 2, 0); ctx.lineTo(laneWidth * 2, h);
-    ctx.stroke();
-    ctx.setLineDash([]); // Reset line dash
+    ctx.beginPath(); ctx.moveTo(laneWidth, 0); ctx.lineTo(laneWidth, h); ctx.moveTo(laneWidth * 2, 0); ctx.lineTo(laneWidth * 2, h); ctx.stroke(); ctx.setLineDash([]);
 
-    // Draw Rocks
-    ctx.font = "35px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.font = "35px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
     for (let r of runner.rocks) {
         let rx = r.lane * laneWidth + laneWidth / 2;
-        
-        // Drop shadow under the rock
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.beginPath();
-        ctx.ellipse(rx, r.y + 15, 15, 5, 0, 0, Math.PI*2);
-        ctx.fill();
-
+        ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(rx, r.y + 15, 15, 5, 0, 0, Math.PI*2); ctx.fill();
         ctx.fillText("🪨", rx, r.y);
     }
 
-    // Draw Player (Using your existing Fred drawing logic!)
-    let px = runner.lane * laneWidth + laneWidth / 2;
-    let py = h - 50;
-    
-    // Add player shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath();
-    ctx.ellipse(px, py + 25, 20, 8, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    // Re-use your global drawing function so players see their equipped colors/hats
-    if (costume1Img.complete && costume1Img.naturalHeight !== 0) {
-        ctx.beginPath(); ctx.arc(px, py, 18, 0, Math.PI*2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
-        ctx.drawImage(costume1Img, px - 25, py - 25, 50, 50);
-        drawHatOnly(ctx, G.hat, px, py - 16);
-    } else {
-        drawFred(ctx, px, py, 50, G.color, G.hat);
-    }
+    let px = runner.lane * laneWidth + laneWidth / 2; let py = h - 50;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.ellipse(px, py + 25, 20, 8, 0, 0, Math.PI*2); ctx.fill();
+    drawPlayerSprite(ctx, px, py, 50, G);
 }
 
 function gameOverRunner() {
-    runner.active = false;
-    document.removeEventListener('keydown', runnerKeyHandler);
-    
-    // Coin Math: 1 coin per 50 score points.
+    runner.active = false; document.removeEventListener('keydown', runnerKeyHandler);
     let baseCoins = Math.floor(runner.score / 50);
-    // Diminishing returns after 40 coins so the economy doesn't break
     let earned = baseCoins > 40 ? 40 + Math.floor((baseCoins - 40) * 0.2) : baseCoins;
-    
-    // Give at least 1 coin if they survived past a score of 100
     if(earned === 0 && runner.score > 100) earned = 1;
-
-    G.coins += earned;
-    saveUserData();
-    updateAllHUDs();
-
+    G.coins += earned; saveUserData(); updateAllHUDs();
     document.getElementById('runner-score').innerHTML = `💥 CRASHED! 💥<br>Score: ${runner.score}<br><span style="color:var(--green)">+${earned} Coins</span>`;
-    
-    // Show BOTH the Exit and Retry buttons
     document.getElementById('runner-btn').style.display = 'inline-block';
     document.getElementById('runner-retry-btn').style.display = 'inline-block';
 }
 
 function stopMining() {
-    runner.active = false;
-    document.removeEventListener('keydown', runnerKeyHandler);
-    showScreen('screen-map');
+    runner.active = false; document.removeEventListener('keydown', runnerKeyHandler); showScreen('screen-map');
 }
 
 function enterZone(id){ 
@@ -1653,9 +1478,7 @@ function startInviteListener(){
   const invitesRef = db.ref('invites/' + G.uid);
   invitesRef.on('child_added', snap => {
     const inv = snap.val();
-    if(inv && inv.status === 'pending') {
-      showInviteNotification(snap.key, inv); 
-    }
+    if(inv && inv.status === 'pending') { showInviteNotification(snap.key, inv); }
   }); 
   _inviteUnsubscribe = () => invitesRef.off();
 }
@@ -1666,7 +1489,7 @@ async function sendBattleInvite(toUid,toName){
   try { 
     const invRef = db.ref('invites/' + toUid).push();
     await invRef.set({ 
-      from:G.uid, fromName:G.username, fromColor:G.color, fromHat:G.hat, 
+      from:G.uid, fromName:G.username, fromColor:G.color, fromHat:G.hat, fromSkin:G.skin,
       arena:currentArena, type: 'battle', status:'pending', createdAt: firebase.database.ServerValue.TIMESTAMP 
     }); 
     _pendingInviteId = invRef.key; 
@@ -1681,8 +1504,7 @@ async function sendBattleInvite(toUid,toName){
         const startId = _pendingInviteId; 
         unsubRef.off(); clearPendingInvite(); 
         showToast('🎉 '+toName+' accepted! Starting battle!'); 
-        showScreen('screen-battle'); 
-        initBattle('pvp', startId, true); 
+        showScreen('screen-battle'); initBattle('pvp', startId, true); 
       } else if(d.status==='declined'){ 
         unsubRef.off(); clearPendingInvite(); showToast('😔 '+toName+' declined the invite'); 
       } 
@@ -1693,7 +1515,6 @@ async function sendBattleInvite(toUid,toName){
 
 function showInviteNotification(invId,inv){ 
     _pendingInviteId=invId; 
-    
     if(inv.type === 'global_game') {
         _inviteIsGlobal = true;
         document.getElementById('invite-notif-title').textContent = `🎮 NEW GAME: ${inv.game}!`;
@@ -1703,7 +1524,6 @@ function showInviteNotification(invId,inv){
         document.getElementById('invite-notif-title').textContent = "⚔️ Battle Challenge!";
         document.getElementById('invite-notif-sub').textContent = `${inv.fromName||'Someone'} invited you to a battle!`;
     }
-    
     document.getElementById('invite-notif').classList.add('show'); 
     setTimeout(()=>{ if(document.getElementById('invite-notif').classList.contains('show')) respondInvite(false); },25000); 
 }
@@ -1717,22 +1537,15 @@ async function respondInvite(accept){
     if (_inviteIsGlobal) {
         if (accept) { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
-          showToast('🌲 Teleporting to the map...'); 
-          switchMap('minigame_map', 6000, 6000);
+          showToast('🌲 Teleporting to the map...'); switchMap('minigame_map', 6000, 6000);
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 
         }
     } else {
         if (accept) { 
-          await db.ref('battles/' + id).set({
-            p1: { x: 100, y: 500/2, hp: 100 },
-            p2: { x: 780-100, y: 500/2, hp: 100 },
-            active: true
-          });
+          await db.ref('battles/' + id).set({ p1: { x: 100, y: 500/2, hp: 100 }, p2: { x: 780-100, y: 500/2, hp: 100 }, active: true });
           await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e)); 
-          showToast('⚔️ Battle accepted!'); 
-          showScreen('screen-battle'); 
-          initBattle('pvp', id, false); 
+          showToast('⚔️ Battle accepted!'); showScreen('screen-battle'); initBattle('pvp', id, false); 
         } else { 
           await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); 
           showToast('Declined'); 
@@ -1747,11 +1560,10 @@ let _battleSyncTimer = null, _battleListener = null;
 
 function initBattle(mode = 'ai', roomId = null, isP1 = true) { 
   B.mode = mode; B.roomId = roomId; B.isP1 = isP1; B.diff = 1.5;
-  clearInterval(_battleSyncTimer);
-  if(_battleListener) { _battleListener(); _battleListener = null; }
+  clearInterval(_battleSyncTimer); if(_battleListener) { _battleListener(); _battleListener = null; }
 
-  B.player = {x: isP1?100:BW-100, y: BH/2, vx:0, vy:0, hp:100, maxHp:100, speed:3.5, size:28, lastShot:0, cooldown:400, color:G.color, hat:G.hat}; 
-  B.enemy = {x: isP1?BW-100:100, y: BH/2, vx:0, vy:0, hp:100, maxHp:100, speed:2*B.diff, size:28, cooldown:1200/B.diff, color:'#ff6688', hat:'none', tmr:0, tx: isP1?BW-100:100, ty: BH/2, lastEnemyShotTime: 0}; 
+  B.player = {x: isP1?100:BW-100, y: BH/2, vx:0, vy:0, hp:100, maxHp:100, speed:3.5, size:28, lastShot:0, cooldown:400, color:G.color, hat:G.hat, skin:G.skin}; 
+  B.enemy = {x: isP1?BW-100:100, y: BH/2, vx:0, vy:0, hp:100, maxHp:100, speed:2*B.diff, size:28, cooldown:1200/B.diff, color:'#ff6688', hat:'none', skin:'none', tmr:0, tx: isP1?BW-100:100, ty: BH/2, lastEnemyShotTime: 0}; 
   B.orbs = []; B.hpacks = []; B.active = true; 
   
   document.getElementById('battle-result').style.display = 'none'; 
@@ -1762,43 +1574,28 @@ function initBattle(mode = 'ai', roomId = null, isP1 = true) {
   
   if (mode === 'pvp' && firebaseReady && roomId) {
     const battleRef = db.ref('battles/' + roomId);
-    
     battleRef.on('value', doc => {
-      const data = doc.val();
-      if (!data) return;
+      const data = doc.val(); if (!data) return;
+      const myKey = isP1 ? 'p1' : 'p2'; const enemyKey = isP1 ? 'p2' : 'p1';
+      if (data.winner && B.active) { endBattle(data.winner === myKey); return; }
 
-      const myKey = isP1 ? 'p1' : 'p2';
-      const enemyKey = isP1 ? 'p2' : 'p1';
-
-      if (data.winner && B.active) {
-        endBattle(data.winner === myKey);
-        return;
-      }
-
-      const enemyData = data[enemyKey];
-      const myData = data[myKey];
+      const enemyData = data[enemyKey]; const myData = data[myKey];
 
       if (enemyData) {
         if (enemyData.x !== undefined) B.enemy.tx = enemyData.x; 
         if (enemyData.y !== undefined) B.enemy.ty = enemyData.y; 
-        
         if (enemyData.hp !== undefined) {
-            B.enemy.hp = enemyData.hp;
-            document.getElementById('enemy-health-bar').style.width = Math.max(0, B.enemy.hp/B.enemy.maxHp*100)+'%';
+            B.enemy.hp = enemyData.hp; document.getElementById('enemy-health-bar').style.width = Math.max(0, B.enemy.hp/B.enemy.maxHp*100)+'%';
         }
-
         if (enemyData.lastShot && enemyData.lastShot.time > B.enemy.lastEnemyShotTime) {
           B.enemy.lastEnemyShotTime = enemyData.lastShot.time;
-          const dx = enemyData.lastShot.tx - B.enemy.x;
-          const dy = enemyData.lastShot.ty - B.enemy.y;
-          const d = Math.sqrt(dx*dx+dy*dy) || 1;
+          const dx = enemyData.lastShot.tx - B.enemy.x; const dy = enemyData.lastShot.ty - B.enemy.y; const d = Math.sqrt(dx*dx+dy*dy) || 1;
           B.orbs.push({x: B.enemy.x, y: B.enemy.y, vx: dx/d*7, vy: dy/d*7, owner:'enemy', r:10, life:130});
         }
       }
 
       if (myData && myData.hp !== undefined && myData.hp < B.player.hp) {
-          B.player.hp = myData.hp;
-          document.getElementById('player-health-bar').style.width = Math.max(0, B.player.hp/B.player.maxHp*100)+'%';
+          B.player.hp = myData.hp; document.getElementById('player-health-bar').style.width = Math.max(0, B.player.hp/B.player.maxHp*100)+'%';
       }
     });
     _battleListener = () => battleRef.off();
@@ -1807,10 +1604,7 @@ function initBattle(mode = 'ai', roomId = null, isP1 = true) {
       if(B.active) {
         const myKey = isP1 ? 'p1' : 'p2';
         const payload = { x: Math.round(B.player.x), y: Math.round(B.player.y) };
-        if (B.player.recentShot) { 
-          payload.lastShot = B.player.recentShot; 
-          B.player.recentShot = null; 
-        }
+        if (B.player.recentShot) { payload.lastShot = B.player.recentShot; B.player.recentShot = null; }
         db.ref('battles/' + roomId + '/' + myKey).update(payload).catch(e => console.log(e));
       }
     }, 60); 
@@ -1829,8 +1623,7 @@ function bKU(e){B.keys[e.key.toLowerCase()]=false;}
 function playerShoot(tx,ty){ 
   const p=B.player, now=Date.now(); 
   if(now-p.lastShot<p.cooldown) return; 
-  p.lastShot=now; 
-  p.recentShot = {tx: Math.round(tx), ty: Math.round(ty), time: now}; 
+  p.lastShot=now; p.recentShot = {tx: Math.round(tx), ty: Math.round(ty), time: now}; 
   const dx=tx-p.x, dy=ty-p.y, d=Math.sqrt(dx*dx+dy*dy)||1; 
   B.orbs.push({x:p.x, y:p.y, vx:dx/d*7, vy:dy/d*7, owner:'player', r:10, life:130}); 
 }
@@ -1850,47 +1643,29 @@ function updateBattle() {
     if(e.tmr<=0){ e.tmr=50+Math.random()*80; const a=Math.random()*Math.PI*2; e.tvx=Math.cos(a)*e.speed; e.tvy=Math.sin(a)*e.speed; if(Math.random()<0.45){const dx=p.x-e.x,dy=p.y-e.y,d=Math.sqrt(dx*dx+dy*dy)||1;e.tvx=dx/d*e.speed;e.tvy=dy/d*e.speed;}} 
     e.vx+=(e.tvx-e.vx)*0.06; e.vy+=(e.tvy-e.vy)*0.06; e.x=Math.max(e.size, Math.min(BW-e.size, e.x+e.vx)); e.y=Math.max(e.size, Math.min(BH-e.size, e.y+e.vy)); 
     enemyShoot();
-  } else {
-    e.x += (e.tx - e.x) * 0.2; 
-    e.y += (e.ty - e.y) * 0.2;
-  }
+  } else { e.x += (e.tx - e.x) * 0.2; e.y += (e.ty - e.y) * 0.2; }
 
   for(let i=B.orbs.length-1; i>=0; i--) { 
     const o=B.orbs[i]; o.x+=o.vx; o.y+=o.vy; o.life--; 
     if(o.x<0||o.x>BW||o.y<0||o.y>BH||o.life<=0){ B.orbs.splice(i,1); continue; } 
-    const target = o.owner==='player' ? e : p; 
-    const dx = o.x-target.x, dy = o.y-target.y; 
+    const target = o.owner==='player' ? e : p; const dx = o.x-target.x, dy = o.y-target.y; 
     
     if(Math.sqrt(dx*dx+dy*dy) < o.r+target.size) { 
       if (B.mode === 'pvp') {
           if (o.owner === 'player') {
-              B.enemy.hp -= 15;
-              document.getElementById('enemy-health-bar').style.width = Math.max(0, B.enemy.hp/B.enemy.maxHp*100)+'%';
-              const enemyKey = B.isP1 ? 'p2' : 'p1';
-              db.ref('battles/' + B.roomId + '/' + enemyKey).update({ hp: B.enemy.hp }).catch(e=>console.log(e));
-              
-              if(B.enemy.hp <= 0 && B.active) {
-                  db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p1' : 'p2') }).catch(e=>console.log(e));
-                  endBattle(true); 
-              }
+              B.enemy.hp -= 15; document.getElementById('enemy-health-bar').style.width = Math.max(0, B.enemy.hp/B.enemy.maxHp*100)+'%';
+              const enemyKey = B.isP1 ? 'p2' : 'p1'; db.ref('battles/' + B.roomId + '/' + enemyKey).update({ hp: B.enemy.hp }).catch(e=>console.log(e));
+              if(B.enemy.hp <= 0 && B.active) { db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p1' : 'p2') }).catch(e=>console.log(e)); endBattle(true); }
           } else {
-              B.player.hp -= 15;
-              document.getElementById('player-health-bar').style.width = Math.max(0, B.player.hp/B.player.maxHp*100)+'%';
-              const myKey = B.isP1 ? 'p1' : 'p2';
-              db.ref('battles/' + B.roomId + '/' + myKey).update({ hp: B.player.hp }).catch(e=>console.log(e));
-              
-              if(B.player.hp <= 0 && B.active) {
-                  db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p2' : 'p1') }).catch(e=>console.log(e));
-                  endBattle(false); 
-              }
+              B.player.hp -= 15; document.getElementById('player-health-bar').style.width = Math.max(0, B.player.hp/B.player.maxHp*100)+'%';
+              const myKey = B.isP1 ? 'p1' : 'p2'; db.ref('battles/' + B.roomId + '/' + myKey).update({ hp: B.player.hp }).catch(e=>console.log(e));
+              if(B.player.hp <= 0 && B.active) { db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p2' : 'p1') }).catch(e=>console.log(e)); endBattle(false); }
           }
       } else {
           if (o.owner === 'enemy') {
-              p.hp -= 15; if(p.hp<=0) { p.hp=0; endBattle(false); }
-              document.getElementById('player-health-bar').style.width = Math.max(0, p.hp/p.maxHp*100)+'%';
+              p.hp -= 15; if(p.hp<=0) { p.hp=0; endBattle(false); } document.getElementById('player-health-bar').style.width = Math.max(0, p.hp/p.maxHp*100)+'%';
           } else {
-              e.hp -= 20; if(e.hp<=0) { e.hp=0; endBattle(true); }
-              document.getElementById('enemy-health-bar').style.width = Math.max(0, e.hp/e.maxHp*100)+'%';
+              e.hp -= 20; if(e.hp<=0) { e.hp=0; endBattle(true); } document.getElementById('enemy-health-bar').style.width = Math.max(0, e.hp/e.maxHp*100)+'%';
           }
       }
       B.orbs.splice(i,1); 
@@ -1900,50 +1675,29 @@ function updateBattle() {
   for(let i=B.hpacks.length-1; i>=0; i--) { 
     const h=B.hpacks[i]; h.bob+=0.05; const dx=h.x-p.x,dy=h.y-p.y; 
     if(Math.sqrt(dx*dx+dy*dy)<h.r+p.size*0.8) { 
-      p.hp=Math.min(p.maxHp, p.hp+30); 
-      document.getElementById('player-health-bar').style.width=(p.hp/p.maxHp*100)+'%'; 
-      
-      if (B.mode === 'pvp') {
-          const myKey = B.isP1 ? 'p1' : 'p2';
-          db.ref('battles/' + B.roomId + '/' + myKey).update({ hp: p.hp }).catch(e=>console.log(e));
-      }
+      p.hp=Math.min(p.maxHp, p.hp+30); document.getElementById('player-health-bar').style.width=(p.hp/p.maxHp*100)+'%'; 
+      if (B.mode === 'pvp') { const myKey = B.isP1 ? 'p1' : 'p2'; db.ref('battles/' + B.roomId + '/' + myKey).update({ hp: p.hp }).catch(e=>console.log(e)); }
       B.hpacks.splice(i,1); showToast('💚 +30 HP!'); 
     } 
   } 
 }
 
 function endBattle(won){ 
-  if (!B.active) return;
-  B.active=false; B.didWin = won;
-  document.removeEventListener('keydown',bKD); document.removeEventListener('keyup',bKU); 
+  if (!B.active) return; B.active=false; B.didWin = won; document.removeEventListener('keydown',bKD); document.removeEventListener('keyup',bKU); 
   G.battles++; 
   if(won){
     G.wins++; const r=Math.round(50*B.diff); G.coins+=r; G.coinsEarned+=r; 
-    document.getElementById('battle-result-title').textContent='🏆 VICTORY!'; 
-    document.getElementById('battle-result-title').style.color='#ffe566'; 
-    document.getElementById('battle-result-coins').textContent='+'+r+' 🪙 coins!'; 
+    document.getElementById('battle-result-title').textContent='🏆 VICTORY!'; document.getElementById('battle-result-title').style.color='#ffe566'; document.getElementById('battle-result-coins').textContent='+'+r+' 🪙 coins!'; 
   } else { 
-    document.getElementById('battle-result-title').textContent='💀 DEFEATED!'; 
-    document.getElementById('battle-result-title').style.color='#ff5566'; 
-    document.getElementById('battle-result-coins').textContent='Better luck next time!'; 
+    document.getElementById('battle-result-title').textContent='💀 DEFEATED!'; document.getElementById('battle-result-title').style.color='#ff5566'; document.getElementById('battle-result-coins').textContent='Better luck next time!'; 
   } 
-  document.getElementById('battle-result').style.display='flex'; 
-  updateAllHUDs(); saveUserData(); 
+  document.getElementById('battle-result').style.display='flex'; updateAllHUDs(); saveUserData(); 
 }
 
 function leaveBattle(fromResult = false){ 
-  if (B.active && B.mode === 'pvp') {
-      db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p2' : 'p1') }).catch(e=>console.log(e));
-  }
-
-  B.active=false; cancelAnimationFrame(B.frame); 
-  clearInterval(_battleSyncTimer); if(_battleListener) { _battleListener(); _battleListener = null; } 
-  document.removeEventListener('keydown',bKD); document.removeEventListener('keyup',bKU); 
-  
-  if(fromResult && B.didWin) {
-    map.player.x = 1200; map.player.y = 1300; 
-    showToast('✨ Victory Teleport to Town Center!');
-  }
+  if (B.active && B.mode === 'pvp') { db.ref('battles/' + B.roomId).update({ winner: (B.isP1 ? 'p2' : 'p1') }).catch(e=>console.log(e)); }
+  B.active=false; cancelAnimationFrame(B.frame); clearInterval(_battleSyncTimer); if(_battleListener) { _battleListener(); _battleListener = null; } document.removeEventListener('keydown',bKD); document.removeEventListener('keyup',bKU); 
+  if(fromResult && B.didWin) { map.player.x = 1200; map.player.y = 1300; showToast('✨ Victory Teleport to Town Center!'); }
   showScreen('screen-map'); 
 }
 
@@ -1955,27 +1709,11 @@ function renderBattle(){
   
   for(const h of B.hpacks){ const by=Math.sin(h.bob)*4; ctx.shadowBlur=14; ctx.shadowColor='#5dea7a'; ctx.fillStyle='#1a3a1a'; ctx.beginPath(); ctx.arc(h.x,h.y+by,h.r+2,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#5dea7a'; ctx.beginPath(); ctx.arc(h.x,h.y+by,h.r,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.fillRect(h.x-2,h.y+by-8,4,16); ctx.fillRect(h.x-8,h.y+by-2,16,4); } 
   
-  for(const o of B.orbs){ 
-    ctx.shadowBlur=20; ctx.shadowColor='#44aaff'; 
-    ctx.fillStyle='#44ccff'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill(); 
-    ctx.fillStyle='#aaeeff'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*.5,0,Math.PI*2); ctx.fill(); 
-    ctx.shadowBlur=0; 
-  } 
+  for(const o of B.orbs){ ctx.shadowBlur=20; ctx.shadowColor='#44aaff'; ctx.fillStyle='#44ccff'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#aaeeff'; ctx.beginPath(); ctx.arc(o.x,o.y,o.r*.5,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0; } 
   
-  if(B.player) {
-    if (costume1Img.complete && costume1Img.naturalHeight !== 0) {
-      ctx.beginPath(); ctx.arc(B.player.x, B.player.y, 24, 0, Math.PI*2); ctx.fillStyle = B.player.color || '#ffffff'; ctx.fill();
-      ctx.drawImage(costume1Img, B.player.x - 32.5, B.player.y - 32.5, 65, 65);
-      drawHatOnly(ctx, B.player.hat, B.player.x, B.player.y - 22);
-    } else { drawFred(ctx, B.player.x, B.player.y, 65, B.player.color, B.player.hat); }
-  } 
-  if(B.enemy) {
-    if (costume1Img.complete && costume1Img.naturalHeight !== 0) {
-      ctx.beginPath(); ctx.arc(B.enemy.x, B.enemy.y, 24, 0, Math.PI*2); ctx.fillStyle = B.enemy.color || '#ffffff'; ctx.fill();
-      ctx.drawImage(costume1Img, B.enemy.x - 32.5, B.enemy.y - 32.5, 65, 65);
-      drawHatOnly(ctx, B.enemy.hat, B.enemy.x, B.enemy.y - 22);
-    } else { drawFred(ctx, B.enemy.x, B.enemy.y, 65, B.enemy.color, B.enemy.hat); }
-  }
+  if(B.player) drawPlayerSprite(ctx, B.player.x, B.player.y, 65, B.player);
+  if(B.enemy) drawPlayerSprite(ctx, B.enemy.x, B.enemy.y, 65, B.enemy);
+  
   if(B.player&&B.player.hp<B.player.maxHp*0.3){ ctx.fillStyle=`rgba(255,0,0,${0.07+Math.sin(Date.now()*.01)*0.04})`; ctx.fillRect(0,0,BW,BH);} 
 }
 
@@ -1999,9 +1737,7 @@ function initHome(){
   document.getElementById('home-title').textContent = isMine ? '🏠 Your House' : `🏠 ${currentHouseOwner.username}'s House`; 
   document.getElementById('home-customize-btn').style.display = isMine ? 'block' : 'none'; 
   
-  HOME.panelOpen = false;
-  document.getElementById('home-panel').classList.remove('open');
-
+  HOME.panelOpen = false; document.getElementById('home-panel').classList.remove('open');
   if (isMine) populateHomePanel(); 
 }
 function homeKD(e){ if(!document.getElementById('screen-home').classList.contains('active'))return; HOME.keys[e.key.toLowerCase()]=true; if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault(); }
@@ -2027,13 +1763,7 @@ function renderHome(){
   const cc=currentHouseOwner.couchColor||'#5544aa'; ctx.fillStyle=cc; if(ctx.roundRect) ctx.roundRect(60,H*0.62-22,280,78,10); else ctx.rect(60,H*0.62-22,280,78); ctx.fill(); const ccL=lighten(cc,0.3); ctx.fillStyle=ccL; [[68,H*0.62-44,55,62],[275,H*0.62-44,55,62]].forEach(([rx,ry,rw,rh])=>{ if(ctx.roundRect) ctx.roundRect(rx,ry,rw,rh,8); else ctx.rect(rx,ry,rw,rh); ctx.fill();}); const ccD=darken(cc,0.15); ctx.fillStyle=ccD; if(ctx.roundRect) ctx.roundRect(60,H*0.62-22,280,50,10); else ctx.rect(60,H*0.62-22,280,50); ctx.fill(); ctx.fillStyle='#884422'; ctx.fillRect(380,H*0.62+18,200,10);ctx.fillRect(385,H*0.62+28,10,55);ctx.fillRect(565,H*0.62+28,10,55); ctx.fillStyle='#ccaa66'; ctx.fillRect(W-90,H*0.62-75,6,95); ctx.fillStyle='#ffe566'; ctx.beginPath(); ctx.moveTo(W-102,H*0.62-75); ctx.lineTo(W-78,H*0.62-75); ctx.lineTo(W-86,H*0.62-125); ctx.lineTo(W-94,H*0.62-125); ctx.closePath(); ctx.fill(); ctx.fillStyle='rgba(255,230,100,.1)'; ctx.beginPath(); ctx.arc(W-87,H*0.62-80,75,0,Math.PI*2); ctx.fill();
   if(currentHouseOwner.showPlants !== false){ [[W-150,H*0.62],[30,H*0.62]].forEach(([px,py])=>{ ctx.fillStyle='#6a3a1a'; ctx.fillRect(px-8,py,16,20); ctx.fillStyle='#3a7a3a'; ctx.beginPath(); ctx.arc(px,py-12,16,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#4a9a4a'; ctx.beginPath(); ctx.arc(px-6,py-20,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#5aaa5a'; ctx.beginPath(); ctx.arc(px+6,py-18,8,0,Math.PI*2); ctx.fill(); }); } 
 
-  if (costume1Img.complete && costume1Img.naturalHeight !== 0) { 
-    ctx.beginPath(); ctx.arc(HOME.player.x, HOME.player.y, 20, 0, Math.PI * 2); ctx.fillStyle = G.color || '#ffffff'; ctx.fill();
-    ctx.drawImage(costume1Img, HOME.player.x - 27.5, HOME.player.y - 27.5, 55, 55); 
-    drawHatOnly(ctx, G.hat, HOME.player.x, HOME.player.y - 19); 
-  } else { 
-    drawFred(ctx, HOME.player.x, HOME.player.y, 55, G.color, G.hat); 
-  }
+  drawPlayerSprite(ctx, HOME.player.x, HOME.player.y, 55, G);
   
   ctx.font="bold 11px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillStyle='#fff'; ctx.fillText(G.username,HOME.player.x,HOME.player.y-36); 
 }
@@ -2043,7 +1773,7 @@ function toggleHomePanel(){ HOME.panelOpen=!HOME.panelOpen; document.getElementB
 function populateHomePanel(){ const wo=document.getElementById('home-wall-opts'); wo.innerHTML=''; SHOP_WALLS.forEach(w=>{ if(!G.ownedWalls.includes(w.id))return; const el=document.createElement('div'); el.className='home-option'+(G.wallpaper===w.id?' active-opt':''); el.textContent=w.name; el.onclick=()=>{G.wallpaper=w.id;saveUserData();populateHomePanel();}; wo.appendChild(el); }); const cc=document.getElementById('home-couch-colors'); cc.innerHTML=''; ['#5544aa','#aa4422','#226688','#224422','#882244','#447722','#664422','#224466'].forEach(c=>{ const el=document.createElement('div'); el.className='home-color-dot'+(G.couchColor===c?' sel':''); el.style.background=c; el.title=c; el.onclick=()=>{G.couchColor=c;saveUserData();populateHomePanel();}; cc.appendChild(el); }); const ro=document.getElementById('home-rug-opts'); ro.innerHTML=''; [{id:'red',name:'Red Rug'},{id:'blue',name:'Blue Rug'},{id:'green',name:'Green Rug'},{id:'purple',name:'Purple Rug'},{id:'orange',name:'Orange Rug'}].forEach(r=>{ const el=document.createElement('div'); el.className='home-option'+(G.rugColor===r.id?' active-opt':''); el.textContent=r.name; el.onclick=()=>{G.rugColor=r.id;saveUserData();populateHomePanel();}; ro.appendChild(el); }); document.getElementById('home-plants-toggle').checked=G.showPlants; const po=document.getElementById('home-poster-opts'); po.innerHTML=''; [{id:'penguin',name:'🐧 Penguin'},{id:'star',name:'⭐ Star'},{id:'heart',name:'❤️ Heart'},{id:'music',name:'🎵 Music'},{id:'rocket',name:'🚀 Rocket'}].forEach(p=>{ const el=document.createElement('div'); el.className='home-option'+(G.posterStyle===p.id?' active-opt':''); el.textContent=p.name; el.onclick=()=>{G.posterStyle=p.id;saveUserData();populateHomePanel();}; po.appendChild(el); }); }
 function togglePlants(val){G.showPlants=val;saveUserData();}
 
-function renderShop(){ renderShopGrid('shop-hats-grid',SHOP_HATS,'hat','ownedHats'); renderShopGrid('shop-colors-grid',SHOP_COLORS,'color','ownedColors'); renderShopGrid('shop-walls-grid',SHOP_WALLS,'wallpaper','ownedWalls'); }
+function renderShop(){ renderShopGrid('shop-skins-grid',SHOP_SKINS,'skin','ownedSkins'); renderShopGrid('shop-hats-grid',SHOP_HATS,'hat','ownedHats'); renderShopGrid('shop-colors-grid',SHOP_COLORS,'color','ownedColors'); renderShopGrid('shop-walls-grid',SHOP_WALLS,'wallpaper','ownedWalls'); }
 function renderShopGrid(gridId,items,eqKey,ownKey){ const grid=document.getElementById(gridId); if(!grid)return; grid.innerHTML=''; for(const item of items){ const owned=G[ownKey].includes(item.id), equipped=G[eqKey]===item.id; const el=document.createElement('div'); el.className='shop-item'+(equipped?' equipped':owned?' owned':''); let preview=''; if(item.emoji&&item.emoji!=='·')preview=`<div style="font-size:2.6rem">${item.emoji}</div>`; else if(item.color)preview=`<div style="width:52px;height:52px;border-radius:50%;background:${item.color};border:3px solid rgba(255,255,255,.3)"></div>`; else preview=`<div style="font-size:2rem;opacity:.4">·</div>`; el.innerHTML=`<div class="shop-item-preview">${preview}</div><div class="shop-item-name">${item.name}</div><div class="shop-item-price">${equipped?'✓ Equipped':owned?'✓ Owned':'🪙 '+item.price}</div>`; el.onclick=()=>openConfirm(item,eqKey,ownKey,gridId,items); grid.appendChild(el); } }
 
 let _confirmCallback=null;

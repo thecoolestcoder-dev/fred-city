@@ -1138,7 +1138,7 @@
       map.canvas.height=window.innerHeight-56;
       map.ctx=map.canvas.getContext('2d');
 
-      // Changed here to fix mobile clicking!
+      // Replaced onmousedown with onpointerdown to fix click detection
       map.canvas.onpointerdown = (e) => {
         if (globalGameState.name === 'Free For All' && globalGameState.state === 'playing') {
           const rect = map.canvas.getBoundingClientRect();
@@ -1484,33 +1484,40 @@
           ctx.beginPath(); ctx.arc(o.x, o.y, 8, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
         });
 
-        // --- SECRET COIN ARROW FOR FFA ---
+        // --- ADDED: Arrow pointing to the secret coin in Free For All ---
         if (globalGameState.name === 'Free For All' && globalGameState.state === 'playing' && globalGameState.coins) {
-          const realCoin = Object.values(globalGameState.coins).find(c => c.real);
+          // Find which coin is the real one
+          let realCoin = Object.values(globalGameState.coins).find(c => c.real);
+          
           if (realCoin) {
-            const px = map.player.x;
-            const py = map.player.y;
-            const angle = Math.atan2(realCoin.y - py, realCoin.x - px);
-            const dist = 70; // Distance of the arrow from the player
+            // Calculate angle from player to the real coin
+            let dx = realCoin.x - map.player.x;
+            let dy = realCoin.y - map.player.y;
+            let angle = Math.atan2(dy, dx);
             
             ctx.save();
-            ctx.translate(px + Math.cos(angle) * dist, py + Math.sin(angle) * dist);
-            ctx.rotate(angle);
+            ctx.translate(map.player.x, map.player.y); // Center on player
+            ctx.rotate(angle); // Aim at coin
             
-            ctx.fillStyle = 'var(--bright)'; 
+            // Add a cool bouncing effect
+            let bob = Math.sin(Date.now() * 0.01) * 5;
+            
+            // Draw a glowing cyan arrow
+            ctx.fillStyle = '#0eefff';
             ctx.shadowBlur = 15;
-            ctx.shadowColor = 'var(--bright)';
+            ctx.shadowColor = '#0eefff';
             ctx.beginPath();
-            ctx.moveTo(12, 0);       // Tip
-            ctx.lineTo(-10, 10);     // Bottom right
-            ctx.lineTo(-6, 0);       // Inner indent
-            ctx.lineTo(-10, -10);    // Bottom left
+            ctx.moveTo(55 + bob, 0); // Tip
+            ctx.lineTo(40 + bob, -10); // Top back
+            ctx.lineTo(40 + bob, 10);  // Bottom back
             ctx.closePath();
             ctx.fill();
+            
             ctx.restore();
           }
         }
-        // --- END ARROW ---
+        // --- END ADDED ARROW ---
+
       }
       ctx.restore();
     }

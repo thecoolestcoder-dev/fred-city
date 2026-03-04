@@ -116,11 +116,7 @@
   <div class="admin-panel-overlay" id="admin-panel-overlay" onclick="if(event.target===this) closeAdminPanel()">
     <div class="admin-modal">
       <h2>👑 ADMIN CONTROLS</h2>
-      <button class="admin-btn safe" onclick="startGlobalGame('Hide & Seek')">🙈 1. Start Hide & Seek Lobby</button>
-      <button class="admin-btn safe" onclick="startGlobalGame('Tag')">🏃 1. Start Tag Lobby</button>
-      <button class="admin-btn safe" style="border-color:var(--bright); color:var(--bright); background:rgba(14,239,255,.15);" onclick="startGlobalGame('Free For All')">⚔️ 1. Start Free For All</button>
-      
-      <button class="admin-btn" onclick="beginGlobalGame()" style="background:var(--green); color:#000; border-color:var(--green); margin-top:10px;">▶️ 2. Begin Game (You are Seeker)</button>
+      <button class="admin-btn safe" style="border-color:var(--bright); color:var(--bright); background:rgba(14,239,255,.15);" onclick="startGlobalGame()">⚔️ Start Free For All</button>
       <button class="admin-btn" onclick="endGlobalGame()" style="margin-top:10px;">🛑 End Current Game</button>
       
       <h3 style="color:#fff;font-family:'Fredoka One',cursive;margin:1rem 0 .5rem;font-size:1rem;">Online Players</h3>
@@ -237,7 +233,6 @@
       <button class="map-back-btn" onclick="doLogout()">← Logout</button>
       <button class="map-back-btn" id="music-btn" onclick="toggleMusic()" style="border-color:var(--yellow); color:var(--yellow);">🔇 Music</button>
       <button class="map-back-btn" id="nav-map-btn" onclick="openTeleportMenu()">🗺️ Map</button>
-      <button class="map-back-btn" id="nav-leave-btn" style="display:none;background:#ff5566;color:#fff;border-color:#fff;" onclick="leaveGlobalGame()">🚪 Leave Game</button>
       <button class="admin-hdr-btn" id="admin-hdr-btn" onclick="openAdminPanel()">👑 Admin</button>
       
       <div class="map-header-title">🗺 The World</div>
@@ -411,21 +406,17 @@
       G.currentMap = mapId;
       map.player.x = startX;
       map.player.y = startY;
-      G.hsCaught = false;
       updateNavButtons();
       saveUserData();
     }
 
     function updateNavButtons() {
       const mapBtn = document.getElementById('nav-map-btn');
-      const leaveBtn = document.getElementById('nav-leave-btn');
-      if(mapBtn && leaveBtn) {
+      if(mapBtn) {
         if(G.currentMap === 'main') {
           mapBtn.style.display = 'block';
-          leaveBtn.style.display = 'none';
         } else {
           mapBtn.style.display = 'none';
-          leaveBtn.style.display = 'block';
         }
       }
     }
@@ -515,51 +506,32 @@
       closeAdminPanel();
     }
 
-    function startGlobalGame(gameName) {
+    function startGlobalGame() {
       if(!firebaseReady) return;
-      let extraData = {};
-      if (gameName === 'Free For All') {
-        extraData.coinX = 200 + Math.random() * (MAP_W - 400); // Random spot
-        extraData.coinY = 200 + Math.random() * (MAP_H - 400);
-        extraData.coinCollected = false;
-      }
-      db.ref('global_game').set({ active: true, name: gameName, seeker: null, seekerName: '', state: 'lobby', hidersLeft: 0, startTime: Date.now(), ...extraData });
-      db.ref('users').once('value', snap => {
-        snap.forEach(child => { db.ref('users/' + child.key).update({ hsCaught: false }); });
+      
+      let coinX = 200 + Math.random() * (MAP_W - 400); // Random spot
+      let coinY = 200 + Math.random() * (MAP_H - 400);
+      
+      // Setting state directly to 'playing' bypasses any lobby phase
+      db.ref('global_game').set({ 
+        active: true, 
+        name: 'Free For All', 
+        state: 'playing', 
+        startTime: Date.now(),
+        coinX: coinX,
+        coinY: coinY,
+        coinCollected: false
       });
-      Object.keys(otherPlayers).forEach(uid => {
-        db.ref('invites/' + uid).push().set({
-          from: G.uid, fromName: '👑 Admin', type: 'global_game', game: gameName, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP
-        });
-      });
-      showToast(`Started ${gameName} lobby! Players are joining.`);
-      if(gameName !== 'Free For All') switchMap('minigame_map', 6000, 6000);
-    }
-
-    function beginGlobalGame() {
-      if(!firebaseReady) return;
-      let totalHiders = Object.keys(otherPlayers).filter(id => otherPlayers[id].currentMap === 'minigame_map').length;
-      if (globalGameState.name === 'Free For All') {
-        db.ref('global_game').update({ state: 'playing', startTime: Date.now() });
-        showToast("Free For All Started!");
-      } else {
-        db.ref('global_game').update({ state: 'playing', hidersLeft: totalHiders, seeker: G.uid, seekerName: G.username, startTime: Date.now() });
-        showToast("Game Started! YOU are the Seeker!");
-      }
+      
+      showToast(`Started Free For All!`);
       closeAdminPanel();
     }
 
     function endGlobalGame() {
       if(!firebaseReady) return;
       db.ref('global_game').set({ active: false });
-      switchMap('main', 1200, 1300);
       showToast("Global game ended.");
       closeAdminPanel();
-    }
-
-    function leaveGlobalGame() {
-      if (G.email === 'masonlevihess@gmail.com') { endGlobalGame(); }
-      else { switchMap('main', 1200, 1300); showToast("Left the game map."); }
     }
 
     // FIREBASE
@@ -581,11 +553,11 @@
       skin:'none', color:'#ffffff', hat:'none', wallpaper:'default',
       ownedSkins:['none'], ownedHats:['none'], ownedColors:['#ffffff'], ownedWalls:['default'],
       couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin',
-      plotId: null, currentMap: 'main', kick: false, hsCaught: false
+      plotId: null, currentMap: 'main', kick: false
     };
 
     let otherPlayers = {};
-    let globalGameState = { active: false, seeker: null, seekerName: '', state: 'lobby', name: '', hidersLeft: 0 };
+    let globalGameState = { active: false, state: 'lobby', name: '' };
 
     const SHOP_SKINS=[
       {id:'none',name:'Default',price:0,emoji:'·'},
@@ -687,7 +659,7 @@
         try{
           setAuthMsg('Creating account...');
           const cred=await auth.createUserWithEmailAndPassword(email,pass);
-          const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,skin:'none',color:'#ffffff',hat:'none',wallpaper:'default',ownedSkins:['none'],ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', hsCaught: false, couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null};
+          const data={username, email, coins:100,wins:0,battles:0,coinsEarned:0,skin:'none',color:'#ffffff',hat:'none',wallpaper:'default',ownedSkins:['none'],ownedHats:['none'],ownedColors:['#ffffff'],ownedWalls:['default'],online:true, x: 1200, y: 1300, currentMap: 'main', couchColor:'#5544aa', rugColor:'#ff4488', showPlants:true, posterStyle:'penguin', plotId: null};
           await db.ref('users/' + cred.user.uid).set(data);
           setAuthMsg('Account created!',true);
           showScreen('screen-map'); showToast('Welcome to the world!');
@@ -719,12 +691,11 @@
     async function saveUserData(){
       if(!firebaseReady||!G.uid||G.uid.startsWith('demo'))return;
       try {
-        await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,skin:G.skin,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedSkins:G.ownedSkins,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap, hsCaught: G.hsCaught});
+        await db.ref('users/' + G.uid).update({username:G.username,coins:G.coins,wins:G.wins,battles:G.battles,coinsEarned:G.coinsEarned,skin:G.skin,color:G.color,hat:G.hat,wallpaper:G.wallpaper,ownedSkins:G.ownedSkins,ownedHats:G.ownedHats,ownedColors:G.ownedColors,ownedWalls:G.ownedWalls, couchColor:G.couchColor, rugColor:G.rugColor,showPlants:G.showPlants, posterStyle:G.posterStyle, plotId: G.plotId || null, currentMap: G.currentMap});
       } catch(e){}
     }
 
     let prevGameState = null;
-    let prevSeeker = null;
 
     function listenToPlayers() {
       if(!firebaseReady) return;
@@ -741,41 +712,18 @@
         let data = snap.val();
         if(data && data.active) {
           globalGameState = data;
-          if(globalGameState.seeker && globalGameState.seeker !== prevSeeker) {
-            showToast("🚨 SEEKER CHOSEN: " + (globalGameState.seekerName || 'Someone') + "!");
-            prevSeeker = globalGameState.seeker;
-          }
 
           if(globalGameState.state === 'playing' && prevGameState !== 'playing') {
             if (globalGameState.name === 'Free For All') {
               showToast("⚔️ FREE FOR ALL STARTED! FIND THE BLUE COIN!");
-            } else {
-              showToast("🏃‍♂️💨 GAME STARTED! RUN AND HIDE!");
-            }
-          }
-
-          if(globalGameState.name === 'Hide & Seek' && globalGameState.state === 'playing') {
-            if (globalGameState.hidersLeft === 1 && G.currentMap === 'minigame_map') {
-              let winnerName = "Someone";
-              if (!G.hsCaught && G.uid !== globalGameState.seeker) winnerName = G.username;
-              else {
-                Object.keys(otherPlayers).forEach(id => {
-                  if(!otherPlayers[id].hsCaught && id !== globalGameState.seeker) winnerName = otherPlayers[id].username;
-                });
-              }
-              alert(`🏆 HIDE AND SEEK OVER! ${winnerName} won the game!`);
-              if (G.email === 'masonlevihess@gmail.com') endGlobalGame();
+              // Automatically warp everyone to the main map if they are somehow somewhere else
+              if (G.currentMap !== 'main') switchMap('main', 1200, 1300);
             }
           }
           prevGameState = globalGameState.state;
         } else {
-          globalGameState = { active: false, seeker: null, state: 'lobby' };
-          if(G.currentMap === 'minigame_map') {
-            switchMap('main', 1200, 1300);
-            showToast("The game has ended.");
-          }
+          globalGameState = { active: false, state: 'lobby', name: '' };
           prevGameState = null;
-          prevSeeker = null;
         }
       });
 
@@ -787,7 +735,7 @@
           if (docId !== G.uid && d.online === true) {
             currentIds.add(docId);
             if (!otherPlayers[docId]) {
-              otherPlayers[docId] = { ...d, targetX: d.x || 1200, targetY: d.y || 1300, x: d.x || 1200, y: d.y || 1300, lastShotT: 0 };
+              otherPlayers[docId] = { ...d, targetX: d.x || 1200, targetY: d.y || 1300, x: d.x || 1200, y: d.y || 1300 };
             } else {
               otherPlayers[docId].targetX = d.x !== undefined ? d.x : otherPlayers[docId].x;
               otherPlayers[docId].targetY = d.y !== undefined ? d.y : otherPlayers[docId].y;
@@ -797,7 +745,6 @@
               otherPlayers[docId].color = d.color;
               otherPlayers[docId].emote = d.emote;
               otherPlayers[docId].currentMap = d.currentMap || 'main';
-              otherPlayers[docId].hsCaught = d.hsCaught || false;
               otherPlayers[docId].emoteExpires = d.emoteExpires;
               
               // Sync map bullets
@@ -820,7 +767,7 @@
       clearInterval(_syncTimer);
       _syncTimer = setInterval(() => {
         if (document.getElementById('screen-map').classList.contains('active') && G.uid && !G.uid.startsWith('demo')) {
-          db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap, hsCaught: G.hsCaught }).catch(e => console.log(e));
+          db.ref('users/' + G.uid).update({ x: Math.round(map.player.x), y: Math.round(map.player.y), currentMap: G.currentMap }).catch(e => console.log(e));
         }
       }, 100);
     }
@@ -1148,38 +1095,13 @@
       const p=map.player;
       if(speedBoostTimer > 0) { speedBoostTimer--; p.speed = 9; } else { p.speed = 4.5; }
 
-      if(globalGameState.active && globalGameState.state === 'playing') {
-        if(G.currentMap === 'minigame_map') {
-          if(globalGameState.seeker === G.uid) {
-            Object.keys(otherPlayers).forEach(id => {
-              let op = otherPlayers[id];
-              if(op.currentMap === 'minigame_map' && !op.hsCaught) {
-                let dist = Math.sqrt(Math.pow(p.x - op.x, 2) + Math.pow(p.y - op.y, 2));
-                if (dist < 60) {
-                  if(globalGameState.name === 'Hide & Seek') {
-                    db.ref('users/' + id).update({ hsCaught: true });
-                    db.ref('global_game').transaction(gg => { if(gg) gg.hidersLeft--; return gg; });
-                    showToast("You caught " + op.username + "!");
-                  } else if (globalGameState.name === 'Tag') {
-                    db.ref('global_game').update({ seeker: id, seekerName: op.username });
-                    showToast("You tagged " + op.username + "!");
-                  }
-                }
-              }
-            });
-          } else {
-            if(G.hsCaught && globalGameState.name === 'Hide & Seek') { p.x = 6000; p.y = 6000; p.speed = 0; }
-          }
-        }
-      }
-
       if(map.keys['w']||map.keys['arrowup']) p.y-=p.speed;
       if(map.keys['s']||map.keys['arrowdown']) p.y+=p.speed;
       if(map.keys['a']||map.keys['arrowleft']) p.x-=p.speed;
       if(map.keys['d']||map.keys['arrowright']) p.x+=p.speed;
 
-      const curW = G.currentMap === 'minigame_map' ? 12000 : MAP_W;
-      const curH = G.currentMap === 'minigame_map' ? 12000 : MAP_H;
+      const curW = MAP_W;
+      const curH = MAP_H;
 
       p.x=Math.max(p.size,Math.min(curW-p.size,p.x));
       p.y=Math.max(p.size,Math.min(curH-p.size,p.y));
@@ -1289,178 +1211,149 @@
       }
     }
 
-    let hsSpots = []; let seedNum = 12345;
-    for(let i=0; i<350; i++) {
-      hsSpots.push({ x: getSeededRandom(seedNum++) * 12000, y: getSeededRandom(seedNum++) * 12000, type: getSeededRandom(seedNum++) > 0.4 ? 'tree' : 'bush' });
-    }
-
     function renderMap(){
       const ctx=map.ctx; if(!ctx)return;
       ctx.save(); ctx.translate(-map.cam.x,-map.cam.y);
 
-      if (G.currentMap === 'minigame_map') {
-        ctx.fillStyle='#132616'; ctx.fillRect(0,0,12000,12000);
-        if(globalGameState.name === 'Hide & Seek') {
-          ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(5800, 5800, 400, 400);
-          ctx.strokeStyle = '#ff5566'; ctx.lineWidth=5; ctx.strokeRect(5800, 5800, 400, 400);
-          ctx.font = "bold 30px 'Nunito',sans-serif"; ctx.fillStyle='#ff5566'; ctx.textAlign='center'; ctx.fillText("JAIL", 6000, 6000);
-        }
-        hsSpots.forEach(s => {
-          if(s.type === 'tree') { ctx.fillStyle='#2b1a10'; ctx.fillRect(s.x-10, s.y+10, 20, 30); }
-          else { ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(s.x, s.y+20, 40, 20, 0, 0, Math.PI*2); ctx.fill(); }
-        });
-        drawAllPlayers(ctx);
-        hsSpots.forEach(s => {
-          if(s.type === 'tree') {
-            ctx.fillStyle='#1a4a2a'; ctx.beginPath(); ctx.moveTo(s.x, s.y-50); ctx.lineTo(s.x+40, s.y+15); ctx.lineTo(s.x-40, s.y+15); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(s.x, s.y-80); ctx.lineTo(s.x+30, s.y-10); ctx.lineTo(s.x-30, s.y-10); ctx.fill();
-          } else {
-            ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(s.x, s.y, 45, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(s.x-15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(s.x+15, s.y-10, 30, 0, Math.PI*2); ctx.fill();
-          }
-        });
-      } else {
-        ctx.fillStyle='#a2d149'; ctx.fillRect(0,0,MAP_W,MAP_H);
+      ctx.fillStyle='#a2d149'; ctx.fillRect(0,0,MAP_W,MAP_H);
+      
+      ctx.fillStyle = 'rgba(255, 230, 100, 0.4)'; ctx.strokeStyle = '#ffe566'; ctx.lineWidth = 4;
+      BOOST_PADS.forEach(b => {
+        ctx.beginPath(); ctx.arc(b.x, b.y, 40, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = "bold 30px Arial"; ctx.textAlign = 'center'; ctx.fillText("⏩", b.x, b.y + 10);
+      });
+
+      ctx.fillStyle='#00aaff'; ctx.beginPath(); ctx.ellipse(2000, 1000, 400, 250, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#22aa44'; ctx.beginPath(); ctx.arc(1800, 950, 30, 0, Math.PI * 1.8); ctx.fill();
+      ctx.beginPath(); ctx.arc(2100, 1050, 25, 0, Math.PI * 1.8); ctx.fill();
+
+      ctx.fillStyle='#555555'; ctx.beginPath(); ctx.moveTo(200, 600); ctx.lineTo(700, 100); ctx.lineTo(1200, 600); ctx.fill();
+      ctx.fillStyle='#dddddd'; ctx.beginPath(); ctx.moveTo(500, 300); ctx.lineTo(700, 100); ctx.lineTo(900, 300); ctx.lineTo(800, 340); ctx.lineTo(600, 280); ctx.fill();
+
+      ctx.strokeStyle='#d5edf9'; ctx.lineWidth=60; ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath();
+      ctx.moveTo(1200, 4000); ctx.lineTo(1200, 500);
+      ctx.moveTo(1200, 1100); ctx.lineTo(200, 1095);
+      ctx.moveTo(1200, 850); ctx.lineTo(200, 850);
+      ctx.moveTo(1200, 850); ctx.lineTo(6000, 850);
+      ctx.moveTo(3500, 850); ctx.lineTo(3500, 5000);
+      ctx.stroke();
+
+      ctx.fillStyle = '#222'; ctx.fillRect(1150, 420, 100, 80);
+      ctx.fillStyle = '#444'; ctx.fillRect(1160, 430, 80, 70);
+      ctx.fillStyle = '#00aaff'; ctx.beginPath(); ctx.arc(1220, 470, 5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = "bold 16px 'Nunito',sans-serif"; ctx.textAlign = 'center'; ctx.fillText("ARENA", 1200, 415);
+
+      ctx.fillStyle = '#FFD54F'; ctx.fillRect(2000, 800, 120, 100);
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(2000, 800, 120, 100);
+      ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.moveTo(1990, 800); ctx.lineTo(2060, 750); ctx.lineTo(2130, 800); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#5D4037'; ctx.fillRect(2048, 860, 24, 40);
+      ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText("Fred's House", 2060, 915);
+
+      HOUSE_PLOTS.forEach(h => {
+        const owner = mapPlots[h.id];
+        const isMine = owner && owner.uid === G.uid;
+        const houseColor = owner ? (isMine ? '#FFD54F' : '#D7CCC8') : '#CFD8DC';
         
-        ctx.fillStyle = 'rgba(255, 230, 100, 0.4)'; ctx.strokeStyle = '#ffe566'; ctx.lineWidth = 4;
-        BOOST_PADS.forEach(b => {
-          ctx.beginPath(); ctx.arc(b.x, b.y, 40, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.font = "bold 30px Arial"; ctx.textAlign = 'center'; ctx.fillText("⏩", b.x, b.y + 10);
-        });
+        ctx.fillStyle = houseColor; ctx.fillRect(h.x, h.y, h.w, h.h);
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(h.x, h.y, h.w, h.h);
+        ctx.fillStyle = '#8B0000'; ctx.beginPath(); ctx.moveTo(h.x-10, h.y); ctx.lineTo(h.x+h.w/2, h.y-50); ctx.lineTo(h.x+h.w+10, h.y); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#5D4037'; ctx.fillRect(h.x+h.w/2-12, h.y+h.h-40, 24, 40);
+        ctx.fillStyle = '#87CEEB'; ctx.fillRect(h.x+15, h.y+30, 25, 25); ctx.fillRect(h.x+h.w-40, h.y+30, 25, 25);
+        
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(h.x+27.5, h.y+30); ctx.lineTo(h.x+27.5, h.y+55); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(h.x+15, h.y+42.5); ctx.lineTo(h.x+40, h.y+42.5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(h.x+h.w-27.5, h.y+30); ctx.lineTo(h.x+h.w-27.5, h.y+55); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(h.x+h.w-40, h.y+42.5); ctx.lineTo(h.x+h.w-15, h.y+42.5); ctx.stroke();
+        
+        ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center';
+        const label = owner ? (isMine ? "Your House" : owner.username) : "Empty";
+        ctx.fillText(label, h.x+h.w/2, h.y+h.h+15);
+      });
 
-        ctx.fillStyle='#00aaff'; ctx.beginPath(); ctx.ellipse(2000, 1000, 400, 250, 0, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#22aa44'; ctx.beginPath(); ctx.arc(1800, 950, 30, 0, Math.PI * 1.8); ctx.fill();
-        ctx.beginPath(); ctx.arc(2100, 1050, 25, 0, Math.PI * 1.8); ctx.fill();
-
-        ctx.fillStyle='#555555'; ctx.beginPath(); ctx.moveTo(200, 600); ctx.lineTo(700, 100); ctx.lineTo(1200, 600); ctx.fill();
-        ctx.fillStyle='#dddddd'; ctx.beginPath(); ctx.moveTo(500, 300); ctx.lineTo(700, 100); ctx.lineTo(900, 300); ctx.lineTo(800, 340); ctx.lineTo(600, 280); ctx.fill();
-
-        ctx.strokeStyle='#d5edf9'; ctx.lineWidth=60; ctx.lineCap='round'; ctx.lineJoin='round';
-        ctx.beginPath();
-        ctx.moveTo(1200, 4000); ctx.lineTo(1200, 500);
-        ctx.moveTo(1200, 1100); ctx.lineTo(200, 1095);
-        ctx.moveTo(1200, 850); ctx.lineTo(200, 850);
-        ctx.moveTo(1200, 850); ctx.lineTo(6000, 850);
-        ctx.moveTo(3500, 850); ctx.lineTo(3500, 5000);
-        ctx.stroke();
-
-        ctx.fillStyle = '#222'; ctx.fillRect(1150, 420, 100, 80);
-        ctx.fillStyle = '#444'; ctx.fillRect(1160, 430, 80, 70);
-        ctx.fillStyle = '#00aaff'; ctx.beginPath(); ctx.arc(1220, 470, 5, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.font = "bold 16px 'Nunito',sans-serif"; ctx.textAlign = 'center'; ctx.fillText("ARENA", 1200, 415);
-
-        ctx.fillStyle = '#FFD54F'; ctx.fillRect(2000, 800, 120, 100);
-        ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(2000, 800, 120, 100);
-        ctx.fillStyle = '#ffaa00'; ctx.beginPath(); ctx.moveTo(1990, 800); ctx.lineTo(2060, 750); ctx.lineTo(2130, 800); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#5D4037'; ctx.fillRect(2048, 860, 24, 40);
-        ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText("Fred's House", 2060, 915);
-
-        HOUSE_PLOTS.forEach(h => {
-          const owner = mapPlots[h.id];
-          const isMine = owner && owner.uid === G.uid;
-          const houseColor = owner ? (isMine ? '#FFD54F' : '#D7CCC8') : '#CFD8DC';
-          
-          ctx.fillStyle = houseColor; ctx.fillRect(h.x, h.y, h.w, h.h);
-          ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(h.x, h.y, h.w, h.h);
-          ctx.fillStyle = '#8B0000'; ctx.beginPath(); ctx.moveTo(h.x-10, h.y); ctx.lineTo(h.x+h.w/2, h.y-50); ctx.lineTo(h.x+h.w+10, h.y); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#5D4037'; ctx.fillRect(h.x+h.w/2-12, h.y+h.h-40, 24, 40);
-          ctx.fillStyle = '#87CEEB'; ctx.fillRect(h.x+15, h.y+30, 25, 25); ctx.fillRect(h.x+h.w-40, h.y+30, 25, 25);
-          
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.moveTo(h.x+27.5, h.y+30); ctx.lineTo(h.x+27.5, h.y+55); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(h.x+15, h.y+42.5); ctx.lineTo(h.x+40, h.y+42.5); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(h.x+h.w-27.5, h.y+30); ctx.lineTo(h.x+h.w-27.5, h.y+55); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(h.x+h.w-40, h.y+42.5); ctx.lineTo(h.x+h.w-15, h.y+42.5); ctx.stroke();
-          
-          ctx.font="12px 'Nunito',sans-serif"; ctx.fillStyle='#555'; ctx.textAlign='center';
-          const label = owner ? (isMine ? "Your House" : owner.username) : "Empty";
-          ctx.fillText(label, h.x+h.w/2, h.y+h.h+15);
-        });
-
-        for(const z of ZONES){
-          if(z.id === 'fredhouse') continue;
-          const active=map.activeZone===z;
-          ctx.fillStyle=z.floor; ctx.fillRect(z.x,z.y,z.w,z.h);
-          ctx.strokeStyle=active?'#fff':z.color; ctx.lineWidth=active?5:3;
-          if(active){ctx.shadowBlur=20;ctx.shadowColor=z.color;}
-          ctx.strokeRect(z.x,z.y,z.w,z.h); ctx.shadowBlur=0;
-          if(z.id !== 'fishing' && z.id !== 'mining') {
-            ctx.fillStyle='#333'; ctx.font="bold 20px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillText(z.name,z.x+z.w/2,z.y+z.h/2-4);
-            ctx.font="14px 'Nunito',sans-serif"; ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText('(Walk in)',z.x+z.w/2,z.y+z.h/2+16);
-          }
+      for(const z of ZONES){
+        if(z.id === 'fredhouse') continue;
+        const active=map.activeZone===z;
+        ctx.fillStyle=z.floor; ctx.fillRect(z.x,z.y,z.w,z.h);
+        ctx.strokeStyle=active?'#fff':z.color; ctx.lineWidth=active?5:3;
+        if(active){ctx.shadowBlur=20;ctx.shadowColor=z.color;}
+        ctx.strokeRect(z.x,z.y,z.w,z.h); ctx.shadowBlur=0;
+        if(z.id !== 'fishing' && z.id !== 'mining') {
+          ctx.fillStyle='#333'; ctx.font="bold 20px 'Nunito',sans-serif"; ctx.textAlign='center'; ctx.fillText(z.name,z.x+z.w/2,z.y+z.h/2-4);
+          ctx.font="14px 'Nunito',sans-serif"; ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillText('(Walk in)',z.x+z.w/2,z.y+z.h/2+16);
         }
+      }
 
-        MAIN_FLORA.forEach(f => {
-          if (f.type === 'tree') {
-            ctx.fillStyle='#5D4037'; ctx.fillRect(f.x-6,f.y+10,12,20);
-            ctx.fillStyle='#2E7D32'; ctx.beginPath(); ctx.moveTo(f.x, f.y-30); ctx.lineTo(f.x+25, f.y+10); ctx.lineTo(f.x-25, f.y+10); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(f.x, f.y-45); ctx.lineTo(f.x+20, f.y-5); ctx.lineTo(f.x-20, f.y-5); ctx.fill();
-            ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.moveTo(f.x, f.y-45); ctx.lineTo(f.x+10, f.y-25); ctx.lineTo(f.x-10, f.y-25); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(f.x, f.y-30); ctx.lineTo(f.x+15, f.y-10); ctx.lineTo(f.x-15, f.y-10); ctx.fill();
-          } else {
-            ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(f.x, f.y, 35, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(f.x-10, f.y-10, 20, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(f.x+10, f.y-10, 20, 0, Math.PI*2); ctx.fill();
-          }
-        });
+      MAIN_FLORA.forEach(f => {
+        if (f.type === 'tree') {
+          ctx.fillStyle='#5D4037'; ctx.fillRect(f.x-6,f.y+10,12,20);
+          ctx.fillStyle='#2E7D32'; ctx.beginPath(); ctx.moveTo(f.x, f.y-30); ctx.lineTo(f.x+25, f.y+10); ctx.lineTo(f.x-25, f.y+10); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(f.x, f.y-45); ctx.lineTo(f.x+20, f.y-5); ctx.lineTo(f.x-20, f.y-5); ctx.fill();
+          ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.moveTo(f.x, f.y-45); ctx.lineTo(f.x+10, f.y-25); ctx.lineTo(f.x-10, f.y-25); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(f.x, f.y-30); ctx.lineTo(f.x+15, f.y-10); ctx.lineTo(f.x-15, f.y-10); ctx.fill();
+        } else {
+          ctx.fillStyle='#1e592f'; ctx.beginPath(); ctx.arc(f.x, f.y, 35, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle='#25733b'; ctx.beginPath(); ctx.arc(f.x-10, f.y-10, 20, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(f.x+10, f.y-10, 20, 0, Math.PI*2); ctx.fill();
+        }
+      });
 
-        mapCoins.forEach(c => {
-          c.bob += 0.05; let by = Math.sin(c.bob) * 5;
-          ctx.fillStyle = '#ffe566'; ctx.beginPath(); ctx.arc(c.x, c.y + by, 15, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = '#cc8800'; ctx.lineWidth = 2; ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.font = "bold 14px Arial"; ctx.textAlign = 'center'; ctx.fillText("🪙", c.x, c.y + by + 5);
-        });
+      mapCoins.forEach(c => {
+        c.bob += 0.05; let by = Math.sin(c.bob) * 5;
+        ctx.fillStyle = '#ffe566'; ctx.beginPath(); ctx.arc(c.x, c.y + by, 15, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#cc8800'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = "bold 14px Arial"; ctx.textAlign = 'center'; ctx.fillText("🪙", c.x, c.y + by + 5);
+      });
 
-        quest.items.forEach(item => {
-          let scale = 1 + Math.sin(Date.now() * 0.005) * 0.15;
-          ctx.save(); ctx.translate(item.x, item.y); ctx.scale(scale, scale);
-          ctx.shadowBlur = 20; ctx.shadowColor = '#66d6ff'; ctx.font = "30px Arial"; ctx.textAlign = 'center'; ctx.fillText(item.emoji, 0, 10);
+      quest.items.forEach(item => {
+        let scale = 1 + Math.sin(Date.now() * 0.005) * 0.15;
+        ctx.save(); ctx.translate(item.x, item.y); ctx.scale(scale, scale);
+        ctx.shadowBlur = 20; ctx.shadowColor = '#66d6ff'; ctx.font = "30px Arial"; ctx.textAlign = 'center'; ctx.fillText(item.emoji, 0, 10);
+        ctx.restore();
+      });
+
+      drawAllPlayers(ctx);
+      
+      // Render Map Projectiles
+      mapOrbs.forEach(o => {
+        ctx.shadowBlur = 10; ctx.shadowColor = '#0eefff'; ctx.fillStyle = '#66d6ff';
+        ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Render FFA Blue Coin & Navigation Arrow
+      if (globalGameState.active && globalGameState.state === 'playing' && globalGameState.name === 'Free For All' && !globalGameState.coinCollected) {
+        const cx = globalGameState.coinX, cy = globalGameState.coinY;
+        
+        // Draw the Blue Coin
+        ctx.shadowBlur = 20; ctx.shadowColor = '#00ffff'; ctx.fillStyle = '#0055ff';
+        ctx.beginPath(); ctx.arc(cx, cy + Math.sin(Date.now()*0.005)*5, 20, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.font = "bold 20px Arial"; ctx.textAlign = 'center'; ctx.fillText("⭐", cx, cy + Math.sin(Date.now()*0.005)*5 + 7);
+        ctx.shadowBlur = 0;
+
+        // Draw the Tracker Arrow
+        const px = map.player.x, py = map.player.y;
+        const angle = Math.atan2(cy - py, cx - px);
+        const dist = Math.sqrt(Math.pow(cx - px, 2) + Math.pow(cy - py, 2));
+
+        if (dist > 150) { // Hide arrow if you are basically standing on it
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle);
+          ctx.fillStyle = 'rgba(14, 239, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(80, 0); // Arrow Tip
+          ctx.lineTo(60, -15);
+          ctx.lineTo(60, -5);
+          ctx.lineTo(40, -5);
+          ctx.lineTo(40, 5);
+          ctx.lineTo(60, 5);
+          ctx.lineTo(60, 15);
+          ctx.closePath();
+          ctx.fill();
           ctx.restore();
-        });
-
-        drawAllPlayers(ctx);
-        
-        // Render Map Projectiles
-        mapOrbs.forEach(o => {
-          ctx.shadowBlur = 10; ctx.shadowColor = '#0eefff'; ctx.fillStyle = '#66d6ff';
-          ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill();
-          ctx.shadowBlur = 0;
-        });
-
-        // Render FFA Blue Coin & Navigation Arrow
-        if (globalGameState.active && globalGameState.state === 'playing' && globalGameState.name === 'Free For All' && !globalGameState.coinCollected) {
-          const cx = globalGameState.coinX, cy = globalGameState.coinY;
-          
-          // Draw the Blue Coin
-          ctx.shadowBlur = 20; ctx.shadowColor = '#00ffff'; ctx.fillStyle = '#0055ff';
-          ctx.beginPath(); ctx.arc(cx, cy + Math.sin(Date.now()*0.005)*5, 20, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.font = "bold 20px Arial"; ctx.textAlign = 'center'; ctx.fillText("⭐", cx, cy + Math.sin(Date.now()*0.005)*5 + 7);
-          ctx.shadowBlur = 0;
-
-          // Draw the Tracker Arrow
-          const px = map.player.x, py = map.player.y;
-          const angle = Math.atan2(cy - py, cx - px);
-          const dist = Math.sqrt(Math.pow(cx - px, 2) + Math.pow(cy - py, 2));
-
-          if (dist > 150) { // Hide arrow if you are basically standing on it
-            ctx.save();
-            ctx.translate(px, py);
-            ctx.rotate(angle);
-            ctx.fillStyle = 'rgba(14, 239, 255, 0.8)';
-            ctx.beginPath();
-            ctx.moveTo(80, 0); // Arrow Tip
-            ctx.lineTo(60, -15);
-            ctx.lineTo(60, -5);
-            ctx.lineTo(40, -5);
-            ctx.lineTo(40, 5);
-            ctx.lineTo(60, 5);
-            ctx.lineTo(60, 15);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-          }
         }
       }
       ctx.restore();
@@ -1469,39 +1362,20 @@
     function drawAllPlayers(ctx) {
       Object.values(otherPlayers).forEach(p => {
         if(p.x !== undefined && p.y !== undefined && p.currentMap === G.currentMap) {
-          if(p.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
           drawPlayerSprite(ctx, p.x, p.y, 60, p);
-          let showName = true;
-          if (G.currentMap !== 'main' && globalGameState.state === 'playing') showName = false;
-          if (globalGameState.active && globalGameState.seeker === p.uid) showName = true;
-          if(showName) {
-            ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center';
-            ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333'; ctx.fillText(p.username || 'Player', p.x, p.y-40);
-          }
-          if(globalGameState.active && globalGameState.seeker === p.uid) {
-            ctx.fillStyle = '#ff5566'; ctx.font="900 16px 'Nunito',sans-serif"; ctx.fillText("🔴 SEEKER", p.x, p.y-60);
-          }
+          ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center';
+          ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333'; ctx.fillText(p.username || 'Player', p.x, p.y-40);
           if (p.emote && p.emoteExpires > Date.now()) { ctx.font = "28px Arial"; ctx.fillText(p.emote, p.x, p.y - 80); }
-          ctx.globalAlpha = 1.0;
         }
       });
-      if(G.hsCaught && G.currentMap === 'minigame_map' && globalGameState.name === 'Hide & Seek') { ctx.globalAlpha = 0.4; }
       drawPlayerSprite(ctx, map.player.x, map.player.y, 60, G);
       
-      let showMyName = true;
-      if (G.currentMap !== 'main' && globalGameState.state === 'playing') showMyName = false;
-      if (globalGameState.active && globalGameState.seeker === G.uid) showMyName = true;
-      if(showMyName) {
-        ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center';
-        ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333'; ctx.fillText(G.username, map.player.x, map.player.y-40);
-      }
-      if(globalGameState.active && globalGameState.seeker === G.uid) {
-        ctx.fillStyle = '#ff5566'; ctx.font="900 16px 'Nunito',sans-serif"; ctx.fillText("🔴 SEEKER (YOU)", map.player.x, map.player.y-60);
-      }
+      ctx.font="bold 14px 'Nunito',sans-serif"; ctx.textAlign='center';
+      ctx.fillStyle=G.currentMap!=='main'?'#fff':'#333'; ctx.fillText(G.username, map.player.x, map.player.y-40);
+
       if (map.player.emoteTimer > 0) {
         map.player.emoteTimer--; ctx.font = "28px Arial"; ctx.fillText(map.player.emote, map.player.x, map.player.y - 80);
       }
-      ctx.globalAlpha = 1.0;
     }
 
     function startFishing() {
@@ -1668,7 +1542,7 @@
       } catch(e) { list.innerHTML=`<div class="no-online">Error: ${e.message}</div>`; }
     }
 
-    let _pendingInviteId=null, _inviteUnsubscribe=null, _inviteTimeout=null, _inviteIsGlobal = false, _inviteGameName = '';
+    let _pendingInviteId=null, _inviteUnsubscribe=null, _inviteTimeout=null;
 
     function startInviteListener(){
       if(!firebaseReady||!G.uid||G.uid.startsWith('demo')) return;
@@ -1711,16 +1585,8 @@
 
     function showInviteNotification(invId,inv){
       _pendingInviteId=invId;
-      if(inv.type === 'global_game') {
-        _inviteIsGlobal = true;
-        _inviteGameName = inv.game;
-        document.getElementById('invite-notif-title').textContent = `🎮 NEW GAME: ${inv.game}!`;
-        document.getElementById('invite-notif-sub').textContent = `${inv.fromName} has started a game! Click accept to join.`;
-      } else {
-        _inviteIsGlobal = false;
-        document.getElementById('invite-notif-title').textContent = "⚔️ Battle Challenge!";
-        document.getElementById('invite-notif-sub').textContent = `${inv.fromName||'Someone'} invited you to a battle!`;
-      }
+      document.getElementById('invite-notif-title').textContent = "⚔️ Battle Challenge!";
+      document.getElementById('invite-notif-sub').textContent = `${inv.fromName||'Someone'} invited you to a battle!`;
       document.getElementById('invite-notif').classList.add('show');
       setTimeout(()=>{ if(document.getElementById('invite-notif').classList.contains('show')) respondInvite(false); }, 25000);
     }
@@ -1730,27 +1596,12 @@
       if(!_pendingInviteId) return;
       const id = _pendingInviteId; _pendingInviteId = null;
       if (firebaseReady) {
-        if (_inviteIsGlobal) {
-          if (accept) {
-            await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e));
-            if (_inviteGameName !== 'Free For All') {
-              showToast('🌲 Teleporting to the map...');
-              switchMap('minigame_map', 6000, 6000);
-            } else {
-              showToast('⚔️ Ready for Free For All!');
-              if (G.currentMap !== 'main') switchMap('main', 1200, 1300);
-            }
-          } else {
-            await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e));
-          }
+        if (accept) {
+          await db.ref('battles/' + id).set({ p1: { x: 100, y: 500/2, hp: 100 }, p2: { x: 780-100, y: 500/2, hp: 100 }, active: true });
+          await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e));
+          showToast('⚔️ Battle accepted!'); showScreen('screen-battle'); initBattle('pvp', id, false);
         } else {
-          if (accept) {
-            await db.ref('battles/' + id).set({ p1: { x: 100, y: 500/2, hp: 100 }, p2: { x: 780-100, y: 500/2, hp: 100 }, active: true });
-            await db.ref('invites/' + G.uid + '/' + id).update({status:'accepted'}).catch(e => console.log(e));
-            showToast('⚔️ Battle accepted!'); showScreen('screen-battle'); initBattle('pvp', id, false);
-          } else {
-            await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); showToast('Declined');
-          }
+          await db.ref('invites/' + G.uid + '/' + id).update({status:'declined'}).catch(e => console.log(e)); showToast('Declined');
         }
       }
     }
